@@ -56,5 +56,5 @@ externalPort = 8000
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["bash", "-c", "cd backend && gunicorn --bind=0.0.0.0:5000 --reuse-port app:app"]
-build = ["bash", "-c", "cd frontend && npm run build"]
+run = ["bash", "-c", "cd /home/runner/workspace/backend && gunicorn --bind=0.0.0.0:5000 --reuse-port app:app"]
+build = ["bash", "-c", "cd /home/runner/workspace/frontend && npm run build"]
