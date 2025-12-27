@@ -1,0 +1,53 @@
+Build a comprehensive "S&P 500 Stock Scorer" application.
+
+The Goal: I want a dashboard where I can enter a stock symbol (e.g., AAPL) and receive a calculated "Buy/Sell Confidence Score" from 1 to 10.
+
+Tech Stack:
+
+Backend: Python (Flask or FastAPI). Use the yfinance library to fetch data, as it is the most reliable free source for stocks.
+
+Frontend: React (Next.js) with Tailwind CSS and Shadcn UI for a clean, professional financial look.
+
+Core Features & Logic:
+
+1. The Scoring Engine (The "Brain"): Create a Python function that calculates a weighted score (0-10) based on these four pillars. Display the sub-score for each pillar on the dashboard so I can see why it got that grade.
+
+Pillar A: Fundamentals (30% weight):
+
+Fetch Revenue Growth (YoY) and Profit Margins.
+
+Logic: If Revenue Growth > 10%, add points. If Net Margin > 15%, add points.
+
+Pillar B: Valuation (20% weight):
+
+Fetch P/E Ratio and compare it to a fixed "Sector Average" (e.g., Tech=25, Energy=10).
+
+Logic: If P/E is lower than sector average, it is "undervalued" (higher score).
+
+Pillar C: Technicals (30% weight):
+
+Calculate the 50-day and 200-day Simple Moving Average (SMA).
+
+Calculate RSI (14-day).
+
+Logic: If Price > 50-day SMA, it's bullish. If RSI is < 30 (Oversold), it's a buy signal.
+
+Pillar D: Macro/Market Health (20% weight):
+
+Fetch the VIX (Volatility Index) and SPY (S&P 500 ETF) trend.
+
+Logic: If VIX < 20, market conditions are favorable (add points). If SPY is above its 200-day SMA, the trend is positive.
+
+2. The User Interface:
+
+Top Section: Large search bar for the Ticker Symbol.
+
+Hero Section: Display the Final Score (e.g., 7.4/10) in a large, color-coded gauge (Red=Sell, Green=Buy).
+
+Details Grid: Four cards below the score showing the data for the four pillars (e.g., "P/E: 24.5", "RSI: 45").
+
+The Chart: A simple price history chart (1 Year) to visualize the trend.
+
+3. Data Handling:
+
+Use yfinance in the backend to fetch all this data in real-time when I click search. Handle errors gracefully if a ticker is invalid.
