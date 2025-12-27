@@ -58,6 +58,11 @@ Both workflows are configured:
 
 ## Recent Changes
 
+- 2025-12-27: Added dynamic Strategy Settings
+  - Added Strategy Settings panel with 4 sliders for adjusting pillar weights
+  - Real-time score recalculation when weights change
+  - Warning displayed when weights don't sum to 100%
+  
 - 2025-12-27: Initial implementation
   - Created Flask backend with yfinance integration
   - Implemented 4-pillar scoring engine

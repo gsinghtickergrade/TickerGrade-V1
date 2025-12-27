@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { ScoreGauge } from '@/components/ScoreGauge';
 import { PillarCard } from '@/components/PillarCard';
 import { PriceChart } from '@/components/PriceChart';
+import { StrategySettings } from '@/components/StrategySettings';
 
 interface StockData {
   ticker: string;
@@ -38,11 +39,36 @@ interface StockData {
   price_history: { date: string; price: number }[];
 }
 
+interface Weights {
+  fundamentals: number;
+  valuation: number;
+  technicals: number;
+  macro: number;
+}
+
 export default function Home() {
   const [ticker, setTicker] = useState('');
   const [stockData, setStockData] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [weights, setWeights] = useState<Weights>({
+    fundamentals: 30,
+    valuation: 20,
+    technicals: 30,
+    macro: 20,
+  });
+
+  const calculatedScore = useMemo(() => {
+    if (!stockData) return 0;
+    
+    const score = 
+      (stockData.pillars.fundamentals.score * weights.fundamentals / 100) +
+      (stockData.pillars.valuation.score * weights.valuation / 100) +
+      (stockData.pillars.technicals.score * weights.technicals / 100) +
+      (stockData.pillars.macro.score * weights.macro / 100);
+    
+    return Math.round(score * 10) / 10;
+  }, [stockData, weights]);
 
   const analyzeStock = async () => {
     if (!ticker.trim()) {
@@ -134,83 +160,91 @@ export default function Home() {
           </Card>
         )}
 
-        {stockData && (
-          <div className="space-y-8 animate-in fade-in duration-500">
-            <Card className="p-8 bg-white/5 border-white/10 backdrop-blur-sm">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                <div className="text-center md:text-left">
-                  <h2 className="text-3xl font-bold text-white">
-                    {stockData.company_name}
-                  </h2>
-                  <p className="text-xl text-slate-400">{stockData.ticker}</p>
-                  <p className="text-2xl text-white mt-2">
-                    ${stockData.current_price.toFixed(2)}
-                  </p>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+          <div className="lg:col-span-1">
+            <StrategySettings weights={weights} onWeightsChange={setWeights} />
+          </div>
+
+          <div className="lg:col-span-3">
+            {stockData && (
+              <div className="space-y-8 animate-in fade-in duration-500">
+                <Card className="p-8 bg-white/5 border-white/10 backdrop-blur-sm">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="text-center md:text-left">
+                      <h2 className="text-3xl font-bold text-white">
+                        {stockData.company_name}
+                      </h2>
+                      <p className="text-xl text-slate-400">{stockData.ticker}</p>
+                      <p className="text-2xl text-white mt-2">
+                        ${stockData.current_price.toFixed(2)}
+                      </p>
+                    </div>
+                    <ScoreGauge score={calculatedScore} />
+                  </div>
+                </Card>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <PillarCard
+                    title="Fundamentals"
+                    score={stockData.pillars.fundamentals.score}
+                    weight={weights.fundamentals}
+                    details={stockData.pillars.fundamentals.details}
+                    icon={
+                      <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    }
+                  />
+                  <PillarCard
+                    title="Valuation"
+                    score={stockData.pillars.valuation.score}
+                    weight={weights.valuation}
+                    details={stockData.pillars.valuation.details}
+                    icon={
+                      <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    }
+                  />
+                  <PillarCard
+                    title="Technicals"
+                    score={stockData.pillars.technicals.score}
+                    weight={weights.technicals}
+                    details={stockData.pillars.technicals.details}
+                    icon={
+                      <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                      </svg>
+                    }
+                  />
+                  <PillarCard
+                    title="Macro Health"
+                    score={stockData.pillars.macro.score}
+                    weight={weights.macro}
+                    details={stockData.pillars.macro.details}
+                    icon={
+                      <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    }
+                  />
                 </div>
-                <ScoreGauge score={stockData.final_score} />
+
+                <PriceChart data={stockData.price_history} ticker={stockData.ticker} />
               </div>
-            </Card>
+            )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <PillarCard
-                title="Fundamentals"
-                score={stockData.pillars.fundamentals.score}
-                weight={stockData.pillars.fundamentals.weight}
-                details={stockData.pillars.fundamentals.details}
-                icon={
-                  <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                }
-              />
-              <PillarCard
-                title="Valuation"
-                score={stockData.pillars.valuation.score}
-                weight={stockData.pillars.valuation.weight}
-                details={stockData.pillars.valuation.details}
-                icon={
-                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                }
-              />
-              <PillarCard
-                title="Technicals"
-                score={stockData.pillars.technicals.score}
-                weight={stockData.pillars.technicals.weight}
-                details={stockData.pillars.technicals.details}
-                icon={
-                  <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                  </svg>
-                }
-              />
-              <PillarCard
-                title="Macro Health"
-                score={stockData.pillars.macro.score}
-                weight={stockData.pillars.macro.weight}
-                details={stockData.pillars.macro.details}
-                icon={
-                  <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                }
-              />
-            </div>
-
-            <PriceChart data={stockData.price_history} ticker={stockData.ticker} />
+            {!stockData && !loading && !error && (
+              <div className="text-center text-slate-500 mt-16">
+                <svg className="w-24 h-24 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p className="text-xl">Enter a stock ticker to get started</p>
+                <p className="text-sm mt-2">Try: AAPL, MSFT, GOOGL, AMZN, TSLA</p>
+              </div>
+            )}
           </div>
-        )}
-
-        {!stockData && !loading && !error && (
-          <div className="text-center text-slate-500 mt-16">
-            <svg className="w-24 h-24 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <p className="text-xl">Enter a stock ticker to get started</p>
-            <p className="text-sm mt-2">Try: AAPL, MSFT, GOOGL, AMZN, TSLA</p>
-          </div>
-        )}
+        </div>
       </div>
     </main>
   );
