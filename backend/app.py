@@ -1,12 +1,43 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session, redirect, url_for, render_template
 from flask_cors import CORS
+from flask_login import current_user
+from werkzeug.middleware.proxy_fix import ProxyFix
 import yfinance as yf
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+import os
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
-CORS(app)
+app.secret_key = os.environ.get("SESSION_SECRET")
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+CORS(app, supports_credentials=True)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    'pool_pre_ping': True,
+    "pool_recycle": 300,
+}
+
+from models import db
+db.init_app(app)
+
+from replit_auth import init_login_manager, make_replit_blueprint, require_login
+
+init_login_manager(app)
+app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
+
+with app.app_context():
+    db.create_all()
+    logging.info("Database tables created")
+
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
 
 SECTOR_AVG_PE = {
     'Technology': 25,
@@ -189,6 +220,7 @@ def calculate_final_score(fundamentals, valuation, technicals, macro):
     return round(final_score, 1)
 
 @app.route('/api/analyze/<ticker>', methods=['GET'])
+@require_login
 def analyze_stock(ticker):
     try:
         ticker = ticker.upper()
@@ -252,6 +284,20 @@ def analyze_stock(ticker):
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/auth/status', methods=['GET'])
+def auth_status():
+    if current_user.is_authenticated:
+        return jsonify({
+            'authenticated': True,
+            'user': {
+                'id': current_user.id,
+                'email': current_user.email,
+                'first_name': current_user.first_name,
+                'profile_image_url': current_user.profile_image_url
+            }
+        })
+    return jsonify({'authenticated': False})
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
