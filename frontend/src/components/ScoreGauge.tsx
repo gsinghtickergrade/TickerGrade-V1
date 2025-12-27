@@ -8,15 +8,17 @@ interface ScoreGaugeProps {
 
 export function ScoreGauge({ score }: ScoreGaugeProps) {
   const getColor = (score: number) => {
-    if (score >= 7) return '#22c55e';
-    if (score >= 5) return '#eab308';
+    if (score >= 8) return '#22c55e';
+    if (score >= 6) return '#10b981';
+    if (score >= 4) return '#eab308';
     return '#ef4444';
   };
 
   const getLabel = (score: number) => {
-    if (score >= 7) return 'Strong Buy';
-    if (score >= 5) return 'Hold';
-    return 'Consider Selling';
+    if (score >= 8) return 'Strong Buy';
+    if (score >= 6) return 'Buy';
+    if (score >= 4) return 'Hold';
+    return 'Avoid / Sell';
   };
 
   const percentage = (score / 10) * 100;
