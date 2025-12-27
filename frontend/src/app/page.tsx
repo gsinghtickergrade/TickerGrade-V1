@@ -408,6 +408,13 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Disclaimer Footer */}
+        <footer className="mt-16 pt-8 border-t border-white/10">
+          <p className="text-center text-slate-500 text-sm max-w-3xl mx-auto">
+            Information provided by TickerGrade is for educational purposes only and does not constitute financial advice. All scores are algorithmic and based on historical data. Invest at your own risk.
+          </p>
+        </footer>
       </div>
     </main>
   );
