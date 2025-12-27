@@ -16,7 +16,7 @@ from sqlalchemy.exc import NoResultFound
 
 from models import db, OAuth, User
 
-ALLOWED_EMAILS = ['gsinghinvestor@gmail.com']
+ALLOWED_EMAILS = ['gsinghinvestor@gmail.com', 'nalins2600@gmail.com']
 
 login_manager = None
 
