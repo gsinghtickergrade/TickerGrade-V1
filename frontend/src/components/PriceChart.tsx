@@ -53,7 +53,7 @@ export function PriceChart({ data, ticker }: PriceChartProps) {
                 tick={{ fontSize: 12 }}
               />
               <Tooltip
-                formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
+                formatter={(value: number | undefined) => [value !== undefined ? `$${value.toFixed(2)}` : '$0.00', 'Price']}
                 labelFormatter={formatDate}
               />
               <Line
