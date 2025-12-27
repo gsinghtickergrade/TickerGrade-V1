@@ -81,16 +81,38 @@ export default function Home() {
     setStockData(null);
 
     try {
-      const response = await fetch(`/api/analyze/${ticker.toUpperCase()}`);
+      const response = await fetch(`/api/analyze/${ticker.toUpperCase()}`, {
+        credentials: 'include',
+        redirect: 'manual'
+      });
+
+      if (response.type === 'opaqueredirect' || response.status === 0) {
+        window.location.href = '/auth/replit_auth';
+        return;
+      }
+
+      if (response.status === 302 || response.redirected) {
+        window.location.href = '/auth/replit_auth';
+        return;
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          window.location.href = '/auth/replit_auth';
+          return;
+        }
         throw new Error(data.error || 'Failed to analyze stock');
       }
 
       setStockData(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+        setError('Please log in to analyze stocks');
+      } else {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      }
     } finally {
       setLoading(false);
     }
