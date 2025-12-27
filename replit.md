@@ -56,7 +56,22 @@ Both workflows are configured:
 - Color-coded gauge (Red=Sell, Green=Buy)
 - Display sub-scores for each pillar
 
+## Authentication
+
+The application uses Replit Auth for secure authentication:
+- **Whitelist**: Only `gsinghinvestor@gmail.com` can access the application
+- **Protected Routes**: All `/api/analyze/*` endpoints require authentication
+- **Unauthorized Access**: Returns 403 Forbidden page for non-whitelisted users
+
+To modify the whitelist, edit `ALLOWED_EMAILS` in `backend/replit_auth.py`.
+
 ## Recent Changes
+
+- 2025-12-27: Added Replit Auth with email whitelist
+  - Implemented secure authentication using Replit OpenID Connect
+  - Added email whitelist restriction (gsinghinvestor@gmail.com only)
+  - Created 403 Forbidden page for unauthorized users
+  - Protected stock analysis API endpoint with @require_login decorator
 
 - 2025-12-27: Added dynamic Strategy Settings
   - Added Strategy Settings panel with 4 sliders for adjusting pillar weights

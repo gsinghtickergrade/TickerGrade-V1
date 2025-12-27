@@ -1,12 +1,22 @@
 import type { NextConfig } from "next";
 
+const devDomain = process.env.REPLIT_DEV_DOMAIN || '';
+
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ['*'],
+  allowedDevOrigins: devDomain ? [
+    `https://${devDomain}`,
+    `http://${devDomain}`,
+    devDomain,
+  ] : [],
   async rewrites() {
     return [
       {
         source: '/api/:path*',
         destination: 'http://localhost:8000/api/:path*',
+      },
+      {
+        source: '/auth/:path*',
+        destination: 'http://localhost:8000/auth/:path*',
       },
     ];
   },
