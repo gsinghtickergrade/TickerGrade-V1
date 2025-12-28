@@ -125,7 +125,7 @@ export function NetLiquidityChart() {
               contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #374151', borderRadius: '8px' }}
               labelStyle={{ color: '#F1F5F9' }}
               itemStyle={{ color: '#F1F5F9' }}
-              formatter={(value: number | undefined, name: string) => [
+              formatter={(value: number | undefined, name: string | undefined) => [
                 value !== undefined ? `${value.toFixed(1)}%` : 'N/A',
                 name === 'net_liquidity_norm' ? 'Net Liquidity' : 'S&P 500'
               ]}
