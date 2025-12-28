@@ -301,7 +301,7 @@ def auth_status():
 
 @app.route('/', methods=['GET'])
 def root_health_check():
-    return jsonify({'status': 'healthy', 'service': 'S&P 500 Stock Scorer API'})
+    return jsonify({'status': 'healthy', 'service': 'TickerGrade Scorer API'})
 
 @app.route('/api/health', methods=['GET'])
 def health_check():

@@ -1,4 +1,4 @@
-# S&P 500 Stock Scorer
+# TickerGrade Scorer
 
 A comprehensive stock analysis dashboard that calculates a Buy/Sell confidence score (1-10) based on four key pillars.
 

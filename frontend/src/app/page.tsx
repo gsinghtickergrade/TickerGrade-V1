@@ -129,7 +129,7 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
-            S&P 500 Stock Scorer
+            TickerGrade Scorer
           </h1>
           <p className="text-slate-400 text-lg">
             Get a data-driven Buy/Sell confidence score for any stock
