@@ -70,20 +70,20 @@ def score_technicals(hist_df):
         return 5.0, {'error': 'Insufficient data'}
     
     close_prices = hist_df['close']
-    current_price = close_prices.iloc[-1]
+    current_price = float(close_prices.iloc[-1])
     details['current_price'] = round(current_price, 2)
     
     macd_line, signal_line = calculate_macd(close_prices)
-    details['macd'] = round(macd_line, 4)
-    details['macd_signal'] = round(signal_line, 4)
-    details['macd_bullish'] = macd_line > signal_line
+    details['macd'] = round(float(macd_line), 4)
+    details['macd_signal'] = round(float(signal_line), 4)
+    details['macd_bullish'] = bool(macd_line > signal_line)
     
     if macd_line > signal_line:
         score += 2.0
     else:
         score -= 1.0
     
-    rsi = calculate_rsi(close_prices)
+    rsi = float(calculate_rsi(close_prices))
     details['rsi'] = round(rsi, 2)
     
     if 40 < rsi < 70:
@@ -99,16 +99,16 @@ def score_technicals(hist_df):
         details['rsi_signal'] = 'Neutral'
     
     if 'volume' in hist_df.columns:
-        current_volume = hist_df['volume'].iloc[-1]
+        current_volume = int(hist_df['volume'].iloc[-1])
         sma_volume_20 = hist_df['volume'].rolling(20).mean().iloc[-1]
-        details['current_volume'] = int(current_volume)
+        details['current_volume'] = current_volume
         details['sma_volume_20'] = int(sma_volume_20) if not np.isnan(sma_volume_20) else None
-        details['volume_bullish'] = current_volume > sma_volume_20
+        details['volume_bullish'] = bool(current_volume > sma_volume_20)
         
         if current_volume > sma_volume_20:
             score += 1.0
     
-    lowest_low_20 = close_prices.tail(20).min()
+    lowest_low_20 = float(close_prices.tail(20).min())
     details['stop_loss_support'] = round(lowest_low_20, 2)
     
     score = max(0, min(10, score))
@@ -169,22 +169,24 @@ def score_macro(fred_df):
     if len(recent_liq) >= 2:
         x = np.arange(len(recent_liq))
         slope, _ = np.polyfit(x, recent_liq.values, 1)
+        slope = float(slope)
         details['net_liquidity_slope'] = round(slope, 2)
-        details['net_liquidity_current'] = round(fred_df['net_liquidity'].iloc[-1], 2)
-        details['liquidity_bullish'] = slope > 0
+        details['net_liquidity_current'] = round(float(fred_df['net_liquidity'].iloc[-1]), 2)
+        details['liquidity_bullish'] = bool(slope > 0)
         
         if slope > 0:
             score += 2.5
         else:
             score -= 1.5
     
-    credit_spread = fred_df['credit_spreads'].iloc[-1]
+    credit_spread = float(fred_df['credit_spreads'].iloc[-1])
     details['credit_spread'] = round(credit_spread, 2)
     
     credit_recent = fred_df['credit_spreads'].tail(20)
     if len(credit_recent) >= 2:
         x = np.arange(len(credit_recent))
         credit_slope, _ = np.polyfit(x, credit_recent.values, 1)
+        credit_slope = float(credit_slope)
         details['credit_spread_trend'] = 'Rising' if credit_slope > 0 else 'Falling'
     else:
         credit_slope = 0
