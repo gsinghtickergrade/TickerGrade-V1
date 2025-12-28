@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TickerGrade Scorer",
-  description: "Get a data-driven Buy/Sell confidence score for any stock",
+  title: "Swing Trading Decision Engine",
+  description: "Data-driven analysis for 30-90 day swing trades",
 };
 
 export default function RootLayout({

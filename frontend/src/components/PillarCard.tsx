@@ -7,7 +7,7 @@ interface PillarCardProps {
   title: string;
   score: number;
   weight: number;
-  details: Record<string, string | number | null>;
+  details: Record<string, string | number | boolean | null>;
   icon: React.ReactNode;
 }
 
@@ -18,13 +18,14 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
     return 'text-red-500';
   };
 
-  const formatValue = (key: string, value: string | number | null) => {
+  const formatValue = (key: string, value: string | number | boolean | null) => {
     if (value === null || value === undefined) return 'N/A';
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
     if (typeof value === 'number') {
-      if (key.includes('growth') || key.includes('margin')) {
+      if (key.includes('growth') || key.includes('margin') || key.includes('percent') || key.includes('upside')) {
         return `${value.toFixed(2)}%`;
       }
-      if (key.includes('price') || key.includes('sma')) {
+      if (key.includes('price') || key.includes('sma') || key.includes('target') || key.includes('support')) {
         return `$${value.toFixed(2)}`;
       }
       return value.toFixed(2);
