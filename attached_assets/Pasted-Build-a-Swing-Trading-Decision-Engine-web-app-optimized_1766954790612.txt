@@ -1,0 +1,86 @@
+Build a "Swing Trading Decision Engine" web app optimized for a 30-90 day trading timeframe. This is a clean build request.
+
+### PHASE 1: SYSTEM ARCHITECTURE & LIBRARIES
+1. **Backend:** Python (Flask/Quart).
+2. **Frontend:** React (Vite).
+3. **Libraries to Install:**
+   - `fredapi` (Federal Reserve Data)
+   - `pandas_ta` (Technical Analysis)
+   - `textblob` (Sentiment Analysis)
+   - `requests` (for FMP API)
+4. **Configuration:**
+   - Load `FMP_API_KEY` and `FRED_API_KEY` from environment variables.
+   - **Crucial:** Implement Server-Side Caching (10 minutes) for ALL API calls to prevent rate limiting and bans.
+
+### PHASE 2: DATA INGESTION (THE 5 PILLARS)
+
+**Pillar A: Catalysts & Sentiment (The Spark)**
+- Source: Financial Modeling Prep (FMP).
+- **Analyst Activity:** Fetch Analyst Upgrades/Downgrades for the last 30 days.
+   - *Logic:* Bullish if Upgrades > Downgrades.
+- **Sentiment:** Fetch Stock News Sentiment. Use the score directly.
+
+**Pillar B: Technical Structure (The Entry)**
+- Source: FMP Historical Price -> Processed by `pandas_ta`.
+- **MACD (12,26,9):** Bullish if MACD Line > Signal Line.
+- **RSI (14):** Bullish if 40 < RSI < 70 (Momentum).
+- **Volume Trend:** Bullish if Current Volume > 20-Day SMA Volume.
+- **Support Levels:** Calculate the **Lowest Low** of the last 20 days.
+   - *Action:* Store this value to display as "Stop Loss Support".
+
+**Pillar C: Relative Value (The Upside)**
+- Source: FMP.
+- **Analyst Targets:** Fetch average price target.
+   - *Logic:* Calculate Upside % = ((Target - Current) / Current).
+   - *Score:* >15% upside is Bullish.
+- **PEG Ratio:** Fetch PEG. < 1.5 is Bullish.
+
+**Pillar D: Macro Liquidity (The Tide)**
+- Source: FRED API (St. Louis Fed).
+- **Fetch & Align:** Align Weekly data to Daily using forward-fill.
+   - Total Assets: `WALCL` (Weekly)
+   - TGA: `WTREGEN` (Weekly)
+   - Reverse Repo: `RRPONTSYD` (Daily)
+   - Credit Spreads: `BAMLH0A0HYM2` (Daily)
+- **Net Liquidity Formula:** `Net_Liq = WALCL - WTREGEN - RRPONTSYD`.
+   - *Logic:* Calculate the 20-Day Slope. Positive Slope = Bullish.
+- **Credit Spreads:**
+   - *Logic:* If Spreads (`BAMLH0A0HYM2`) are > 4.0% OR Trend is Rising -> Bearish (Risk Off).
+
+**Pillar E: Event Risk (The Guardrail)**
+- Source: FMP Earnings Calendar.
+- **Blackout Rule:** If the Next Earnings Date is within **15 Days** (future):
+   - Force Final Recommendation to "WAIT (Earnings)".
+   - Set Confidence Score to 0.
+
+### PHASE 3: SCORING & OUTPUT
+- Normalize all 5 pillars to a 0-10 scale.
+- **Weights:** Technicals (35%), Catalysts (20%), Macro (20%), Value (15%), Fundamentals (10%).
+- **Verdict:**
+   - 8.0+: "Strong Buy (Sniper Entry)"
+   - 6.0-7.9: "Watchlist (Setup Developing)"
+   - <6.0: "Pass / Hold"
+
+### PHASE 4: UI & DASHBOARD
+1. **Header:** Large "Swing Confidence Score" gauge.
+2. **Action Card:** Explicitly show:
+   - "Entry Zone" (Current Price)
+   - "Stop Loss" (From Pillar B)
+   - "Target" (From Pillar C)
+3. **Macro Widget:** A line chart showing **"Fed Net Liquidity vs S&P 500"** (normalized).
+4. **Share Button:** Use the Web Share API to share the score.
+
+### PHASE 5: LEGAL & COMPLIANCE (STRICT)
+1. **Welcome Modal:**
+   - Show on first visit. "Educational purposes only. Not financial advice."
+   - Button: "I Understand". Save to LocalStorage.
+2. **Cookie Banner:**
+   - Bottom dismissible banner: "We use cookies for authentication."
+3. **Legal Pages:**
+   - Create route `/legal` with tabs for Privacy, Terms, Disclaimer.
+   - **Mandatory Disclaimer Text:** "Option-Adjusted Spread (OAS) data is sourced from ICE Data Indices, LLC, used with permission via FRED®."
+4. **Footer:**
+   - Links: Privacy, Terms, Disclaimer.
+   - Attribution 1: "Market Data provided by Financial Modeling Prep."
+   - Attribution 2: "Economic data provided by Federal Reserve Bank of St. Louis (FRED)."
+   - Disclaimer: "This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis."
