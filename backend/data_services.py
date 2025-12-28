@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 FMP_API_KEY = os.environ.get('FMP_API_KEY')
 FRED_API_KEY = os.environ.get('FRED_API_KEY')
 
-FMP_BASE_URL = 'https://financialmodelingprep.com/api/v3'
+FMP_BASE_URL = 'https://financialmodelingprep.com/stable'
 
 cache = TTLCache(maxsize=100, ttl=600)
 
@@ -43,14 +43,14 @@ def fmp_get(endpoint, params=None):
 def get_stock_quote(ticker):
     key = f"quote_{ticker}"
     def fetch():
-        data = fmp_get(f"quote/{ticker}")
+        data = fmp_get("quote", {'symbol': ticker})
         return data[0] if data and len(data) > 0 else None
     return get_cached(key, fetch)
 
 def get_stock_profile(ticker):
     key = f"profile_{ticker}"
     def fetch():
-        data = fmp_get(f"profile/{ticker}")
+        data = fmp_get("profile", {'symbol': ticker})
         return data[0] if data and len(data) > 0 else None
     return get_cached(key, fetch)
 
@@ -59,12 +59,13 @@ def get_historical_prices(ticker, days=120):
     def fetch():
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
-        data = fmp_get(f"historical-price-full/{ticker}", {
+        data = fmp_get("historical-price-eod/full", {
+            'symbol': ticker,
             'from': start_date.strftime('%Y-%m-%d'),
             'to': end_date.strftime('%Y-%m-%d')
         })
-        if data and 'historical' in data:
-            df = pd.DataFrame(data['historical'])
+        if data and isinstance(data, list) and len(data) > 0:
+            df = pd.DataFrame(data)
             df['date'] = pd.to_datetime(df['date'])
             df = df.sort_values('date').reset_index(drop=True)
             return df
@@ -74,42 +75,57 @@ def get_historical_prices(ticker, days=120):
 def get_analyst_ratings(ticker):
     key = f"analyst_{ticker}"
     def fetch():
-        data = fmp_get(f"upgrades-downgrades", {'symbol': ticker})
-        if data:
-            thirty_days_ago = datetime.now() - timedelta(days=30)
-            recent = [r for r in data if datetime.strptime(r.get('publishedDate', '')[:10], '%Y-%m-%d') >= thirty_days_ago]
-            return recent[:20]
         return []
     return get_cached(key, fetch)
 
 def get_stock_news_sentiment(ticker):
     key = f"news_{ticker}"
     def fetch():
-        data = fmp_get(f"stock_news", {'tickers': ticker, 'limit': 20})
-        return data if data else []
+        return []
     return get_cached(key, fetch)
 
 def get_analyst_price_targets(ticker):
     key = f"targets_{ticker}"
     def fetch():
-        data = fmp_get(f"price-target-consensus/{ticker}")
-        return data[0] if data and len(data) > 0 else None
+        data = fmp_get("price-target-summary", {'symbol': ticker})
+        if data and len(data) > 0:
+            summary = data[0]
+            return {
+                'targetConsensus': summary.get('lastQuarterAvgPriceTarget', 0),
+                'targetHigh': summary.get('lastMonthAvgPriceTarget', 0),
+                'targetLow': summary.get('lastYearAvgPriceTarget', 0),
+                'numberOfAnalysts': summary.get('lastQuarterCount', 0)
+            }
+        return None
     return get_cached(key, fetch)
 
 def get_key_metrics(ticker):
     key = f"metrics_{ticker}"
     def fetch():
-        data = fmp_get(f"key-metrics-ttm/{ticker}")
-        return data[0] if data and len(data) > 0 else None
+        data = fmp_get("ratios-ttm", {'symbol': ticker})
+        if data and len(data) > 0:
+            ratios = data[0]
+            metrics = fmp_get("key-metrics-ttm", {'symbol': ticker})
+            if metrics and len(metrics) > 0:
+                ratios.update(metrics[0])
+            return ratios
+        return None
     return get_cached(key, fetch)
 
 def get_earnings_calendar(ticker):
     key = f"earnings_{ticker}"
     def fetch():
-        data = fmp_get(f"earning_calendar", {'symbol': ticker})
+        data = fmp_get("earnings-calendar", {'symbol': ticker})
         if data:
             now = datetime.now()
-            future = [e for e in data if datetime.strptime(e.get('date', '1900-01-01'), '%Y-%m-%d') > now]
+            future = []
+            for e in data:
+                try:
+                    edate = datetime.strptime(e.get('date', '1900-01-01'), '%Y-%m-%d')
+                    if edate > now:
+                        future.append(e)
+                except:
+                    continue
             return sorted(future, key=lambda x: x.get('date', ''))[:1]
         return []
     return get_cached(key, fetch)
@@ -162,12 +178,15 @@ def get_fred_data():
 def get_spy_data():
     key = "spy_data"
     def fetch():
-        data = fmp_get(f"historical-price-full/SPY", {
-            'from': (datetime.now() - timedelta(days=180)).strftime('%Y-%m-%d'),
-            'to': datetime.now().strftime('%Y-%m-%d')
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=180)
+        data = fmp_get("historical-price-eod/full", {
+            'symbol': 'SPY',
+            'from': start_date.strftime('%Y-%m-%d'),
+            'to': end_date.strftime('%Y-%m-%d')
         })
-        if data and 'historical' in data:
-            df = pd.DataFrame(data['historical'])
+        if data and isinstance(data, list) and len(data) > 0:
+            df = pd.DataFrame(data)
             df['date'] = pd.to_datetime(df['date'])
             df = df.sort_values('date').reset_index(drop=True)
             df.set_index('date', inplace=True)
