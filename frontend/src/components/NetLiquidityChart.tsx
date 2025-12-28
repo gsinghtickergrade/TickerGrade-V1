@@ -125,8 +125,8 @@ export function NetLiquidityChart() {
               contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #374151', borderRadius: '8px' }}
               labelStyle={{ color: '#F1F5F9' }}
               itemStyle={{ color: '#F1F5F9' }}
-              formatter={(value: number, name: string) => [
-                `${value.toFixed(1)}%`,
+              formatter={(value: number | undefined, name: string) => [
+                value !== undefined ? `${value.toFixed(1)}%` : 'N/A',
                 name === 'net_liquidity_norm' ? 'Net Liquidity' : 'S&P 500'
               ]}
               labelFormatter={(label) => new Date(label).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
