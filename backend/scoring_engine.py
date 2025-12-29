@@ -24,21 +24,55 @@ def calculate_rsi(prices, period=14):
 def calculate_sma(prices, period):
     return prices.rolling(window=period).mean().iloc[-1] if len(prices) >= period else None
 
+def compare_grades(previous_grade, new_grade):
+    grade_ranks = {
+        'strong sell': 1, 'sell': 2, 'underweight': 2,
+        'underperform': 3, 'reduce': 3,
+        'hold': 4, 'neutral': 4, 'market perform': 4, 'equal-weight': 4, 'sector perform': 4,
+        'buy': 5, 'overweight': 5, 'outperform': 5, 'accumulate': 5,
+        'strong buy': 6
+    }
+    prev_rank = grade_ranks.get(previous_grade.lower(), 4)
+    new_rank = grade_ranks.get(new_grade.lower(), 4)
+    
+    if new_rank > prev_rank:
+        return 'upgrade'
+    elif new_rank < prev_rank:
+        return 'downgrade'
+    return 'maintain'
+
 def score_catalysts(analyst_ratings, news_sentiment):
     score = 5.0
     details = {}
     
     upgrades = 0
     downgrades = 0
+    maintains = 0
+    
     for rating in (analyst_ratings or []):
         action = rating.get('action', '').lower()
-        if 'upgrade' in action or 'buy' in action.lower():
+        previous_grade = rating.get('previousGrade', '')
+        new_grade = rating.get('newGrade', '')
+        
+        if action == 'upgrade':
             upgrades += 1
-        elif 'downgrade' in action or 'sell' in action.lower():
+        elif action == 'downgrade':
             downgrades += 1
+        elif previous_grade and new_grade:
+            comparison = compare_grades(previous_grade, new_grade)
+            if comparison == 'upgrade':
+                upgrades += 1
+            elif comparison == 'downgrade':
+                downgrades += 1
+            else:
+                maintains += 1
+        else:
+            maintains += 1
     
     details['upgrades'] = upgrades
     details['downgrades'] = downgrades
+    details['maintains'] = maintains
+    details['total_ratings'] = len(analyst_ratings or [])
     
     if upgrades > downgrades:
         score += min((upgrades - downgrades) * 0.5, 2.5)
@@ -47,17 +81,19 @@ def score_catalysts(analyst_ratings, news_sentiment):
     
     sentiment_scores = []
     for article in (news_sentiment or [])[:10]:
-        text = article.get('title', '') + ' ' + article.get('text', '')[:200]
-        if text.strip():
-            blob = TextBlob(text)
+        title = article.get('title', '')
+        if title and title.strip():
+            blob = TextBlob(title)
             sentiment_scores.append(blob.sentiment.polarity)
     
     if sentiment_scores:
-        avg_sentiment = np.mean(sentiment_scores)
+        avg_sentiment = float(np.mean(sentiment_scores))
         details['avg_sentiment'] = round(avg_sentiment, 3)
+        details['articles_analyzed'] = len(sentiment_scores)
         score += avg_sentiment * 2.5
     else:
         details['avg_sentiment'] = 0
+        details['articles_analyzed'] = 0
     
     score = max(0, min(10, score))
     return round(score, 1), details

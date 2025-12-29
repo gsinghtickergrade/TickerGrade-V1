@@ -75,12 +75,32 @@ def get_historical_prices(ticker, days=120):
 def get_analyst_ratings(ticker):
     key = f"analyst_{ticker}"
     def fetch():
+        data = fmp_get("grades", {'symbol': ticker})
+        if data:
+            thirty_days_ago = datetime.now() - timedelta(days=30)
+            recent = []
+            for r in data:
+                try:
+                    grade_date = datetime.strptime(r.get('date', '')[:10], '%Y-%m-%d')
+                    if grade_date >= thirty_days_ago:
+                        recent.append(r)
+                except:
+                    continue
+            return recent[:30]
         return []
     return get_cached(key, fetch)
 
 def get_stock_news_sentiment(ticker):
     key = f"news_{ticker}"
     def fetch():
+        data = fmp_get("fmp-articles", {'limit': 30})
+        if data:
+            ticker_upper = ticker.upper()
+            filtered = [
+                article for article in data 
+                if ticker_upper in (article.get('tickers') or '')
+            ]
+            return filtered[:20] if filtered else data[:10]
         return []
     return get_cached(key, fetch)
 

@@ -24,8 +24,12 @@ This application provides data-driven stock analysis by fetching real-time data 
 ## Scoring Engine (5 Pillars)
 
 ### Pillar A: Catalysts & Sentiment (20% weight)
-- Analyst upgrades/downgrades from last 30 days
-- Stock news sentiment analysis using TextBlob
+- **Analyst Activity**: Uses `/stable/grades` endpoint to fetch grades from last 30 days
+  - Compares `newGrade` vs `previousGrade` to determine upgrades/downgrades
+  - Grade ranking: Strong Sell < Sell < Hold < Buy < Strong Buy
+- **News Sentiment**: Uses `/stable/fmp-articles` endpoint for raw news
+  - TextBlob analyzes sentiment polarity on article titles only
+  - Averages sentiment scores across up to 10 articles
 
 ### Pillar B: Technical Structure (35% weight)
 - MACD (12,26,9) - Bullish if MACD Line > Signal Line
