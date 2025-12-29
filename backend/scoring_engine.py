@@ -8,10 +8,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 def calculate_macd_series(prices, fast=12, slow=26, signal=9):
-    exp1 = prices.ewm(span=fast, adjust=False).mean()
-    exp2 = prices.ewm(span=slow, adjust=False).mean()
+    """Calculate MACD using standard EMA with proper min_periods for stability"""
+    exp1 = prices.ewm(span=fast, min_periods=fast, adjust=False).mean()
+    exp2 = prices.ewm(span=slow, min_periods=slow, adjust=False).mean()
     macd_line = exp1 - exp2
-    signal_line = macd_line.ewm(span=signal, adjust=False).mean()
+    signal_line = macd_line.ewm(span=signal, min_periods=signal, adjust=False).mean()
     return macd_line, signal_line
 
 def calculate_macd(prices, fast=12, slow=26, signal=9):
