@@ -393,6 +393,10 @@ export default function Home() {
             Information provided is for educational purposes only and does not constitute financial advice. 
             All scores are algorithmic and based on historical data. Invest at your own risk.
           </p>
+          
+          <p className="text-center text-slate-500 text-sm mt-8">
+            © 2025 TickerGrade. All Rights Reserved.
+          </p>
         </footer>
       </div>
     </main>
