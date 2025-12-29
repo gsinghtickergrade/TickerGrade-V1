@@ -36,8 +36,22 @@ interface PriceChartProps {
 }
 
 export function PriceChart({ data, ticker }: PriceChartProps) {
-  const minPrice = Math.min(...data.map((d) => d.price)) * 0.95;
-  const maxPrice = Math.max(...data.map((d) => d.price)) * 1.05;
+  if (!data || data.length === 0) {
+    return (
+      <Card className="w-full">
+        <CardHeader className="pb-2">
+          <CardTitle>{ticker} - 1 Year Price History with Indicators</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-slate-400 text-center py-8">No price data available</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const prices = data.map((d) => d.price).filter((p) => p !== undefined);
+  const minPrice = prices.length > 0 ? Math.min(...prices) * 0.95 : 0;
+  const maxPrice = prices.length > 0 ? Math.max(...prices) * 1.05 : 100;
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);

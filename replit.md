@@ -111,6 +111,15 @@ The application uses an **Anonymous Clickwrap Modal** for terms acceptance:
 
 ## Recent Changes
 
+- 2025-12-29: Multi-panel technical indicator chart
+  - Added RSI, MACD, and Volume time series to price_history API response
+  - Enhanced PriceChart component with 4 panels: Price, RSI (14), MACD (12,26,9), Volume
+  - RSI panel shows overbought (70) and oversold (30) reference lines
+  - MACD panel displays histogram bars (green/red) with MACD and Signal lines
+  - Volume panel shows colored bars (green=up day, red=down day) with 20-day SMA
+  - MACD uses standard absolute dollar calculation (not PPO)
+  - RSI uses Wilder's smoothing (EMA with alpha=1/14)
+
 - 2025-12-28: Complete rebuild to Swing Trading Decision Engine
   - New 5-pillar scoring system (Catalysts, Technicals, Value, Macro, Event Risk)
   - Integrated FMP API for stock data, analyst ratings, price targets
