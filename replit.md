@@ -33,11 +33,20 @@ This application provides data-driven stock analysis by fetching real-time data 
   - TextBlob analyzes sentiment polarity on article titles only
   - Averages sentiment scores across up to 10 articles
 
-### Pillar B: Technical Structure (35% weight)
-- MACD (12,26,9) - Bullish if MACD Line > Signal Line
-- RSI (14) - Bullish if 40 < RSI < 70 (Momentum zone)
-- Volume Trend - Bullish if Current Volume > 20-Day SMA
-- Stop Loss Support - Lowest low of last 20 days
+### Pillar B: Technical Structure (35% weight) - Advanced Divergence
+- **RSI Strategy (Divergence Focus)**:
+  - Calculate RSI (14) using scipy.signal for peak/trough detection
+  - **Bullish Divergence**: Price made Lower Low + RSI made Higher Low = High Bullish Score (+3.0)
+  - **Bearish Divergence**: Price made Higher High + RSI made Lower High = High Bearish Score (-3.0)
+  - **Fallback**: If no divergence, use standard RSI (40-50 Neutral-Bullish, >75 Overextended)
+- **MACD (12,26,9)**:
+  - Golden Cross (MACD crosses above Signal) = +2.5
+  - Death Cross (MACD crosses below Signal) = -2.0
+  - Above Signal = +1.5, Below Signal = -1.0
+- **Volume Trend**:
+  - Bullish if Current Volume > 20-Day SMA AND Price is Green (close > open)
+  - Heavy Selling if Volume > SMA but Red day
+- **Support Levels**: Lowest Low of last 20 days as "Stop Loss Support"
 
 ### Pillar C: Relative Value (15% weight)
 - **Data Source**: `/stable/key-metrics-ttm` and `/stable/ratios-ttm` endpoints

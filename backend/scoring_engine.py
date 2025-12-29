@@ -2,24 +2,92 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 from textblob import TextBlob
+from scipy.signal import argrelextrema
 import logging
 
 logger = logging.getLogger(__name__)
 
-def calculate_macd(prices, fast=12, slow=26, signal=9):
+def calculate_macd_series(prices, fast=12, slow=26, signal=9):
     exp1 = prices.ewm(span=fast, adjust=False).mean()
     exp2 = prices.ewm(span=slow, adjust=False).mean()
     macd_line = exp1 - exp2
     signal_line = macd_line.ewm(span=signal, adjust=False).mean()
+    return macd_line, signal_line
+
+def calculate_macd(prices, fast=12, slow=26, signal=9):
+    macd_line, signal_line = calculate_macd_series(prices, fast, slow, signal)
     return macd_line.iloc[-1], signal_line.iloc[-1]
 
-def calculate_rsi(prices, period=14):
+def calculate_rsi_series(prices, period=14):
     delta = prices.diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
     rs = gain / loss
     rsi = 100 - (100 / (1 + rs))
+    return rsi
+
+def calculate_rsi(prices, period=14):
+    rsi = calculate_rsi_series(prices, period)
     return rsi.iloc[-1] if not rsi.empty else 50
+
+def detect_rsi_divergence(prices, rsi_series, lookback=30, order=5):
+    if len(prices) < lookback or len(rsi_series) < lookback:
+        return None, {}
+    
+    recent_prices = prices.tail(lookback).values
+    recent_rsi = rsi_series.tail(lookback).values
+    
+    if len(recent_prices) < order * 2:
+        return None, {}
+    
+    try:
+        price_lows_idx = argrelextrema(recent_prices, np.less_equal, order=order)[0]
+        price_highs_idx = argrelextrema(recent_prices, np.greater_equal, order=order)[0]
+        rsi_lows_idx = argrelextrema(recent_rsi, np.less_equal, order=order)[0]
+        rsi_highs_idx = argrelextrema(recent_rsi, np.greater_equal, order=order)[0]
+        
+        if len(price_lows_idx) >= 2 and len(rsi_lows_idx) >= 2:
+            last_price_low_idx = price_lows_idx[-1]
+            prev_price_low_idx = price_lows_idx[-2]
+            
+            if (recent_prices[last_price_low_idx] < recent_prices[prev_price_low_idx] and
+                recent_rsi[last_price_low_idx] > recent_rsi[prev_price_low_idx]):
+                return 'bullish', {
+                    'divergence_type': 'Bullish Divergence',
+                    'price_pattern': 'Lower Low',
+                    'rsi_pattern': 'Higher Low'
+                }
+        
+        if len(price_highs_idx) >= 2 and len(rsi_highs_idx) >= 2:
+            last_price_high_idx = price_highs_idx[-1]
+            prev_price_high_idx = price_highs_idx[-2]
+            
+            if (recent_prices[last_price_high_idx] > recent_prices[prev_price_high_idx] and
+                recent_rsi[last_price_high_idx] < recent_rsi[prev_price_high_idx]):
+                return 'bearish', {
+                    'divergence_type': 'Bearish Divergence',
+                    'price_pattern': 'Higher High',
+                    'rsi_pattern': 'Lower High'
+                }
+        
+    except Exception as e:
+        logger.debug(f"Divergence detection error: {e}")
+    
+    return None, {}
+
+def detect_macd_crossover(macd_series, signal_series):
+    if len(macd_series) < 2 or len(signal_series) < 2:
+        return None
+    
+    diff_today = macd_series.iloc[-1] - signal_series.iloc[-1]
+    diff_yesterday = macd_series.iloc[-2] - signal_series.iloc[-2]
+    
+    if diff_today > 0 and diff_yesterday <= 0:
+        return 'golden_cross'
+    elif diff_today < 0 and diff_yesterday >= 0:
+        return 'death_cross'
+    
+    return None
 
 def calculate_sma(prices, period):
     return prices.rolling(window=period).mean().iloc[-1] if len(prices) >= period else None
@@ -102,49 +170,105 @@ def score_technicals(hist_df):
     score = 5.0
     details = {}
     
-    if hist_df is None or len(hist_df) < 26:
-        return 5.0, {'error': 'Insufficient data'}
+    if hist_df is None or len(hist_df) < 60:
+        return 5.0, {'error': 'Insufficient data (need 60+ days)'}
     
     close_prices = hist_df['close']
     current_price = float(close_prices.iloc[-1])
     details['current_price'] = round(current_price, 2)
     
-    macd_line, signal_line = calculate_macd(close_prices)
-    details['macd'] = round(float(macd_line), 4)
-    details['macd_signal'] = round(float(signal_line), 4)
-    details['macd_bullish'] = bool(macd_line > signal_line)
-    
-    if macd_line > signal_line:
-        score += 2.0
-    else:
-        score -= 1.0
-    
-    rsi = float(calculate_rsi(close_prices))
+    rsi_series = calculate_rsi_series(close_prices, period=14)
+    rsi = float(rsi_series.iloc[-1]) if not rsi_series.empty else 50
     details['rsi'] = round(rsi, 2)
     
-    if 40 < rsi < 70:
-        score += 2.0
-        details['rsi_signal'] = 'Momentum'
-    elif rsi <= 30:
-        score += 1.5
-        details['rsi_signal'] = 'Oversold'
-    elif rsi >= 70:
-        score -= 1.0
-        details['rsi_signal'] = 'Overbought'
-    else:
-        details['rsi_signal'] = 'Neutral'
+    divergence_type, divergence_details = detect_rsi_divergence(close_prices, rsi_series, lookback=30, order=5)
     
-    if 'volume' in hist_df.columns:
+    if divergence_type == 'bullish':
+        score += 3.0
+        details['rsi_signal'] = 'Bullish Divergence'
+        details['divergence_detected'] = True
+        details.update(divergence_details)
+    elif divergence_type == 'bearish':
+        score -= 3.0
+        details['rsi_signal'] = 'Bearish Divergence'
+        details['divergence_detected'] = True
+        details.update(divergence_details)
+    else:
+        details['divergence_detected'] = False
+        if 40 <= rsi <= 50:
+            score += 1.5
+            details['rsi_signal'] = 'Neutral-Bullish'
+        elif rsi > 75:
+            score -= 1.5
+            details['rsi_signal'] = 'Overextended'
+        elif rsi < 30:
+            score += 1.0
+            details['rsi_signal'] = 'Oversold'
+        elif rsi > 50 and rsi <= 75:
+            score += 1.0
+            details['rsi_signal'] = 'Momentum'
+        else:
+            details['rsi_signal'] = 'Neutral'
+    
+    macd_series, signal_series = calculate_macd_series(close_prices)
+    macd_line = float(macd_series.iloc[-1])
+    signal_line = float(signal_series.iloc[-1])
+    details['macd'] = round(macd_line, 4)
+    details['macd_signal'] = round(signal_line, 4)
+    
+    crossover = detect_macd_crossover(macd_series, signal_series)
+    
+    if crossover == 'golden_cross':
+        score += 2.5
+        details['macd_bullish'] = True
+        details['macd_crossover'] = 'Golden Cross'
+    elif crossover == 'death_cross':
+        score -= 2.0
+        details['macd_bullish'] = False
+        details['macd_crossover'] = 'Death Cross'
+    elif macd_line > signal_line:
+        score += 1.5
+        details['macd_bullish'] = True
+        details['macd_crossover'] = 'Above Signal'
+    else:
+        score -= 1.0
+        details['macd_bullish'] = False
+        details['macd_crossover'] = 'Below Signal'
+    
+    if 'volume' in hist_df.columns and 'open' in hist_df.columns:
+        current_volume = int(hist_df['volume'].iloc[-1])
+        sma_volume_20 = hist_df['volume'].rolling(20).mean().iloc[-1]
+        current_open = float(hist_df['open'].iloc[-1])
+        is_green_day = current_price > current_open
+        
+        details['current_volume'] = current_volume
+        details['sma_volume_20'] = int(sma_volume_20) if not np.isnan(sma_volume_20) else None
+        details['is_green_day'] = is_green_day
+        
+        if current_volume > sma_volume_20 and is_green_day:
+            score += 1.5
+            details['volume_bullish'] = True
+            details['volume_signal'] = 'Strong Buying'
+        elif current_volume > sma_volume_20 and not is_green_day:
+            score -= 0.5
+            details['volume_bullish'] = False
+            details['volume_signal'] = 'Heavy Selling'
+        else:
+            details['volume_bullish'] = False
+            details['volume_signal'] = 'Low Volume'
+    elif 'volume' in hist_df.columns:
         current_volume = int(hist_df['volume'].iloc[-1])
         sma_volume_20 = hist_df['volume'].rolling(20).mean().iloc[-1]
         details['current_volume'] = current_volume
         details['sma_volume_20'] = int(sma_volume_20) if not np.isnan(sma_volume_20) else None
         details['volume_bullish'] = bool(current_volume > sma_volume_20)
-        
         if current_volume > sma_volume_20:
             score += 1.0
     
-    lowest_low_20 = float(close_prices.tail(20).min())
+    if 'low' in hist_df.columns:
+        lowest_low_20 = float(hist_df['low'].tail(20).min())
+    else:
+        lowest_low_20 = float(close_prices.tail(20).min())
     details['stop_loss_support'] = round(lowest_low_20, 2)
     
     score = max(0, min(10, score))
