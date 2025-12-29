@@ -21,7 +21,7 @@ app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 CORS(app)
 
-@app.route('/api/analyze/<ticker>', methods=['GET'])
+@app.route('/api/analyze/<path:ticker>', methods=['GET'])
 def analyze_stock(ticker):
     try:
         ticker = ticker.upper()
