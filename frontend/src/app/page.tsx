@@ -378,7 +378,7 @@ export default function Home() {
                 <h3 className="text-xl font-semibold text-white">Data Sources</h3>
               </div>
               <p className="text-slate-400">
-                Our algorithms rely on raw, institutional-grade data feeds. Company data is sourced directly from <span className="text-white font-medium">Financial Modeling Prep (FMP)</span>. Macro economics data comes from the <span className="text-white font-medium">Federal Reserve Bank of St. Louis (FRED)</span>.
+                Our algorithms rely on raw, institutional-grade data feeds. Company data is sourced directly from <a href="https://financialmodelingprep.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Financial Modeling Prep (FMP)</a>. Macro economics data comes from the <a href="https://fred.stlouisfed.org" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Federal Reserve Bank of St. Louis (FRED)</a>.
               </p>
             </Card>
           </div>
