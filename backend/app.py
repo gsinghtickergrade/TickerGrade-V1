@@ -3,6 +3,7 @@ from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import logging
+import pandas as pd
 
 from data_services import (
     get_stock_quote, get_stock_profile, get_historical_prices,
@@ -60,11 +61,42 @@ def analyze_stock(ticker):
         
         price_history = []
         if hist_df is not None and len(hist_df) > 0:
-            for _, row in hist_df.iterrows():
-                price_history.append({
+            from scoring_engine import calculate_rsi_series, calculate_macd_series
+            
+            close_prices = hist_df['close']
+            rsi_series = calculate_rsi_series(close_prices, period=14)
+            macd_series, signal_series = calculate_macd_series(close_prices)
+            histogram_series = macd_series - signal_series
+            
+            volume_sma = hist_df['volume'].rolling(20).mean() if 'volume' in hist_df.columns else None
+            
+            for i, (_, row) in enumerate(hist_df.iterrows()):
+                entry = {
                     'date': row['date'].strftime('%Y-%m-%d') if hasattr(row['date'], 'strftime') else str(row['date'])[:10],
-                    'price': round(row['close'], 2)
-                })
+                    'price': round(row['close'], 2),
+                    'open': round(row['open'], 2) if 'open' in row else None,
+                    'high': round(row['high'], 2) if 'high' in row else None,
+                    'low': round(row['low'], 2) if 'low' in row else None,
+                }
+                
+                if i < len(rsi_series) and not pd.isna(rsi_series.iloc[i]):
+                    entry['rsi'] = round(float(rsi_series.iloc[i]), 2)
+                
+                if i < len(macd_series) and not pd.isna(macd_series.iloc[i]):
+                    entry['macd'] = round(float(macd_series.iloc[i]), 4)
+                
+                if i < len(signal_series) and not pd.isna(signal_series.iloc[i]):
+                    entry['macd_signal'] = round(float(signal_series.iloc[i]), 4)
+                
+                if i < len(histogram_series) and not pd.isna(histogram_series.iloc[i]):
+                    entry['histogram'] = round(float(histogram_series.iloc[i]), 4)
+                
+                if 'volume' in hist_df.columns:
+                    entry['volume'] = int(row['volume'])
+                    if volume_sma is not None and i < len(volume_sma) and not pd.isna(volume_sma.iloc[i]):
+                        entry['volume_sma'] = int(volume_sma.iloc[i])
+                
+                price_history.append(entry)
         
         return jsonify({
             'ticker': ticker,
