@@ -174,12 +174,12 @@ def score_value(price_targets, key_metrics, current_price):
         details['upside_percent'] = None
     
     if key_metrics:
-        peg = key_metrics.get('pegRatioTTM')
+        peg = key_metrics.get('priceToEarningsGrowthRatioTTM')
         
         if peg and peg > 0 and peg != 'N/A':
             details['peg_ratio'] = round(float(peg), 2)
             details['valuation_metric'] = 'PEG'
-            details['valuation_label'] = 'Using PEG Ratio'
+            details['valuation_label'] = 'Using PEG Ratio TTM'
             
             if peg < 1.0:
                 score += 2.5
