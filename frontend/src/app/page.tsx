@@ -361,7 +361,49 @@ export default function Home() {
             </Card>
           </div>
 
-          <div className="text-center">
+          <div className="mt-12">
+            <h3 className="text-2xl font-bold text-center text-white mb-6">The Verdict</h3>
+            <div className="max-w-2xl mx-auto space-y-3">
+              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-white/10">
+                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-green-500/20 text-green-400 border border-green-500/30">
+                  8.0 - 10.0
+                </span>
+                <div>
+                  <span className="text-white font-medium">Strong Buy</span>
+                  <span className="text-slate-400 ml-2">— All systems go</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-white/10">
+                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                  6.0 - 7.9
+                </span>
+                <div>
+                  <span className="text-white font-medium">Buy</span>
+                  <span className="text-slate-400 ml-2">— Solid, but watch one or two factors</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-white/10">
+                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                  4.0 - 5.9
+                </span>
+                <div>
+                  <span className="text-white font-medium">Hold</span>
+                  <span className="text-slate-400 ml-2">— Mixed signals</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-white/10">
+                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-red-500/20 text-red-400 border border-red-500/30">
+                  0.0 - 3.9
+                </span>
+                <div>
+                  <span className="text-white font-medium">Avoid / Sell</span>
+                  <span className="text-slate-400 ml-2">— Deteriorating conditions</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-12">
             <p className="text-slate-500 text-sm max-w-2xl mx-auto">
               TickerGrade is an educational analysis tool, not a financial advisor. All scores are algorithmic opinions based on historical data. Trading stocks involves risk. Do your own research.
             </p>
