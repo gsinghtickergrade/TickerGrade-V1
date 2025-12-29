@@ -328,8 +328,10 @@ def get_verdict(score, is_blackout=False):
         return "WAIT (Earnings)", "warning"
     
     if score >= 8.0:
-        return "Strong Buy (Sniper Entry)", "success"
+        return "Strong Buy", "success"
     elif score >= 6.0:
-        return "Watchlist (Setup Developing)", "info"
+        return "Buy", "info"
+    elif score >= 4.0:
+        return "Hold", "warning"
     else:
-        return "Pass / Hold", "danger"
+        return "Avoid / Sell", "danger"
