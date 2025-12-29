@@ -8,21 +8,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 def calculate_macd_series(prices, fast=12, slow=26, signal=9):
-    """Calculate PPO (Percentage Price Oscillator) - normalized MACD as percentage
+    """Calculate standard MACD (Moving Average Convergence Divergence)
     
-    PPO is MACD expressed as a percentage, making values comparable across stocks.
-    PPO Line = (12-EMA - 26-EMA) / 26-EMA * 100
-    Signal Line = 9-EMA of PPO Line
+    MACD Line = 12-period EMA - 26-period EMA (in absolute price terms)
+    Signal Line = 9-period EMA of MACD Line
     """
     ema_fast = prices.ewm(span=fast, min_periods=fast, adjust=False).mean()
     ema_slow = prices.ewm(span=slow, min_periods=slow, adjust=False).mean()
-    ppo_line = ((ema_fast - ema_slow) / ema_slow) * 100
-    signal_line = ppo_line.ewm(span=signal, min_periods=signal, adjust=False).mean()
-    return ppo_line, signal_line
+    macd_line = ema_fast - ema_slow
+    signal_line = macd_line.ewm(span=signal, min_periods=signal, adjust=False).mean()
+    return macd_line, signal_line
 
 def calculate_macd(prices, fast=12, slow=26, signal=9):
-    ppo_line, signal_line = calculate_macd_series(prices, fast, slow, signal)
-    return ppo_line.iloc[-1], signal_line.iloc[-1]
+    macd_line, signal_line = calculate_macd_series(prices, fast, slow, signal)
+    return macd_line.iloc[-1], signal_line.iloc[-1]
 
 def calculate_rsi_series(prices, period=14):
     """Calculate RSI using Wilder's smoothing (EMA) for accurate values"""

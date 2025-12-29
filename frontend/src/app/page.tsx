@@ -296,7 +296,7 @@ export default function Home() {
                 <h3 className="text-xl font-semibold text-white">Technical Structure</h3>
               </div>
               <p className="text-slate-400">
-                Precision matters. We go beyond basic charts by tracking RSI Divergence to spot trend reversals before they happen. We combine this with MACD and Volume Analysis to identify high-probability entry points, ensuring you don't buy at the top or sell at the bottom.
+                Precision matters. We go beyond basic charts by tracking RSI Divergence to spot trend reversals before they happen. We combine this with MACD (12,26,9) in absolute dollar terms and Volume Analysis to identify high-probability entry points, ensuring you don't buy at the top or sell at the bottom.
               </p>
             </Card>
 
