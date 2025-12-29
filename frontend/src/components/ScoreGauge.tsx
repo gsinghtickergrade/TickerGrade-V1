@@ -9,7 +9,7 @@ interface ScoreGaugeProps {
 export function ScoreGauge({ score }: ScoreGaugeProps) {
   const getColor = (score: number) => {
     if (score >= 8) return '#22c55e';
-    if (score >= 6) return '#10b981';
+    if (score >= 6) return '#3b82f6';
     if (score >= 4) return '#eab308';
     return '#ef4444';
   };
