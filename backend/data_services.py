@@ -17,6 +17,10 @@ FMP_BASE_URL = 'https://financialmodelingprep.com/stable'
 
 cache = TTLCache(maxsize=100, ttl=600)
 
+def normalize_ticker(ticker):
+    """Convert ticker format for FMP API (e.g., BRK.B -> BRK-B)"""
+    return ticker.replace('.', '-')
+
 def get_cached(key, fetch_func):
     if key in cache:
         logger.debug(f"Cache hit for {key}")
@@ -42,25 +46,28 @@ def fmp_get(endpoint, params=None):
 
 def get_stock_quote(ticker):
     key = f"quote_{ticker}"
+    fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        data = fmp_get("quote", {'symbol': ticker})
+        data = fmp_get("quote", {'symbol': fmp_ticker})
         return data[0] if data and len(data) > 0 else None
     return get_cached(key, fetch)
 
 def get_stock_profile(ticker):
     key = f"profile_{ticker}"
+    fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        data = fmp_get("profile", {'symbol': ticker})
+        data = fmp_get("profile", {'symbol': fmp_ticker})
         return data[0] if data and len(data) > 0 else None
     return get_cached(key, fetch)
 
 def get_historical_prices(ticker, days=120):
     key = f"historical_{ticker}_{days}"
+    fmp_ticker = normalize_ticker(ticker)
     def fetch():
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
         data = fmp_get("historical-price-eod/full", {
-            'symbol': ticker,
+            'symbol': fmp_ticker,
             'from': start_date.strftime('%Y-%m-%d'),
             'to': end_date.strftime('%Y-%m-%d')
         })
@@ -74,8 +81,9 @@ def get_historical_prices(ticker, days=120):
 
 def get_analyst_ratings(ticker):
     key = f"analyst_{ticker}"
+    fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        data = fmp_get("grades", {'symbol': ticker})
+        data = fmp_get("grades", {'symbol': fmp_ticker})
         if data:
             thirty_days_ago = datetime.now() - timedelta(days=30)
             recent = []
@@ -106,8 +114,9 @@ def get_stock_news_sentiment(ticker):
 
 def get_analyst_price_targets(ticker):
     key = f"targets_{ticker}"
+    fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        data = fmp_get("price-target-summary", {'symbol': ticker})
+        data = fmp_get("price-target-summary", {'symbol': fmp_ticker})
         if data and len(data) > 0:
             summary = data[0]
             return {
@@ -121,11 +130,12 @@ def get_analyst_price_targets(ticker):
 
 def get_key_metrics(ticker):
     key = f"metrics_{ticker}"
+    fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        data = fmp_get("ratios-ttm", {'symbol': ticker})
+        data = fmp_get("ratios-ttm", {'symbol': fmp_ticker})
         if data and len(data) > 0:
             ratios = data[0]
-            metrics = fmp_get("key-metrics-ttm", {'symbol': ticker})
+            metrics = fmp_get("key-metrics-ttm", {'symbol': fmp_ticker})
             if metrics and len(metrics) > 0:
                 ratios.update(metrics[0])
             return ratios
@@ -134,8 +144,9 @@ def get_key_metrics(ticker):
 
 def get_earnings_calendar(ticker):
     key = f"earnings_{ticker}"
+    fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        data = fmp_get("earnings-calendar", {'symbol': ticker})
+        data = fmp_get("earnings-calendar", {'symbol': fmp_ticker})
         if data:
             now = datetime.now()
             future = []
