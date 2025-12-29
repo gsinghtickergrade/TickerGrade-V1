@@ -158,8 +158,8 @@ def score_value(price_targets, key_metrics, current_price):
         avg_target = price_targets.get('targetConsensus') or price_targets.get('targetMean')
         if avg_target and current_price and current_price > 0:
             upside_pct = ((avg_target - current_price) / current_price) * 100
-            details['avg_price_target'] = round(avg_target, 2)
-            details['upside_percent'] = round(upside_pct, 2)
+            details['avg_price_target'] = round(float(avg_target), 2)
+            details['upside_percent'] = round(float(upside_pct), 2)
             
             if upside_pct > 25:
                 score += 2.5
@@ -175,20 +175,47 @@ def score_value(price_targets, key_metrics, current_price):
     
     if key_metrics:
         peg = key_metrics.get('pegRatioTTM')
-        if peg and peg > 0:
-            details['peg_ratio'] = round(peg, 2)
+        
+        if peg and peg > 0 and peg != 'N/A':
+            details['peg_ratio'] = round(float(peg), 2)
+            details['valuation_metric'] = 'PEG'
+            details['valuation_label'] = 'Using PEG Ratio'
+            
             if peg < 1.0:
                 score += 2.5
-            elif peg < 1.5:
-                score += 1.5
-            elif peg < 2.0:
-                score += 0.5
+                details['valuation_signal'] = 'Undervalued Growth'
+            elif peg > 2.0:
+                score -= 1.5
+                details['valuation_signal'] = 'Overvalued'
             else:
-                score -= 0.5
+                details['valuation_signal'] = 'Neutral'
         else:
-            details['peg_ratio'] = None
+            ps_ratio = key_metrics.get('priceToSalesRatioTTM')
+            
+            if ps_ratio and ps_ratio > 0:
+                details['peg_ratio'] = None
+                details['ps_ratio'] = round(float(ps_ratio), 2)
+                details['valuation_metric'] = 'P/S'
+                details['valuation_label'] = 'Using P/S (PEG N/A)'
+                
+                if ps_ratio < 3.0:
+                    score += 2.0
+                    details['valuation_signal'] = 'Cheap Revenue'
+                elif ps_ratio > 10.0:
+                    score -= 1.5
+                    details['valuation_signal'] = 'Expensive'
+                else:
+                    details['valuation_signal'] = 'Neutral'
+            else:
+                details['peg_ratio'] = None
+                details['ps_ratio'] = None
+                details['valuation_metric'] = None
+                details['valuation_label'] = 'No valuation data'
+                details['valuation_signal'] = 'Unknown'
     else:
         details['peg_ratio'] = None
+        details['valuation_metric'] = None
+        details['valuation_label'] = 'No metrics available'
     
     score = max(0, min(10, score))
     return round(score, 1), details

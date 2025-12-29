@@ -38,8 +38,17 @@ This application provides data-driven stock analysis by fetching real-time data 
 - Stop Loss Support - Lowest low of last 20 days
 
 ### Pillar C: Relative Value (15% weight)
-- Analyst price targets - Upside percentage calculation
-- PEG Ratio - < 1.5 is bullish
+- **Data Source**: `/stable/key-metrics-ttm` and `/stable/ratios-ttm` endpoints
+- **Primary Metric: PEG Ratio** (`pegRatioTTM`)
+  - PEG < 1.0: Bullish (Undervalued Growth)
+  - PEG 1.0-2.0: Neutral
+  - PEG > 2.0: Bearish (Overvalued)
+- **Fallback: P/S Ratio** (if PEG unavailable)
+  - Uses `priceToSalesRatioTTM` when PEG is N/A
+  - P/S < 3.0: Bullish (Cheap Revenue)
+  - P/S > 10.0: Bearish (Expensive)
+  - UI displays "Using P/S (PEG N/A)" label when fallback is used
+- **Analyst Price Targets**: Upside percentage from consensus target
 
 ### Pillar D: Macro Liquidity (20% weight)
 - Fed Net Liquidity = WALCL - WTREGEN - RRPONTSYD
