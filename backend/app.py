@@ -31,7 +31,7 @@ def analyze_stock(ticker):
             return jsonify({'error': 'Invalid ticker symbol or no data available'}), 404
         
         profile = get_stock_profile(ticker)
-        hist_df = get_historical_prices(ticker, days=120)
+        hist_df = get_historical_prices(ticker, days=365)
         analyst_ratings = get_analyst_ratings(ticker)
         news = get_stock_news_sentiment(ticker)
         price_targets = get_analyst_price_targets(ticker)
