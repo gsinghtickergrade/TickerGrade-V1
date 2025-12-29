@@ -1,6 +1,8 @@
-# Swing Trading Decision Engine
+# TickerGrade - Swing Trading Decision Engine
 
 A comprehensive swing trading analysis dashboard optimized for 30-90 day trades. Calculates a Buy/Sell confidence score (0-10) based on five key pillars.
+
+**App Name:** TickerGrade (displayed in UI header and browser title)
 
 ## Overview
 

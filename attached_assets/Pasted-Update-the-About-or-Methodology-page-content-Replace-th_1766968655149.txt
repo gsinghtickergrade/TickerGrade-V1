@@ -1,0 +1,26 @@
+Update the 'About' or 'Methodology' page content. Replace the existing text with this new, swing-trading focused explanation. The tone should be professional, transparent, and confident.
+
+**Headline:** Inside the TickerGrade Engine
+
+**Intro Text:**
+"TickerGrade isn't a magic 8-ball. It is a Swing Trading Decision Engine designed for the 30-90 day timeframe. We strip away the noise and focus on the five specific data points that actually move stock prices in the medium term."
+
+**The 5-Pillar Methodology (Use an accordion or card layout):**
+
+1. **Catalysts (Sentiment):** "Stocks don't move without a spark. We track real-time Analyst Upgrades and News Sentiment to spot when the narrative is shifting from bearish to bullish before the price catches up."
+
+2. **Technical Structure:** "Precision matters. We use institutional-grade indicators (MACD, RSI, and Volume Trends) to identify the optimal entry points. We don't just look for 'cheap' stocks; we look for stocks that are ready to move."
+
+3. **Relative Value:** "Price is what you pay; value is what you get. We compare the stock's PEG Ratio and Analyst Price Targets to ensure you have enough 'upside room' to justify the risk."
+
+4. **Market Tides (Macro):** "Even the best ship sinks in a hurricane. We connect directly to the Federal Reserve (FRED) database to track 'Net Liquidity' and Credit Spreads. If the macro environment is toxic, our engine forces a defensive score."
+
+5. **Event Risk (The Guardrail):** "We hate surprises. The system automatically detects upcoming Earnings Dates. If a report is due within 15 days, we lock the score to 'Wait' to protect you from binary volatility events."
+
+**The Data Sources (Trust Section):**
+"Our algorithms rely on raw, institutional-grade data feeds:
+* **Company Data:** Sourced directly from **Financial Modeling Prep (FMP)**.
+* **Macro Economics:** Sourced directly from the **Federal Reserve Bank of St. Louis (FRED)**."
+
+**Legal Disclaimer (Bottom of page):**
+"TickerGrade is an educational analysis tool, not a financial advisor. All scores are algorithmic opinions based on historical data. Trading stocks involves risk. Do your own research."

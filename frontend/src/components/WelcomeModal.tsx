@@ -34,7 +34,7 @@ export function WelcomeModal() {
         
         <div className="text-slate-300 space-y-4 mb-6">
           <p>
-            <strong className="text-white">Educational Purposes Only.</strong> The Swing Trading Decision Engine is designed for informational and educational purposes. It is <strong className="text-yellow-400">not financial advice</strong>.
+            <strong className="text-white">Educational Purposes Only.</strong> TickerGrade is designed for informational and educational purposes. It is <strong className="text-yellow-400">not financial advice</strong>.
           </p>
           <p>
             All scores, signals, and recommendations are algorithmic outputs based on historical data and should not be the sole basis for any investment decision.

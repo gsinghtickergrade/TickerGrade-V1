@@ -124,10 +124,10 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
-            Swing Trading Decision Engine
+            TickerGrade
           </h1>
           <p className="text-slate-400 text-lg">
-            Data-driven analysis for 30-90 day swing trades
+            Swing Trading Decision Engine for 30-90 Day Trades
           </p>
         </div>
 
@@ -280,6 +280,115 @@ export default function Home() {
             <p className="text-sm mt-2">Optimized for 30-90 day swing trades</p>
           </div>
         )}
+
+        {/* About Our Methodology Section */}
+        <section className="mt-20 mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-white mb-4">Inside the TickerGrade Engine</h2>
+            <p className="text-slate-400 max-w-3xl mx-auto text-lg">
+              TickerGrade isn't a magic 8-ball. It is a Swing Trading Decision Engine designed for the 30-90 day timeframe. 
+              We strip away the noise and focus on the five specific data points that actually move stock prices in the medium term.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {/* Pillar 1: Catalysts */}
+            <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 rounded-lg bg-yellow-500/20">
+                  <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-white">Catalysts (Sentiment)</h3>
+              </div>
+              <p className="text-slate-400">
+                Stocks don't move without a spark. We track real-time Analyst Upgrades and News Sentiment to spot when the narrative is shifting from bearish to bullish before the price catches up.
+              </p>
+            </Card>
+
+            {/* Pillar 2: Technical Structure */}
+            <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 rounded-lg bg-purple-500/20">
+                  <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-white">Technical Structure</h3>
+              </div>
+              <p className="text-slate-400">
+                Precision matters. We use institutional-grade indicators (MACD, RSI, and Volume Trends) to identify the optimal entry points. We don't just look for 'cheap' stocks; we look for stocks that are ready to move.
+              </p>
+            </Card>
+
+            {/* Pillar 3: Relative Value */}
+            <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 rounded-lg bg-green-500/20">
+                  <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-white">Relative Value</h3>
+              </div>
+              <p className="text-slate-400">
+                Price is what you pay; value is what you get. We compare the stock's PEG Ratio and Analyst Price Targets to ensure you have enough 'upside room' to justify the risk.
+              </p>
+            </Card>
+
+            {/* Pillar 4: Market Tides */}
+            <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 rounded-lg bg-blue-500/20">
+                  <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-white">Market Tides (Macro)</h3>
+              </div>
+              <p className="text-slate-400">
+                Even the best ship sinks in a hurricane. We connect directly to the Federal Reserve (FRED) database to track 'Net Liquidity' and Credit Spreads. If the macro environment is toxic, our engine forces a defensive score.
+              </p>
+            </Card>
+
+            {/* Pillar 5: Event Risk */}
+            <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 rounded-lg bg-red-500/20">
+                  <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-white">Event Risk (The Guardrail)</h3>
+              </div>
+              <p className="text-slate-400">
+                We hate surprises. The system automatically detects upcoming Earnings Dates. If a report is due within 15 days, we lock the score to 'Wait' to protect you from binary volatility events.
+              </p>
+            </Card>
+
+            {/* Data Sources */}
+            <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 rounded-lg bg-slate-500/20">
+                  <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-white">Data Sources</h3>
+              </div>
+              <p className="text-slate-400">
+                Our algorithms rely on raw, institutional-grade data feeds. Company data is sourced directly from <span className="text-white font-medium">Financial Modeling Prep (FMP)</span>. Macro economics data comes from the <span className="text-white font-medium">Federal Reserve Bank of St. Louis (FRED)</span>.
+              </p>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <p className="text-slate-500 text-sm max-w-2xl mx-auto">
+              TickerGrade is an educational analysis tool, not a financial advisor. All scores are algorithmic opinions based on historical data. Trading stocks involves risk. Do your own research.
+            </p>
+          </div>
+        </section>
 
         <footer className="mt-16 pt-8 border-t border-white/10">
           <div className="flex flex-wrap justify-center gap-6 mb-6">

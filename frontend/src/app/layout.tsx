@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Swing Trading Decision Engine",
+  title: "TickerGrade | Swing Trading Decision Engine",
   description: "Data-driven analysis for 30-90 day swing trades",
 };
 
