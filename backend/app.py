@@ -120,6 +120,7 @@ def analyze_stock(ticker):
 
 @app.route('/api/macro/net-liquidity', methods=['GET'])
 def get_net_liquidity():
+    import pandas as pd
     try:
         fred_df = get_fred_data()
         spy_df = get_spy_data()
@@ -127,34 +128,47 @@ def get_net_liquidity():
         if fred_df is None:
             return jsonify({'error': 'Unable to fetch FRED data'}), 500
         
-        liq_min = fred_df['net_liquidity'].min()
-        liq_max = fred_df['net_liquidity'].max()
-        fred_df['net_liquidity_norm'] = (fred_df['net_liquidity'] - liq_min) / (liq_max - liq_min) * 100
+        fred_df = fred_df.copy()
+        fred_df.index = pd.to_datetime(fred_df.index).normalize()
+        
+        if spy_df is not None:
+            spy_df = spy_df.copy()
+            spy_df.index = pd.to_datetime(spy_df.index).normalize()
+            spy_df = spy_df[~spy_df.index.duplicated(keep='first')]
+            spy_reindexed = spy_df['close'].reindex(fred_df.index, method='ffill')
+            fred_df['spy_close'] = spy_reindexed
+        
+        fred_df = fred_df.dropna(subset=['net_liquidity'])
+        
+        if len(fred_df) > 0:
+            liq_start = fred_df['net_liquidity'].iloc[0]
+            fred_df['net_liquidity_norm'] = (fred_df['net_liquidity'] / liq_start) * 100
+            
+            if 'spy_close' in fred_df.columns:
+                fred_df_with_spy = fred_df.dropna(subset=['spy_close'])
+                if len(fred_df_with_spy) > 0:
+                    spy_start = fred_df_with_spy['spy_close'].iloc[0]
+                    fred_df['spy_norm'] = (fred_df['spy_close'] / spy_start) * 100
         
         data = []
         for date, row in fred_df.iterrows():
             entry = {
                 'date': date.strftime('%Y-%m-%d'),
-                'net_liquidity': round(row['net_liquidity'] / 1000000, 2),
-                'net_liquidity_norm': round(row['net_liquidity_norm'], 2)
+                'net_liquidity': round(float(row['net_liquidity']) / 1000000, 2),
+                'net_liquidity_norm': round(float(row.get('net_liquidity_norm', 100)), 2)
             }
             
-            if spy_df is not None and date in spy_df.index:
-                entry['spy_price'] = round(spy_df.loc[date, 'close'], 2)
+            if 'spy_close' in row.index and pd.notna(row['spy_close']):
+                entry['spy_price'] = round(float(row['spy_close']), 2)
+            if 'spy_norm' in row.index and pd.notna(row['spy_norm']):
+                entry['spy_norm'] = round(float(row['spy_norm']), 2)
             
             data.append(entry)
         
-        if spy_df is not None:
-            spy_min = spy_df['close'].min()
-            spy_max = spy_df['close'].max()
-            for entry in data:
-                if 'spy_price' in entry:
-                    entry['spy_norm'] = round((entry['spy_price'] - spy_min) / (spy_max - spy_min) * 100, 2)
-        
         return jsonify({
             'data': data[-90:],
-            'current_net_liquidity': round(fred_df['net_liquidity'].iloc[-1] / 1000000, 2),
-            'credit_spread': round(fred_df['credit_spreads'].iloc[-1], 2)
+            'current_net_liquidity': round(float(fred_df['net_liquidity'].iloc[-1]) / 1000000, 2),
+            'credit_spread': round(float(fred_df['credit_spreads'].iloc[-1]), 2)
         })
     
     except Exception as e:

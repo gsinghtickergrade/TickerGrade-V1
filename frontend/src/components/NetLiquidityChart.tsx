@@ -109,8 +109,8 @@ export function NetLiquidityChart() {
               yAxisId="left"
               stroke="#9CA3AF"
               tick={{ fill: '#9CA3AF', fontSize: 12 }}
-              domain={[0, 100]}
-              label={{ value: 'Normalized %', angle: -90, position: 'insideLeft', fill: '#9CA3AF' }}
+              domain={['auto', 'auto']}
+              label={{ value: 'Indexed to 100', angle: -90, position: 'insideLeft', fill: '#9CA3AF' }}
             />
             <Tooltip 
               contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #374151', borderRadius: '8px' }}
