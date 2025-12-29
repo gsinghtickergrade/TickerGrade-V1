@@ -78,18 +78,14 @@ Both workflows are configured:
 - `FRED_API_KEY` - Federal Reserve FRED API key
 - `SESSION_SECRET` - Session encryption key
 
-## Authentication
+## Access Control
 
-The application uses Replit Auth for secure authentication:
-- **Whitelist**: Only specified emails can access the application
-- **Protected Routes**: All `/api/analyze/*` and `/api/macro/*` endpoints require authentication
-- **Unauthorized Access**: Redirects to login
-
-To modify the whitelist, edit `ALLOWED_EMAILS` in `backend/replit_auth.py`.
-
-Current whitelist:
-- gsinghinvestor@gmail.com
-- nalins2600@gmail.com
+The application uses an **Anonymous Clickwrap Modal** for terms acceptance:
+- **No Login Required**: Users can access the tool without creating an account
+- **Terms Acceptance**: Modal blocks access until user clicks "I Understand & Agree"
+- **LocalStorage**: Stores `terms_accepted = true` in browser localStorage
+- **Privacy**: No user data is collected or stored on the server
+- **Persistence**: Terms acceptance persists until user clears browser cache
 
 ## Legal Compliance
 

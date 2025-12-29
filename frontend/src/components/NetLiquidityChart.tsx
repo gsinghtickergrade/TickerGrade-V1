@@ -31,16 +31,7 @@ export function NetLiquidityChart() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('/api/macro/net-liquidity', {
-        credentials: 'include',
-        redirect: 'manual'
-      });
-
-      if (response.type === 'opaqueredirect' || response.status === 0) {
-        setError('Please log in to view macro data');
-        setLoading(false);
-        return;
-      }
+      const response = await fetch('/api/macro/net-liquidity');
 
       if (!response.ok) {
         throw new Error('Failed to fetch liquidity data');

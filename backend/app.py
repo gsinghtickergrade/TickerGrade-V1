@@ -1,6 +1,5 @@
-from flask import Flask, jsonify, request, session, redirect, url_for
+from flask import Flask, jsonify
 from flask_cors import CORS
-from flask_login import current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import logging
@@ -19,35 +18,10 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-CORS(app, supports_credentials=True)
-
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    'pool_pre_ping': True,
-    "pool_recycle": 300,
-}
-
-from models import db
-db.init_app(app)
-
-from replit_auth import init_login_manager, make_replit_blueprint, require_login
-
-init_login_manager(app)
-app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
-
-with app.app_context():
-    db.create_all()
-    logger.info("Database tables created")
-
-@app.before_request
-def make_session_permanent():
-    session.permanent = True
+CORS(app)
 
 @app.route('/api/analyze/<ticker>', methods=['GET'])
-@require_login
 def analyze_stock(ticker):
     try:
         ticker = ticker.upper()
@@ -145,7 +119,6 @@ def analyze_stock(ticker):
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/macro/net-liquidity', methods=['GET'])
-@require_login
 def get_net_liquidity():
     try:
         fred_df = get_fred_data()
@@ -188,23 +161,9 @@ def get_net_liquidity():
         logger.error(f"Error fetching net liquidity: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/auth/status', methods=['GET'])
-def auth_status():
-    if current_user.is_authenticated:
-        return jsonify({
-            'authenticated': True,
-            'user': {
-                'id': current_user.id,
-                'email': current_user.email,
-                'first_name': current_user.first_name,
-                'profile_image_url': current_user.profile_image_url
-            }
-        })
-    return jsonify({'authenticated': False})
-
 @app.route('/', methods=['GET'])
 def root_health_check():
-    return jsonify({'status': 'healthy', 'service': 'Swing Trading Decision Engine API'})
+    return jsonify({'status': 'healthy', 'service': 'TickerGrade API'})
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
