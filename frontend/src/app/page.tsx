@@ -296,7 +296,7 @@ export default function Home() {
                 <h3 className="text-xl font-semibold text-white">Technical Structure</h3>
               </div>
               <p className="text-slate-400">
-                Precision matters. We use institutional-grade indicators (MACD, RSI, and Volume Trends) to identify the optimal entry points. We don't just look for 'cheap' stocks; we look for stocks that are ready to move.
+                Precision matters. We go beyond basic charts by tracking RSI Divergence to spot trend reversals before they happen. We combine this with MACD and Volume Analysis to identify high-probability entry points, ensuring you don't buy at the top or sell at the bottom.
               </p>
             </Card>
 
