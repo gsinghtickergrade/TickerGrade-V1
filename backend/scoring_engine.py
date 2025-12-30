@@ -426,7 +426,15 @@ def check_earnings_blackout(earnings_calendar):
         details['blackout'] = False
         return False, details
 
-def score_event_risk(earnings_calendar):
+def score_event_risk(earnings_calendar, pcr=0.7):
+    """
+    Score event risk based on earnings calendar and Put/Call Ratio.
+    
+    PCR thresholds:
+    - PCR > 2.0: High bearish hedging (Warning) -> -2.0 points
+    - PCR < 0.5: Excessive call buying (Greed) -> Neutral
+    - PCR 0.5-2.0: Normal range
+    """
     is_blackout, details = check_earnings_blackout(earnings_calendar)
     
     if is_blackout:
@@ -436,7 +444,22 @@ def score_event_risk(earnings_calendar):
         score = 10
         details['signal'] = 'Clear'
     
-    return score, details
+    details['put_call_ratio'] = round(pcr, 2)
+    
+    if pcr > 2.0:
+        score -= 2.0
+        details['pcr_signal'] = 'Warning (High Put Hedging)'
+        if not is_blackout:
+            details['signal'] = 'Warning'
+    elif pcr < 0.5:
+        details['pcr_signal'] = 'Greed (Excessive Calls)'
+        if not is_blackout:
+            details['signal'] = 'Greed'
+    else:
+        details['pcr_signal'] = 'Normal'
+    
+    score = max(0, min(10, score))
+    return round(score, 1), details
 
 def calculate_final_score(catalysts, technicals, value, macro, event_risk):
     weights = {

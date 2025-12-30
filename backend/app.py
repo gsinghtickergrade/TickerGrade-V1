@@ -8,7 +8,8 @@ import pandas as pd
 from data_services import (
     get_stock_quote, get_stock_profile, get_historical_prices,
     get_analyst_ratings, get_stock_news_sentiment, get_analyst_price_targets,
-    get_key_metrics, get_earnings_calendar, get_fred_data, get_spy_data
+    get_key_metrics, get_earnings_calendar, get_fred_data, get_spy_data,
+    get_put_call_ratio
 )
 from scoring_engine import (
     score_catalysts, score_technicals, score_value, score_macro,
@@ -39,6 +40,7 @@ def analyze_stock(ticker):
         key_metrics = get_key_metrics(ticker)
         earnings = get_earnings_calendar(ticker)
         fred_df = get_fred_data()
+        pcr = get_put_call_ratio(ticker)
         
         current_price = quote.get('price', 0)
         
@@ -46,7 +48,7 @@ def analyze_stock(ticker):
         technicals_score, technicals_details = score_technicals(hist_df)
         value_score, value_details = score_value(price_targets, key_metrics, current_price)
         macro_score, macro_details = score_macro(fred_df)
-        event_risk_score, event_risk_details = score_event_risk(earnings)
+        event_risk_score, event_risk_details = score_event_risk(earnings, pcr)
         
         is_blackout = event_risk_details.get('blackout', False)
         

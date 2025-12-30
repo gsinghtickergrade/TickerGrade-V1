@@ -65,8 +65,15 @@ This application provides data-driven stock analysis by fetching real-time data 
 - Fed Net Liquidity = WALCL - WTREGEN - RRPONTSYD
 - Credit Spreads (BAMLH0A0HYM2) - > 4.0% or rising = bearish
 
-### Pillar E: Event Risk (10% weight)
-- Earnings blackout rule: If next earnings within 15 days, force "WAIT" recommendation
+### Pillar E: Event Risk (10% weight) - Dual-Layer Safety Check
+- **Calendar Risk (FMP)**: Earnings blackout rule - If next earnings within 15 days, force "WAIT" recommendation
+- **Smart Money Fear Gauge (Yahoo Finance)**:
+  - Fetches Put/Call Ratio from options market using yfinance
+  - Target expiration: Closest to 30 days from today
+  - PCR > 2.0: High Bearish Hedging → Penalize score by -2.0 points, Status = "Warning"
+  - PCR < 0.5: Excessive Call Buying → Status = "Greed" (neutral score)
+  - PCR 0.5-2.0: Normal range
+  - Safety fallback: If yfinance fails, defaults PCR to 0.7
 
 ## API Endpoints
 
@@ -86,6 +93,12 @@ Both workflows are configured:
 - `FMP_API_KEY` - Financial Modeling Prep API key
 - `FRED_API_KEY` - Federal Reserve FRED API key
 - `SESSION_SECRET` - Session encryption key
+
+## Data Sources
+
+- **Company & Calendar Data**: Financial Modeling Prep (FMP) Stable API
+- **Macro Economics**: Federal Reserve Bank of St. Louis (FRED) API
+- **Options Sentiment**: Yahoo Finance via yfinance library
 
 ## Access Control
 
@@ -110,6 +123,12 @@ The application uses an **Anonymous Clickwrap Modal** for terms acceptance:
 - <6.0: **Pass / Hold**
 
 ## Recent Changes
+
+- 2025-12-30: Smart Money Fear Gauge (Put/Call Ratio)
+  - Added yfinance integration for options data
+  - Pillar E now includes dual-layer check: Calendar Risk + Put/Call Ratio
+  - PCR > 2.0 triggers "Warning" with -2.0 score penalty
+  - Updated About section with new Pillar 5 description and data sources
 
 - 2025-12-29: Multi-panel technical indicator chart
   - Added RSI, MACD, and Volume time series to price_history API response

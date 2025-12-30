@@ -5,6 +5,7 @@ import numpy as np
 from datetime import datetime, timedelta
 from cachetools import TTLCache
 from fredapi import Fred
+import yfinance as yf
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -223,4 +224,46 @@ def get_spy_data():
             df.set_index('date', inplace=True)
             return df
         return None
+    return get_cached(key, fetch)
+
+def get_put_call_ratio(ticker):
+    """
+    Calculate Put/Call Ratio from options data using yfinance.
+    Returns the PCR for the expiration date closest to 30 days out.
+    """
+    key = f"pcr_{ticker}"
+    def fetch():
+        try:
+            stock = yf.Ticker(ticker)
+            expirations = stock.options
+            
+            if not expirations:
+                logger.warning(f"No options data available for {ticker}")
+                return 0.7
+            
+            target_date = datetime.now() + timedelta(days=30)
+            closest_exp = min(expirations, key=lambda x: abs(datetime.strptime(x, '%Y-%m-%d') - target_date))
+            
+            chain = stock.option_chain(closest_exp)
+            
+            calls_volume = chain.calls['volume'].sum() if 'volume' in chain.calls.columns else 0
+            puts_volume = chain.puts['volume'].sum() if 'volume' in chain.puts.columns else 0
+            
+            if pd.isna(calls_volume):
+                calls_volume = 0
+            if pd.isna(puts_volume):
+                puts_volume = 0
+            
+            if calls_volume == 0:
+                logger.warning(f"No call volume for {ticker}, defaulting PCR to 0.7")
+                return 0.7
+            
+            pcr = puts_volume / calls_volume
+            logger.info(f"PCR for {ticker}: {pcr:.2f} (Puts: {puts_volume}, Calls: {calls_volume}, Exp: {closest_exp})")
+            return round(pcr, 2)
+            
+        except Exception as e:
+            logger.error(f"Error fetching options data for {ticker}: {e}")
+            return 0.7
+    
     return get_cached(key, fetch)

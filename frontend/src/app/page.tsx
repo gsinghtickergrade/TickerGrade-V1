@@ -339,10 +339,10 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-white">Event Risk (The Guardrail)</h3>
+                <h3 className="text-xl font-semibold text-white">Event Risk (Guardrail & Fear Gauge)</h3>
               </div>
               <p className="text-slate-400">
-                We hate surprises. The system automatically detects upcoming Earnings Dates. If a report is due within 15 days, we lock the score to 'Wait' to protect you from binary volatility events.
+                We hate surprises. The system runs a dual-layer safety check: <span className="text-white font-medium">Calendar Risk</span> tracks the official Earnings Calendar—if a report is due within 15 days, we lock the score to 'Wait' to protect you from binary volatility events. <span className="text-white font-medium">Smart Money Fear Gauge</span> calculates the real-time Put/Call Ratio from the options market. If we detect a sudden spike in Put volume (institutions hedging against a drop), we penalize the score even if the price chart looks perfect.
               </p>
             </Card>
 
@@ -357,7 +357,7 @@ export default function Home() {
                 <h3 className="text-xl font-semibold text-white">Data Sources</h3>
               </div>
               <p className="text-slate-400">
-                Our algorithms rely on raw, institutional-grade data feeds. Company data is sourced directly from <a href="https://financialmodelingprep.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Financial Modeling Prep (FMP)</a>. Macro economics data comes from the <a href="https://fred.stlouisfed.org" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Federal Reserve Bank of St. Louis (FRED)</a>.
+                Our algorithms rely on raw, institutional-grade data feeds. <span className="text-white font-medium">Company & Calendar Data</span> is sourced directly from <a href="https://financialmodelingprep.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Financial Modeling Prep (FMP)</a>. <span className="text-white font-medium">Macro Economics</span> comes from the <a href="https://fred.stlouisfed.org" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Federal Reserve Bank of St. Louis (FRED)</a>. <span className="text-white font-medium">Options Sentiment</span> is sourced via <a href="https://finance.yahoo.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Yahoo Finance</a> market feeds.
               </p>
             </Card>
           </div>

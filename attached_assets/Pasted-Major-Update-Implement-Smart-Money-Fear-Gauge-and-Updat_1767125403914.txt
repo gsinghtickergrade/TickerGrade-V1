@@ -1,0 +1,39 @@
+Major Update: Implement "Smart Money" Fear Gauge and Update Documentation.
+
+Please perform the following two tasks to upgrade Pillar E (Event Risk).
+
+### PART 1: BACKEND LOGIC (The Code)
+Our FMP plan lacks options data, so we must switch to `yfinance` for this specific feature.
+
+1.  **Install Library:** Ensure `yfinance` is installed in the Python environment.
+2.  **Create Option Logic:**
+    - Import `yfinance as yf`.
+    - Create a helper function `get_put_call_ratio(ticker)`:
+        - Fetch ticker: `stock = yf.Ticker(ticker)`
+        - **Target Date:** Find the expiration date closest to **30 days from today**.
+        - Fetch Chain: `chain = stock.option_chain(target_date)`
+        - **Calculate:** Sum `calls['volume']` and `puts['volume']`.
+        - **Result:** Return `puts_vol / calls_vol` (Handle division by zero).
+3.  **Update Pillar E Scoring:**
+    - Keep the existing FMP "Earnings Date" check (do not remove it).
+    - Add the new PCR check:
+        - If **PCR > 2.0** (High Bearish Hedging) -> Penalize score by **-2.0** points and set Status to "Warning".
+        - If **PCR < 0.5** (Excessive Call Buying) -> Set Status to "Greed" (Neutral score).
+    - **Safety Fallback:** Wrap the `yfinance` call in a `try/except` block. If it fails, default PCR to 0.7 so the app doesn't crash.
+
+### PART 2: FRONTEND CONTENT (The Text)
+Update the 'About / Methodology' page to explain this new logic.
+
+1.  **Update 'Pillar 5' Description:**
+    Replace the Pillar 5 text with:
+    > **5. Event Risk (The Guardrail & Fear Gauge):**
+    > "We hate surprises. The system runs a dual-layer safety check:
+    > * **Calendar Risk (FMP):** We track the official Earnings Calendar. If a report is due within 15 days, we lock the score to 'Wait' to protect you from binary volatility events.
+    > * **Smart Money Fear Gauge (Yahoo Data):** We calculate the real-time **Put/Call Ratio** from the options market. If we detect a sudden spike in Put volume (institutions hedging against a drop), we penalize the score even if the price chart looks perfect."
+
+2.  **Update 'Data Sources':**
+    Add Yahoo Finance to the source list:
+    > "Our algorithms rely on raw, institutional-grade data feeds:
+    > * **Company & Calendar Data:** Sourced directly from **Financial Modeling Prep (FMP)**.
+    > * **Macro Economics:** Sourced directly from the **Federal Reserve Bank of St. Louis (FRED)**.
+    > * **Options Sentiment:** Sourced via **Yahoo Finance** market feeds."
