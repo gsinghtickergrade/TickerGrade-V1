@@ -116,6 +116,7 @@ export default function Home() {
             value={ticker}
             onChange={(e) => setTicker(e.target.value.toUpperCase())}
             onKeyPress={handleKeyPress}
+            onFocus={(e) => e.target.select()}
             className="text-lg h-14 bg-white/10 border-white/20 text-white placeholder:text-slate-400"
           />
           <Button
