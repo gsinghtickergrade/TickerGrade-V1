@@ -180,6 +180,7 @@ export default function Home() {
                   stopLoss={stockData.action_card.stop_loss}
                   target={stockData.action_card.target}
                   riskReward={stockData.action_card.risk_reward}
+                  score={stockData.final_score}
                 />
               </div>
               
