@@ -95,7 +95,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-24">
       <WelcomeModal />
       <CookieBanner />
       
@@ -171,6 +171,13 @@ export default function Home() {
                 </div>
                 <ScoreGauge score={stockData.final_score} />
               </div>
+            </Card>
+
+            <Card className="p-6 bg-blue-500/10 border-blue-500/30">
+              <h3 className="text-xl font-bold text-white mb-3">Why TickerGrade?</h3>
+              <p className="text-slate-300">
+                Most algorithms try to sell you a trade. TickerGrade tries to talk you out of it. We treat swing trading like a maritime operation: <span className="text-white font-medium">Safety comes first.</span> If the Macro tide is out or volatility is too high, we penalize the score—even if the chart looks perfect. We only give a 'Green Light' when the probabilities are overwhelmingly in your favor.
+              </p>
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -258,204 +265,25 @@ export default function Home() {
             </svg>
             <p className="text-xl">Enter a stock ticker to get started</p>
             <p className="text-sm mt-2">Optimized for 30-60 day swing trades</p>
+            
+            <div className="mt-12 max-w-2xl mx-auto">
+              <Card className="p-6 bg-white/5 border-white/10">
+                <h3 className="text-lg font-semibold text-white mb-3">New to TickerGrade?</h3>
+                <p className="text-slate-400 mb-4">
+                  Learn how our 5-pillar scoring system works and how to interpret your results.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <Link href="/methodology" className="text-blue-400 hover:text-blue-300 font-medium">
+                    View Methodology →
+                  </Link>
+                  <Link href="/guide" className="text-blue-400 hover:text-blue-300 font-medium">
+                    Read User Guide →
+                  </Link>
+                </div>
+              </Card>
+            </div>
           </div>
         )}
-
-        {/* About Our Methodology Section */}
-        <section className="mt-20 mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">Inside the TickerGrade Engine</h2>
-            <p className="text-slate-400 max-w-3xl mx-auto text-lg">
-              TickerGrade isn't a magic 8-ball. It is a specialized decision engine designed for the <strong className="text-white">'Inter-Quarter' Sweet Spot (30–60 Days)</strong>. We identify trends that form after earnings volatility settles, allowing you to ride institutional accumulation waves and exit before the next earnings risk cycle begins.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {/* Pillar 1: Catalysts */}
-            <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 rounded-lg bg-yellow-500/20">
-                  <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-white">Catalysts (Sentiment)</h3>
-              </div>
-              <p className="text-slate-400">
-                Stocks don't move without a spark. We track real-time Analyst Upgrades and News Sentiment to spot when the narrative is shifting from bearish to bullish before the price catches up.
-              </p>
-            </Card>
-
-            {/* Pillar 2: Technical Structure */}
-            <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 rounded-lg bg-purple-500/20">
-                  <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-white">Technical Structure</h3>
-              </div>
-              <p className="text-slate-400">
-                Precision matters. We go beyond basic charts by tracking RSI Divergence to spot trend reversals before they happen. We combine this with MACD (12,26,9) in absolute dollar terms and Volume Analysis to identify high-probability entry points, ensuring you don't buy at the top or sell at the bottom.
-              </p>
-            </Card>
-
-            {/* Pillar 3: Relative Value */}
-            <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 rounded-lg bg-green-500/20">
-                  <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-white">Relative Value</h3>
-              </div>
-              <p className="text-slate-400">
-                Price is what you pay; value is what you get. We compare the stock's PEG Ratio and Analyst Price Targets to ensure you have enough 'upside room' to justify the risk.
-              </p>
-            </Card>
-
-            {/* Pillar 4: Market Tides */}
-            <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 rounded-lg bg-blue-500/20">
-                  <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-white">Market Tides (Macro)</h3>
-              </div>
-              <p className="text-slate-400">
-                Even the best ship sinks in a hurricane. We connect directly to the Federal Reserve (FRED) database to track 'Net Liquidity' and Credit Spreads. If the macro environment is toxic, our engine forces a defensive score.
-              </p>
-            </Card>
-
-            {/* Pillar 5: Event Risk */}
-            <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 rounded-lg bg-red-500/20">
-                  <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-white">Event Risk (Guardrail & Fear Gauge)</h3>
-              </div>
-              <p className="text-slate-400">
-                We hate surprises. The system runs a dual-layer safety check: <span className="text-white font-medium">Calendar Risk</span> tracks the official Earnings Calendar—if a report is due within 15 days, we lock the score to 'Wait' to protect you from binary volatility events. <span className="text-white font-medium">Smart Money Fear Gauge</span> calculates the real-time Put/Call Ratio from the options market. If we detect a sudden spike in Put volume (institutions hedging against a drop), we penalize the score even if the price chart looks perfect.
-              </p>
-            </Card>
-
-            {/* Data Sources */}
-            <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 rounded-lg bg-slate-500/20">
-                  <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-white">Data Sources</h3>
-              </div>
-              <p className="text-slate-400">
-                Our algorithms rely on raw, institutional-grade data feeds. <span className="text-white font-medium">Company & Calendar Data</span> is sourced directly from <a href="https://financialmodelingprep.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Financial Modeling Prep (FMP)</a>. <span className="text-white font-medium">Macro Economics</span> comes from the <a href="https://fred.stlouisfed.org" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Federal Reserve Bank of St. Louis (FRED)</a>. <span className="text-white font-medium">Options Sentiment</span> is sourced via <a href="https://finance.yahoo.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Yahoo Finance</a> market feeds.
-              </p>
-            </Card>
-          </div>
-
-          <div className="mt-12">
-            <h3 className="text-2xl font-bold text-center text-white mb-6">The Verdict</h3>
-            <div className="max-w-2xl mx-auto space-y-3">
-              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-white/10">
-                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-green-500/20 text-green-400 border border-green-500/30">
-                  8.0 - 10.0
-                </span>
-                <div>
-                  <span className="text-white font-medium">Strong Buy</span>
-                  <span className="text-slate-400 ml-2">— All systems go</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-white/10">
-                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                  6.0 - 7.9
-                </span>
-                <div>
-                  <span className="text-white font-medium">Buy</span>
-                  <span className="text-slate-400 ml-2">— Solid, but watch one or two factors</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-white/10">
-                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
-                  4.0 - 5.9
-                </span>
-                <div>
-                  <span className="text-white font-medium">Hold</span>
-                  <span className="text-slate-400 ml-2">— Mixed signals</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-white/10">
-                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-red-500/20 text-red-400 border border-red-500/30">
-                  0.0 - 3.9
-                </span>
-                <div>
-                  <span className="text-white font-medium">Avoid / Sell</span>
-                  <span className="text-slate-400 ml-2">— Deteriorating conditions</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 max-w-2xl mx-auto">
-            <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/30">
-              <h4 className="text-amber-400 font-semibold mb-2 flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                Note on Trade Setups
-              </h4>
-              <p className="text-slate-400 text-sm">
-                To protect capital, the 'Trade Setup' parameters (Entry, Stop Loss, Targets) are only generated for stocks with a <span className="text-white font-medium">Score of 6.0 or higher</span>. If a stock scores below this threshold, we deliberately hide these targets to prevent 'forcing' a trade on a weak setup.
-              </p>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <p className="text-slate-500 text-sm max-w-2xl mx-auto">
-              TickerGrade is an educational analysis tool, not a financial advisor. All scores are algorithmic opinions based on historical data. Trading stocks involves risk. Do your own research.
-            </p>
-          </div>
-        </section>
-
-        <footer className="mt-16 pt-8 border-t border-white/10">
-          <div className="flex flex-wrap justify-center gap-6 mb-6">
-            <Link href="/legal" className="text-slate-400 hover:text-white transition-colors">
-              Privacy Policy
-            </Link>
-            <Link href="/legal" className="text-slate-400 hover:text-white transition-colors">
-              Terms of Service
-            </Link>
-            <Link href="/legal" className="text-slate-400 hover:text-white transition-colors">
-              Disclaimer
-            </Link>
-          </div>
-          
-          <div className="text-center space-y-2 text-slate-500 text-sm">
-            <p>Market Data provided by Financial Modeling Prep.</p>
-            <p>Economic data provided by Federal Reserve Bank of St. Louis (FRED).</p>
-            <p>Options sentiment data sourced via Yahoo Finance.</p>
-            <p className="text-xs">
-              This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
-            </p>
-          </div>
-          
-          <p className="text-center text-slate-600 text-xs mt-6 max-w-3xl mx-auto">
-            Information provided is for educational purposes only and does not constitute financial advice. 
-            All scores are algorithmic and based on historical data. Invest at your own risk.
-          </p>
-          
-          <p className="text-center text-slate-500 text-sm mt-8">
-            © 2025 TickerGrade. All Rights Reserved.
-          </p>
-        </footer>
       </div>
     </main>
   );

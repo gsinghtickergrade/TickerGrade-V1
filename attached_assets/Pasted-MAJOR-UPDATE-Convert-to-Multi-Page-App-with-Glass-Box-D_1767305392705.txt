@@ -1,0 +1,53 @@
+MAJOR UPDATE: Convert to Multi-Page App with "Glass Box" Dashboard.
+
+We are restructuring the app from a single scrolling page into a multi-page application using `react-router-dom`.
+
+### PART 1: TECHNICAL SETUP
+1. **Install:** Ensure `react-router-dom` is installed.
+2. **Router Implementation:** Refactor `App.js` to use `<BrowserRouter>`, `<Routes>`, and `<Route>`.
+3. **Global Elements:**
+   - Create a fixed-top **Navbar** (details below).
+   - Ensure the **Footer** appears on every page.
+
+### PART 2: THE NAVIGATION BAR
+Create a responsive, modern Navbar fixed at the top:
+- **Left:** "TickerGrade" Logo (Link to `/`).
+- **Right:**
+  - **Dashboard:** Link to `/` (Home).
+  - **Methodology:** Link to `/methodology` (Deep Dive).
+  - **User Guide:** Link to `/guide` (Cheat Sheet).
+  - **Feedback:** A simple `mailto:your-email@example.com` link.
+- **State:** Highlight the active link (e.g., bold or colored accent).
+
+### PART 3: PAGE CONTENT & STRUCTURE
+
+**1. PAGE: Dashboard (Route: `/`)**
+   - **Goal:** The "Glass Box" Scanner. Immediate value + high-level philosophy.
+   - **Top:** Search Bar & Main Chart (Existing).
+   - **Middle (NEW):** Insert this "Philosophy Lead" immediately after the main score result but BEFORE the 5 Pillar Cards:
+     > *Headline:* "Why TickerGrade?"
+     > *Text:* "Most algorithms try to sell you a trade. TickerGrade tries to talk you out of it. We treat swing trading like a maritime operation: Safety comes first. If the Macro tide is out or volatility is too high, we penalize the score—even if the chart looks perfect. We only give a 'Green Light' when the probabilities are overwhelmingly in your favor."
+   - **Bottom:** Keep the **Verdict Scoreboard** and the **5 Pillars Grid** here so users can see the "Engine Room" visually.
+   - **Remove:** The long, detailed text blocks describing each pillar (move these to Methodology).
+
+**2. PAGE: Methodology (Route: `/methodology`)**
+   - **Goal:** The Technical Manual for power users.
+   - **Content:** Move all the detailed "Inside the Engine" text blocks here.
+   - **Add:** The "Data Sources" list at the bottom of this page.
+   - **Detail:** Include the specific weights (e.g., "Technical Structure: 35%") alongside the descriptions.
+
+**3. PAGE: User Guide (Route: `/guide`)**
+   - **Goal:** A clean "Cheat Sheet" for interpreting signals.
+   - **Content:**
+     > **Headline:** How to Read Your Score
+     > **Subtitle:** TickerGrade is a decision engine, not a crystal ball.
+
+     > **The Scoreboard:**
+     > * **8.0 - 10.0 (Strong Buy):** All systems go. Macro, Techs, and Fundamentals align.
+     > * **6.0 - 7.9 (Buy):** Solid setup, but check for specific warnings.
+     > * **4.0 - 5.9 (Hold):** Mixed signals. Usually means "Good Company, Bad Timing."
+     > * **0.0 - 3.9 (Avoid):** Deteriorating conditions. Capital preservation mode.
+
+     > **Critical Safety Features:**
+     > * **Why is the Trade Setup hidden?** If a stock scores < 6.0, we hide targets to prevent forcing bad trades.
+     > * **What is 'Event Risk'?** We lock scores to 'Wait' if Earnings are <15 days away, or if the Options Put/Call Ratio spikes > 2.0 (Institutional Fear).
