@@ -127,9 +127,9 @@ The application uses an **Anonymous Clickwrap Modal** for terms acceptance:
 - 2026-01-01: Inter-Quarter Timeframe Realignment (30-60 Days)
   - Updated hero subtitle and About section to focus on "Inter-Quarter" sweet spot
   - Refactored Trade Setup to use ATR-based volatility brackets:
-    - Stop Loss = Entry - (2.5 × ATR) for breathing room
+    - Stop Loss = Entry - max(2.5 × ATR, 4% floor) for breathing room
+    - 4% sanity floor prevents whipsaw on low-volatility stocks (e.g., KO)
     - Target = Entry + (5.0 × ATR), capped at analyst target if lower
-    - Results in consistent 2.0:1 R/R ratios for swing trades
   - Renamed "Target" label to "Target (60-Day)" in Trade Setup card
 
 - 2025-12-30: Smart Money Fear Gauge (Put/Call Ratio)

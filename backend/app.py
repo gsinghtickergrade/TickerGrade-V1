@@ -62,7 +62,9 @@ def analyze_stock(ticker):
         analyst_target = value_details.get('avg_price_target', None)
         
         if atr_14:
-            stop_loss = current_price - (2.5 * atr_14)
+            atr_stop_dist = 2.5 * atr_14
+            min_stop_dist = current_price * 0.04
+            stop_loss = current_price - max(atr_stop_dist, min_stop_dist)
             atr_target = current_price + (5.0 * atr_14)
             if analyst_target and analyst_target > current_price:
                 target_price = min(atr_target, analyst_target)
