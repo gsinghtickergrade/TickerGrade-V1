@@ -405,6 +405,20 @@ export default function Home() {
             </div>
           </div>
 
+          <div className="mt-8 max-w-2xl mx-auto">
+            <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/30">
+              <h4 className="text-amber-400 font-semibold mb-2 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Note on Trade Setups
+              </h4>
+              <p className="text-slate-400 text-sm">
+                To protect capital, the 'Trade Setup' parameters (Entry, Stop Loss, Targets) are only generated for stocks with a <span className="text-white font-medium">Score of 6.0 or higher</span>. If a stock scores below this threshold, we deliberately hide these targets to prevent 'forcing' a trade on a weak setup.
+              </p>
+            </div>
+          </div>
+
           <div className="text-center mt-12">
             <p className="text-slate-500 text-sm max-w-2xl mx-auto">
               TickerGrade is an educational analysis tool, not a financial advisor. All scores are algorithmic opinions based on historical data. Trading stocks involves risk. Do your own research.
