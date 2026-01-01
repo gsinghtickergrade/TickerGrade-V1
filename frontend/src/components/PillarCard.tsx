@@ -40,6 +40,27 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
       .replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
+  const getValueInsight = () => {
+    if (title !== 'Relative Value') return null;
+    
+    const upsidePercent = details.upside_percent as number | null;
+    const valuationSignal = details.valuation_signal as string | null;
+    
+    if (upsidePercent === null || valuationSignal === null) return null;
+    
+    if (upsidePercent > 10 && valuationSignal === 'Overvalued') {
+      return "Note: Analysts are bullish on price targets, but current fundamentals (PEG) suggest the stock is expensive.";
+    }
+    
+    if (upsidePercent < 0 && valuationSignal === 'Undervalued') {
+      return "Note: Fundamentals look cheap, but analysts expect further price drops.";
+    }
+    
+    return null;
+  };
+
+  const valueInsight = getValueInsight();
+
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
@@ -66,6 +87,11 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
             </div>
           ))}
         </div>
+        {valueInsight && (
+          <p className="mt-3 pt-3 border-t border-white/10 text-xs italic text-amber-400">
+            {valueInsight}
+          </p>
+        )}
       </CardContent>
     </Card>
   );
