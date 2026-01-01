@@ -15,6 +15,46 @@ export default function GuidePage() {
         </div>
 
         <section className="mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="p-6 bg-green-500/10 border-green-500/30">
+              <h2 className="text-xl font-bold text-green-400 mb-4">Who is TickerGrade for?</h2>
+              <ul className="space-y-3 text-slate-300">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">•</span>
+                  <span><span className="text-white font-medium">The Recovering Hype-Chaser:</span> You're tired of alerts that promise the moon and deliver losses.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">•</span>
+                  <span><span className="text-white font-medium">The Part-Time Trader:</span> You have a career and can't watch the 1-minute chart. You want 30-60 day trends.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">•</span>
+                  <span><span className="text-white font-medium">The Systems Thinker:</span> You prefer checklists, data, and probability over 'gut feelings' and 'hot tips'.</span>
+                </li>
+              </ul>
+            </Card>
+
+            <Card className="p-6 bg-red-500/10 border-red-500/30">
+              <h2 className="text-xl font-bold text-red-400 mb-4">Who is this NOT for?</h2>
+              <ul className="space-y-3 text-slate-300">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-400 mt-1">•</span>
+                  <span>Day Traders seeking adrenaline.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-400 mt-1">•</span>
+                  <span>Investors looking for a 10-year hold.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-400 mt-1">•</span>
+                  <span>Traders who ignore macro risks.</span>
+                </li>
+              </ul>
+            </Card>
+          </div>
+        </section>
+
+        <section className="mb-16">
           <h2 className="text-2xl font-bold text-white mb-6">The Scoreboard</h2>
           <div className="space-y-4">
             <Card className="p-6 bg-white/5 border-white/10">
