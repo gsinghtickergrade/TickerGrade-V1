@@ -1,0 +1,36 @@
+MASTER UPDATE: Realign App for 30-60 Day "Inter-Quarter" Timeframe.
+
+We are refining the application's focus to target "Position Swings" (30-60 day hold times). Please update both the frontend messaging and the backend trade logic to reflect this.
+
+### PART 1: FRONTEND MESSAGING (Rebranding)
+Update the text to clarify our specific timeframe.
+
+1.  **Hero Section / Landing Page:**
+    - Change the main subtitle to:
+      *"The Decision Engine for 30-60 Day Swing Trades. Catch the trend between earnings."*
+
+2.  **'About' Section - Introduction:**
+    - Update the intro text to:
+      *"TickerGrade isn't a magic 8-ball. It is a specialized decision engine designed for the **'Inter-Quarter' Sweet Spot (30–60 Days)**. We identify trends that form after earnings volatility settles, allowing you to ride institutional accumulation waves and exit before the next earnings risk cycle begins."*
+
+### PART 2: BACKEND LOGIC (Volatility-Based Trade Setups)
+Refactor the 'Trade Setup' card to use ATR (Average True Range) volatility brackets instead of fixed percentage targets. This creates realistic 2:1 setups for a 2-month hold.
+
+**1. Data Requirement:**
+   - Ensure `pandas_ta` calculates `atr = ta.atr(high, low, close, length=14)` on the daily dataframe. Use the most recent ATR value.
+
+**2. The New Formula:**
+   - **Entry Price:** Current Price.
+   - **Stop Loss (The "Breathing Room"):**
+     - `Stop = Entry - (2.5 * ATR)`
+     - *Logic:* This allows for normal market noise without getting stopped out prematurely.
+   - **Target Price (The "Swing High"):**
+     - `Target = Entry + (5.0 * ATR)`
+     - *Safety Cap:* IF `Target` > `Analyst Average Price Target`, then clamp `Target` to the `Analyst Average Price Target`. (Do not promise more than the consensus).
+   - **Risk/Reward Ratio:**
+     - Calculate: `(Target - Entry) / (Entry - Stop)`
+     - Format as "2.0:1" (or similar).
+
+**3. UX Update:**
+   - In the Trade Setup Card, rename the "Target" label to **"Target (60-Day)"**.
+   - Ensure these values are still HIDDEN if the total TickerGrade Score is < 6.0 (preserve existing safety logic).

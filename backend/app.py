@@ -58,8 +58,19 @@ def analyze_stock(ticker):
         
         verdict, verdict_type = get_verdict(final_score, is_blackout)
         
-        stop_loss = technicals_details.get('stop_loss_support', current_price * 0.95)
-        target_price = value_details.get('avg_price_target', current_price * 1.10)
+        atr_14 = technicals_details.get('atr_14', None)
+        analyst_target = value_details.get('avg_price_target', None)
+        
+        if atr_14:
+            stop_loss = current_price - (2.5 * atr_14)
+            atr_target = current_price + (5.0 * atr_14)
+            if analyst_target:
+                target_price = min(atr_target, analyst_target)
+            else:
+                target_price = atr_target
+        else:
+            stop_loss = technicals_details.get('stop_loss_support', current_price * 0.95)
+            target_price = analyst_target if analyst_target else current_price * 1.10
         
         price_history = []
         if hist_df is not None and len(hist_df) > 0:

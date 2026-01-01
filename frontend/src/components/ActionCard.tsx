@@ -77,7 +77,7 @@ export function ActionCard({ entryZone, stopLoss, target, riskReward, score }: A
         </div>
         
         <div className="flex justify-between items-center p-3 bg-green-500/10 rounded-lg border border-green-500/30">
-          <span className="text-slate-400">Target</span>
+          <span className="text-slate-400">Target (60-Day)</span>
           <span className="text-xl font-bold text-green-400">
             {target ? `$${target.toFixed(2)}` : 'N/A'}
           </span>

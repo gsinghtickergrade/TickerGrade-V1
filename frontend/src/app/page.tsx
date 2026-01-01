@@ -105,7 +105,7 @@ export default function Home() {
             TickerGrade
           </h1>
           <p className="text-slate-400 text-lg">
-            Swing Trading Decision Engine for 30-90 Day Trades
+            The Decision Engine for 30-60 Day Swing Trades. Catch the trend between earnings.
           </p>
         </div>
 
@@ -257,7 +257,7 @@ export default function Home() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
             <p className="text-xl">Enter a stock ticker to get started</p>
-            <p className="text-sm mt-2">Optimized for 30-90 day swing trades</p>
+            <p className="text-sm mt-2">Optimized for 30-60 day swing trades</p>
           </div>
         )}
 
@@ -266,8 +266,7 @@ export default function Home() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white mb-4">Inside the TickerGrade Engine</h2>
             <p className="text-slate-400 max-w-3xl mx-auto text-lg">
-              TickerGrade isn't a magic 8-ball. It is a Swing Trading Decision Engine designed for the 30-90 day timeframe. 
-              We strip away the noise and focus on the five specific data points that actually move stock prices in the medium term.
+              TickerGrade isn't a magic 8-ball. It is a specialized decision engine designed for the <strong className="text-white">'Inter-Quarter' Sweet Spot (30–60 Days)</strong>. We identify trends that form after earnings volatility settles, allowing you to ride institutional accumulation waves and exit before the next earnings risk cycle begins.
             </p>
           </div>
 
