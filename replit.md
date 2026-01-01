@@ -122,7 +122,29 @@ The application uses an **Anonymous Clickwrap Modal** for terms acceptance:
 - 6.0-7.9: **Watchlist** (Setup Developing)
 - <6.0: **Pass / Hold**
 
+## Site Structure (Multi-Page)
+
+The application uses Next.js App Router for file-based routing:
+- **Dashboard** (`/`) - Main stock scanner with "Why TickerGrade?" philosophy section
+- **Methodology** (`/methodology`) - Detailed 5-pillar scoring explanations
+- **User Guide** (`/guide`) - Score interpretation cheat sheet and safety features
+- **Legal** (`/legal`) - Privacy, Terms, Disclaimer tabs
+- **Feedback** (mailto link) - Email contact for user feedback
+
+Global components in layout.tsx:
+- **Navbar** - Fixed header with navigation links (uses pt-24 padding on pages)
+- **Footer** - Data attribution, legal links, copyright
+
 ## Recent Changes
+
+- 2026-01-01: Multi-Page Navigation Refactor
+  - Converted single-page app to multi-page structure using Next.js App Router
+  - Created fixed Navbar component with Dashboard, Methodology, User Guide, and Feedback links
+  - Created `/methodology` page with detailed pillar descriptions
+  - Created `/guide` page with score interpretation cheat sheet
+  - Added "Why TickerGrade?" philosophy section to Dashboard
+  - Moved Footer to global layout component
+  - All pages use pt-24 padding to accommodate fixed navbar
 
 - 2026-01-01: Inter-Quarter Timeframe Realignment (30-60 Days)
   - Updated hero subtitle and About section to focus on "Inter-Quarter" sweet spot
