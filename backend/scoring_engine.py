@@ -275,11 +275,28 @@ def score_technicals(hist_df):
         if current_volume > sma_volume_20:
             score += 1.0
     
-    if 'low' in hist_df.columns:
+    if 'high' in hist_df.columns and 'low' in hist_df.columns:
+        high_low = hist_df['high'] - hist_df['low']
+        high_close = abs(hist_df['high'] - close_prices.shift(1))
+        low_close = abs(hist_df['low'] - close_prices.shift(1))
+        tr = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+        atr_14 = tr.rolling(14).mean().iloc[-1]
+        
+        if not np.isnan(atr_14):
+            atr_stop = current_price - (atr_14 * 2.0)
+            lowest_low_20 = float(hist_df['low'].tail(20).min())
+            stop_loss = min(atr_stop, lowest_low_20)
+            details['atr_14'] = round(float(atr_14), 2)
+            details['stop_loss_support'] = round(float(stop_loss), 2)
+        else:
+            lowest_low_20 = float(hist_df['low'].tail(20).min())
+            details['stop_loss_support'] = round(lowest_low_20, 2)
+    elif 'low' in hist_df.columns:
         lowest_low_20 = float(hist_df['low'].tail(20).min())
+        details['stop_loss_support'] = round(lowest_low_20, 2)
     else:
         lowest_low_20 = float(close_prices.tail(20).min())
-    details['stop_loss_support'] = round(lowest_low_20, 2)
+        details['stop_loss_support'] = round(lowest_low_20, 2)
     
     score = max(0, min(10, score))
     return round(score, 1), details

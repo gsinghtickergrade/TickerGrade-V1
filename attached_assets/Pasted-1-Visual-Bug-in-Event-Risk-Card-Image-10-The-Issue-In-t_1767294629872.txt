@@ -1,0 +1,55 @@
+1. Visual Bug in 'Event Risk' Card (Image 10)
+The Issue: In the Event Risk card, the text "Warning (High Put Hedging)" is too long for the layout. It clutters the card and makes it hard to scan.
+
+Current Label: Pcr -> Warning (High Put Hedging)
+
+Current Label: Put Call Ratio -> 2.08
+
+The Fix: Consolidate these two lines into one clear data point. You don't need to list the value and the signal separately if they clutter the view.
+
+Replit Prompt:
+
+"Refactor the Pillar E (Event Risk) card layout to prevent text overflow.
+
+Instead of showing two separate lines for 'Pcr' and 'Put Call Ratio', combine them into a single, cleaner line:
+
+Label: 'Smart Money (PCR)'
+
+Value: Display the number and icon. E.g., '2.08 ⚠️' or '0.60 ✅'.
+
+Add a subtitle or smaller text below it that says the status, such as 'High Put Hedging' or 'Neutral', so it doesn't break the alignment."
+
+2. The Risk/Reward Ratio seems Aggressive (Image 4)
+The Observation: For MSFT, your card shows a Risk/Reward of 12.27:1.
+
+Entry: $483
+
+Target: $640 (+32%)
+
+Stop: $470 (-2.6%)
+
+The Critique: While the math is correct, a 12:1 ratio is incredibly rare in realistic swing trading. A 2.6% stop loss on a volatile tech stock might get stopped out by normal daily noise.
+
+Risk: Users might think the app is "over-promising."
+
+Suggestion: You might want to widen the Stop Loss slightly (e.g., use ATR x 1.5 or 2.0) or make the Target more conservative (e.g., key resistance levels rather than the full Analyst Price Target).
+
+Action (Optional): If you feel the stops are too tight, you can ask Replit: "Adjust the Stop Loss logic to be slightly looser. Instead of just using the recent swing low, incorporate ATR (Average True Range) to ensure we don't get stopped out by market noise."
+
+3. Chart Vertical Scaling (Image 9)
+The Issue: The main price chart has a lot of empty white space above the price candles. The stock is trading at $483, but the y-axis goes up to ~$569+, leaving the top 30% of the chart empty.
+
+The Fix: Tighten the y-axis scaling so the candles fill the screen better.
+
+Replit Prompt:
+
+"Adjust the y-axis scaling on the Price History chart. Currently, there is too much empty space above the price line. Please configure the chart library (Plotly/Matplotlib) to dynamically set the y-axis range based on the High/Low of the visible data + a 5% buffer, rather than a fixed wide range."
+
+4. Footer Missing Data Source (Image 11)
+The Issue: Your About page correctly lists Yahoo Finance, but your persistent Footer (Image 11) only lists "Financial Modeling Prep" and "FRED."
+
+The Fix: For full transparency (and legal "cover"), add Yahoo to the footer.
+
+Replit Prompt:
+
+"Update the website Footer text. Add 'Options sentiment data sourced via Yahoo Finance.' to the disclaimer block so it matches our Data Sources section."

@@ -49,9 +49,13 @@ export function PriceChart({ data, ticker }: PriceChartProps) {
     );
   }
 
-  const prices = data.map((d) => d.price).filter((p) => p !== undefined);
-  const minPrice = prices.length > 0 ? Math.min(...prices) * 0.95 : 0;
-  const maxPrice = prices.length > 0 ? Math.max(...prices) * 1.05 : 100;
+  const lows = data.map((d) => d.low ?? d.price).filter((p) => p !== undefined);
+  const highs = data.map((d) => d.high ?? d.price).filter((p) => p !== undefined);
+  const dataMin = lows.length > 0 ? Math.min(...lows) : 0;
+  const dataMax = highs.length > 0 ? Math.max(...highs) : 100;
+  const priceRange = dataMax - dataMin;
+  const minPrice = dataMin - (priceRange * 0.05);
+  const maxPrice = dataMax + (priceRange * 0.05);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);

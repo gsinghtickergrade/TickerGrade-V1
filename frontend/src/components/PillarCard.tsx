@@ -34,6 +34,45 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
     return value;
   };
 
+  const getEventRiskDisplay = () => {
+    if (title !== 'Event Risk') return null;
+    
+    const pcr = details.put_call_ratio as number | null;
+    const pcrSignal = details.pcr_signal as string | null;
+    
+    if (pcr === null) return null;
+    
+    let icon = '';
+    let statusText = 'Neutral';
+    let statusColor = 'text-slate-400';
+    
+    if (pcrSignal?.includes('Warning')) {
+      icon = ' ⚠️';
+      statusText = 'High Put Hedging';
+      statusColor = 'text-amber-400';
+    } else if (pcrSignal?.includes('Greed')) {
+      icon = ' 🔥';
+      statusText = 'Excessive Calls';
+      statusColor = 'text-green-400';
+    } else {
+      icon = ' ✅';
+      statusText = 'Neutral';
+      statusColor = 'text-slate-400';
+    }
+    
+    return { pcr, icon, statusText, statusColor };
+  };
+
+  const eventRiskDisplay = getEventRiskDisplay();
+
+  const filteredDetails = title === 'Event Risk' 
+    ? Object.fromEntries(
+        Object.entries(details).filter(([key]) => 
+          !['put_call_ratio', 'pcr_signal'].includes(key)
+        )
+      )
+    : details;
+
   const formatKey = (key: string) => {
     return key
       .replace(/_/g, ' ')
@@ -80,12 +119,23 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
           <span className="text-gray-400 text-lg">/10</span>
         </div>
         <div className="space-y-2">
-          {Object.entries(details).map(([key, value]) => (
+          {Object.entries(filteredDetails).map(([key, value]) => (
             <div key={key} className="flex justify-between text-sm">
               <span className="text-gray-500">{formatKey(key)}</span>
               <span className="font-medium">{formatValue(key, value)}</span>
             </div>
           ))}
+          {eventRiskDisplay && (
+            <div className="pt-2 border-t border-white/10">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Smart Money (PCR)</span>
+                <span className="font-medium">{eventRiskDisplay.pcr.toFixed(2)}{eventRiskDisplay.icon}</span>
+              </div>
+              <div className={`text-xs ${eventRiskDisplay.statusColor} text-right mt-1`}>
+                {eventRiskDisplay.statusText}
+              </div>
+            </div>
+          )}
         </div>
         {valueInsight && (
           <p className="mt-3 pt-3 border-t border-white/10 text-xs italic text-amber-400">

@@ -442,6 +442,7 @@ export default function Home() {
           <div className="text-center space-y-2 text-slate-500 text-sm">
             <p>Market Data provided by Financial Modeling Prep.</p>
             <p>Economic data provided by Federal Reserve Bank of St. Louis (FRED).</p>
+            <p>Options sentiment data sourced via Yahoo Finance.</p>
             <p className="text-xs">
               This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
             </p>
