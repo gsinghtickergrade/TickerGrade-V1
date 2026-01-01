@@ -7,6 +7,13 @@ export default function MethodologyPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-24 pb-16">
       <div className="container mx-auto px-4 max-w-5xl">
+        <Card className="p-8 bg-blue-500/10 border-blue-500/30 mb-12">
+          <h2 className="text-2xl font-bold text-blue-400 mb-4">Our Philosophy: We Look for Reasons to Say 'No'</h2>
+          <p className="text-blue-200 leading-relaxed">
+            Most algorithms try to sell you a trade. TickerGrade tries to talk you out of it. We treat swing trading like a maritime operation: <span className="font-semibold text-white">Safety comes before speed.</span> Our engine is built on Capital Preservation first. If the Macro tide is out, the sector is risky, or the volatility is too high, we penalize the score—even if the chart looks perfect. We only give a 'Green Light' when the probabilities are overwhelmingly in your favor.
+          </p>
+        </Card>
+
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">Inside the TickerGrade Engine</h1>
           <p className="text-slate-400 text-lg max-w-3xl mx-auto">
