@@ -147,18 +147,55 @@ def get_earnings_calendar(ticker):
     key = f"earnings_{ticker}"
     fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        data = fmp_get("earnings-calendar", {'symbol': fmp_ticker})
+        now = datetime.now()
+        from_date = now.strftime('%Y-%m-%d')
+        to_date = (now + timedelta(days=90)).strftime('%Y-%m-%d')
+        
+        data = fmp_get("earnings-calendar", {
+            'from': from_date,
+            'to': to_date
+        })
+        
         if data:
-            now = datetime.now()
             future = []
             for e in data:
                 try:
+                    if e.get('symbol') != fmp_ticker:
+                        continue
                     edate = datetime.strptime(e.get('date', '1900-01-01'), '%Y-%m-%d')
                     if edate > now:
                         future.append(e)
                 except:
                     continue
-            return sorted(future, key=lambda x: x.get('date', ''))[:1]
+            if future:
+                result = sorted(future, key=lambda x: x.get('date', ''))[:1]
+                logger.info(f"FMP earnings for {ticker}: {result}")
+                return result
+        
+        try:
+            stock = yf.Ticker(ticker)
+            calendar = stock.calendar
+            if calendar is not None:
+                earnings_date = None
+                if isinstance(calendar, dict) and 'Earnings Date' in calendar:
+                    earnings_date = calendar['Earnings Date']
+                    if isinstance(earnings_date, list) and len(earnings_date) > 0:
+                        earnings_date = earnings_date[0]
+                elif hasattr(calendar, 'index') and 'Earnings Date' in calendar.index:
+                    earnings_date = calendar.loc['Earnings Date']
+                    if hasattr(earnings_date, 'iloc'):
+                        earnings_date = earnings_date.iloc[0]
+                
+                if earnings_date is not None:
+                    if hasattr(earnings_date, 'strftime'):
+                        date_str = earnings_date.strftime('%Y-%m-%d')
+                    else:
+                        date_str = str(earnings_date)[:10]
+                    logger.info(f"yfinance earnings for {ticker}: {date_str}")
+                    return [{'date': date_str, 'symbol': ticker, 'source': 'yfinance'}]
+        except Exception as e:
+            logger.warning(f"yfinance earnings lookup failed for {ticker}: {e}")
+        
         return []
     return get_cached(key, fetch)
 
