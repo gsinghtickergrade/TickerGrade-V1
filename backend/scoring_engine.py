@@ -351,7 +351,7 @@ def score_value(price_targets, key_metrics, current_price):
                 
                 if ps_ratio < 3.0:
                     score += 2.0
-                    details['valuation_signal'] = 'Cheap Revenue'
+                    details['valuation_signal'] = 'Undervalued'
                 elif ps_ratio > 10.0:
                     score -= 1.5
                     details['valuation_signal'] = 'Expensive'

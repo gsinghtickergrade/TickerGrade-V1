@@ -56,7 +56,7 @@ This application provides data-driven stock analysis by fetching real-time data 
   - PEG > 2.0: Bearish (Overvalued)
 - **Fallback: P/S Ratio** (if PEG unavailable)
   - Uses `priceToSalesRatioTTM` when PEG is N/A
-  - P/S < 3.0: Bullish (Cheap Revenue)
+  - P/S < 3.0: Bullish (Undervalued)
   - P/S > 10.0: Bearish (Expensive)
   - UI displays "Using P/S (PEG N/A)" label when fallback is used
 - **Analyst Price Targets**: Upside percentage from consensus target
