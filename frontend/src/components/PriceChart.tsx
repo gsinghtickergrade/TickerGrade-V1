@@ -28,6 +28,8 @@ interface PriceData {
   histogram?: number;
   volume?: number;
   volume_sma?: number;
+  sma_50?: number;
+  sma_200?: number;
 }
 
 interface PriceChartProps {
@@ -110,7 +112,10 @@ export function PriceChart({ data, ticker }: PriceChartProps) {
               <Tooltip
                 contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
                 labelStyle={{ color: '#9ca3af' }}
-                formatter={(value: number | undefined) => [value !== undefined ? `$${value.toFixed(2)}` : '$0.00', 'Price']}
+                formatter={(value: number | undefined, name?: string) => {
+                  const label = name === 'sma_50' ? '50d Trend' : name === 'sma_200' ? '200d Major' : 'Price';
+                  return [value !== undefined ? `$${value.toFixed(2)}` : '$0.00', label];
+                }}
                 labelFormatter={formatDate}
               />
               <Line
@@ -120,6 +125,25 @@ export function PriceChart({ data, ticker }: PriceChartProps) {
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}
+                name="Price"
+              />
+              <Line
+                type="monotone"
+                dataKey="sma_50"
+                stroke="#00C805"
+                strokeWidth={2}
+                dot={false}
+                name="50d Trend"
+                connectNulls={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="sma_200"
+                stroke="#FF8800"
+                strokeWidth={2}
+                dot={false}
+                name="200d Major"
+                connectNulls={false}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -281,7 +305,15 @@ export function PriceChart({ data, ticker }: PriceChartProps) {
         <div className="flex flex-wrap gap-4 text-xs text-slate-400 pt-2 border-t border-slate-700">
           <div className="flex items-center gap-1">
             <div className="w-3 h-0.5 bg-blue-500"></div>
-            <span>Price / MACD</span>
+            <span>Price</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-0.5" style={{ backgroundColor: '#00C805' }}></div>
+            <span>50d Trend</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-0.5" style={{ backgroundColor: '#FF8800' }}></div>
+            <span>200d Major</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-0.5 bg-purple-500"></div>

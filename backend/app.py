@@ -85,6 +85,9 @@ def analyze_stock(ticker):
             
             volume_sma = hist_df['volume'].rolling(20).mean() if 'volume' in hist_df.columns else None
             
+            sma_50 = close_prices.rolling(window=50).mean()
+            sma_200 = close_prices.rolling(window=200).mean()
+            
             for i, (_, row) in enumerate(hist_df.iterrows()):
                 entry = {
                     'date': row['date'].strftime('%Y-%m-%d') if hasattr(row['date'], 'strftime') else str(row['date'])[:10],
@@ -110,6 +113,12 @@ def analyze_stock(ticker):
                     entry['volume'] = int(row['volume'])
                     if volume_sma is not None and i < len(volume_sma) and not pd.isna(volume_sma.iloc[i]):
                         entry['volume_sma'] = int(volume_sma.iloc[i])
+                
+                if i < len(sma_50) and not pd.isna(sma_50.iloc[i]):
+                    entry['sma_50'] = round(float(sma_50.iloc[i]), 2)
+                
+                if i < len(sma_200) and not pd.isna(sma_200.iloc[i]):
+                    entry['sma_200'] = round(float(sma_200.iloc[i]), 2)
                 
                 price_history.append(entry)
         
