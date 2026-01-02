@@ -174,9 +174,9 @@ export default function Home() {
             </Card>
 
             <Card className="p-6 bg-blue-500/10 border-blue-500/30">
-              <h3 className="text-xl font-bold text-white mb-3">Why TickerGrade?</h3>
+              <h3 className="text-xl font-bold text-white mb-3">Profit Through Precision</h3>
               <p className="text-slate-300">
-                Most algorithms try to sell you a trade. TickerGrade tries to talk you out of it. We treat swing trading like a maritime operation: <span className="text-white font-medium">Safety comes first.</span> If the Macro tide is out or volatility is too high, we penalize the score—even if the chart looks perfect. We only give a 'Green Light' when the probabilities are overwhelmingly in your favor.
+                In maritime and industrial operations, safety isn't just about avoiding accidents; it's the foundation of a viable, profitable business. TickerGrade applies this same rigorous risk management to swing trading. By securing the downside first <span className="text-white font-medium">(Capital Preservation)</span>, we clear the path for reliable, sustainable <span className="text-white font-medium">Wealth Growth</span>. We only signal a 'Green Light' when the operational risks are managed and the probability of profit is overwhelmingly in your favor.
               </p>
             </Card>
 
