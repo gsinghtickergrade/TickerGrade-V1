@@ -105,9 +105,9 @@ export default function GuidePage() {
                   0.0 - 3.9
                 </span>
                 <div>
-                  <h3 className="text-xl font-semibold text-white">Avoid</h3>
+                  <h3 className="text-xl font-semibold text-white">Avoid/Sell</h3>
                   <p className="text-slate-400 mt-1">
-                    Deteriorating conditions. Capital preservation mode. The risk/reward is not in your favor—stay on the sidelines.
+                    Deteriorating conditions. Capital preservation mode. The risk/reward is not in your favor—stay on the sidelines or sell.
                   </p>
                 </div>
               </div>
