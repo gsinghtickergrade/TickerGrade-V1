@@ -287,16 +287,16 @@ def score_technicals(hist_df):
             lowest_low_20 = float(hist_df['low'].tail(20).min())
             stop_loss = min(atr_stop, lowest_low_20)
             details['atr_14'] = round(float(atr_14), 2)
-            details['stop_loss_support'] = round(float(stop_loss), 2)
+            details['key_support_level'] = round(float(stop_loss), 2)
         else:
             lowest_low_20 = float(hist_df['low'].tail(20).min())
-            details['stop_loss_support'] = round(lowest_low_20, 2)
+            details['key_support_level'] = round(lowest_low_20, 2)
     elif 'low' in hist_df.columns:
         lowest_low_20 = float(hist_df['low'].tail(20).min())
-        details['stop_loss_support'] = round(lowest_low_20, 2)
+        details['key_support_level'] = round(lowest_low_20, 2)
     else:
         lowest_low_20 = float(close_prices.tail(20).min())
-        details['stop_loss_support'] = round(lowest_low_20, 2)
+        details['key_support_level'] = round(lowest_low_20, 2)
     
     score = max(0, min(10, score))
     return round(score, 1), details

@@ -71,7 +71,7 @@ def analyze_stock(ticker):
             else:
                 target_price = atr_target
         else:
-            stop_loss = technicals_details.get('stop_loss_support', current_price * 0.95)
+            stop_loss = technicals_details.get('key_support_level', current_price * 0.95)
             target_price = analyst_target if (analyst_target and analyst_target > current_price) else current_price * 1.10
         
         price_history = []
