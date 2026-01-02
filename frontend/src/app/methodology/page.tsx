@@ -8,9 +8,12 @@ export default function MethodologyPage() {
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-24 pb-16">
       <div className="container mx-auto px-4 max-w-5xl">
         <Card className="p-8 bg-blue-500/10 border-blue-500/30 mb-12">
-          <h2 className="text-2xl font-bold text-blue-400 mb-4">Our Philosophy: We Look for Reasons to Say 'No'</h2>
+          <h2 className="text-2xl font-bold text-blue-400 mb-4">Our Philosophy: Profit Through Precision</h2>
+          <p className="text-blue-200 leading-relaxed mb-4">
+            In maritime and industrial operations, safety isn't just about avoiding accidents; it's the foundation of a viable, profitable business. TickerGrade applies this same rigorous risk management to swing trading.
+          </p>
           <p className="text-blue-200 leading-relaxed">
-            Most algorithms try to sell you a trade. TickerGrade tries to talk you out of it. We treat swing trading like a maritime operation: <span className="font-semibold text-white">Safety comes before speed.</span> Our engine is built on Capital Preservation first. If the Macro tide is out, the sector is risky, or the volatility is too high, we penalize the score—even if the chart looks perfect. We only give a 'Green Light' when the probabilities are overwhelmingly in your favor.
+            We identify hazards—from shifting Macro tides to hidden volatility—and apply algorithmic safeguards to mitigate them as far as possible. By securing the downside first <span className="font-semibold text-white">(Capital Preservation)</span>, we clear the path for reliable, sustainable <span className="font-semibold text-white">Wealth Growth</span>. We only signal a 'Green Light' when the operational risks are managed and the probability of profit is overwhelmingly in your favor.
           </p>
         </Card>
 
