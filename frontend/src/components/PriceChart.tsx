@@ -113,7 +113,7 @@ export function PriceChart({ data, ticker }: PriceChartProps) {
                 contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
                 labelStyle={{ color: '#9ca3af' }}
                 formatter={(value: number | undefined, name?: string) => {
-                  const label = name === 'sma_50' ? '50d Trend' : name === 'sma_200' ? '200d Major' : 'Price';
+                  const label = name === 'sma_50' ? '50d Trend' : name === 'sma_200' ? '200d Safety' : 'Price';
                   return [value !== undefined ? `$${value.toFixed(2)}` : '$0.00', label];
                 }}
                 labelFormatter={formatDate}
@@ -131,7 +131,7 @@ export function PriceChart({ data, ticker }: PriceChartProps) {
                 type="monotone"
                 dataKey="sma_50"
                 stroke="#00C805"
-                strokeWidth={2}
+                strokeWidth={1.5}
                 dot={false}
                 name="50d Trend"
                 connectNulls={false}
@@ -140,9 +140,9 @@ export function PriceChart({ data, ticker }: PriceChartProps) {
                 type="monotone"
                 dataKey="sma_200"
                 stroke="#FF8800"
-                strokeWidth={2}
+                strokeWidth={1.5}
                 dot={false}
-                name="200d Major"
+                name="200d Safety"
                 connectNulls={false}
               />
             </LineChart>
@@ -313,7 +313,7 @@ export function PriceChart({ data, ticker }: PriceChartProps) {
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-0.5" style={{ backgroundColor: '#FF8800' }}></div>
-            <span>200d Major</span>
+            <span>200d Safety</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-0.5 bg-purple-500"></div>
