@@ -4,10 +4,12 @@ import React from 'react';
 
 interface ScoreGaugeProps {
   score: number;
+  isEarningsBlackout?: boolean;
 }
 
-export function ScoreGauge({ score }: ScoreGaugeProps) {
+export function ScoreGauge({ score, isEarningsBlackout = false }: ScoreGaugeProps) {
   const getColor = (score: number) => {
+    if (isEarningsBlackout) return '#eab308';
     if (score >= 8) return '#22c55e';
     if (score >= 6) return '#3b82f6';
     if (score >= 4) return '#eab308';
@@ -15,6 +17,7 @@ export function ScoreGauge({ score }: ScoreGaugeProps) {
   };
 
   const getLabel = (score: number) => {
+    if (isEarningsBlackout) return 'Wait';
     if (score >= 8) return 'Strong Buy';
     if (score >= 6) return 'Buy';
     if (score >= 4) return 'Hold';

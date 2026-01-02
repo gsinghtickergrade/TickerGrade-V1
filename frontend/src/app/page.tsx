@@ -169,7 +169,7 @@ export default function Home() {
                     />
                   </div>
                 </div>
-                <ScoreGauge score={stockData.final_score} />
+                <ScoreGauge score={stockData.final_score} isEarningsBlackout={stockData.pillars.event_risk.details.blackout === true} />
               </div>
             </Card>
 
@@ -188,6 +188,7 @@ export default function Home() {
                   target={stockData.action_card.target}
                   riskReward={stockData.action_card.risk_reward}
                   score={stockData.final_score}
+                  isEarningsBlackout={stockData.pillars.event_risk.details.blackout === true}
                 />
               </div>
               
