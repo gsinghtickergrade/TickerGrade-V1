@@ -63,7 +63,7 @@ export default function MethodologyPage() {
               </div>
             </div>
             <p className="text-slate-300 mb-4">
-              Precision matters. We go beyond basic charts by tracking RSI Divergence to spot trend reversals before they happen. We combine this with MACD and Volume Analysis to identify high-probability entry points.
+              Precision matters. We go beyond basic charts by tracking RSI Divergence to spot trend reversals before they happen. We combine this with MACD and Volume Analysis to identify high-probability entry and exit points.
             </p>
             <div className="bg-slate-800/50 rounded-lg p-4 space-y-2">
               <p className="text-slate-400 text-sm">
