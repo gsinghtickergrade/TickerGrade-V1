@@ -38,7 +38,7 @@ export default function MethodologyPage() {
               </div>
             </div>
             <p className="text-slate-300 mb-4">
-              Stocks don't move without a spark. We track real-time Analyst Upgrades and News Sentiment to spot when the narrative is shifting from bearish to bullish before the price catches up.
+              Stocks don't move without a spark. We track real-time Analyst Upgrades, Downgrades and News Sentiment to spot when the narrative is shifting from bearish to bullish or vice-versa before the price catches up.
             </p>
             <div className="bg-slate-800/50 rounded-lg p-4 space-y-2">
               <p className="text-slate-400 text-sm">
