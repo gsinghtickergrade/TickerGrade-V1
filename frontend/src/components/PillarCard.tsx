@@ -100,6 +100,34 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
 
   const valueInsight = getValueInsight();
 
+  const getMacroLiquidityDisplay = () => {
+    if (title !== 'Macro Liquidity') return null;
+    
+    const slope = details.net_liquidity_slope as number | null;
+    const current = details.net_liquidity_current as number | null;
+    
+    if (slope === null || current === null || current === 0) return null;
+    
+    const trendPercent = (slope / current) * 100;
+    const isPositive = trendPercent > 0;
+    const formattedTrend = `${isPositive ? '+' : ''}${trendPercent.toFixed(2)}%`;
+    const trendColor = isPositive ? 'text-green-400' : 'text-red-400';
+    
+    return { trendPercent, formattedTrend, trendColor };
+  };
+
+  const macroLiquidityDisplay = getMacroLiquidityDisplay();
+
+  const filteredMacroDetails = title === 'Macro Liquidity'
+    ? Object.fromEntries(
+        Object.entries(filteredDetails).filter(([key]) => 
+          !['net_liquidity_slope'].includes(key)
+        )
+      )
+    : filteredDetails;
+
+  const displayDetails = title === 'Macro Liquidity' ? filteredMacroDetails : filteredDetails;
+
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
@@ -119,12 +147,20 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
           <span className="text-gray-400 text-lg">/10</span>
         </div>
         <div className="space-y-2">
-          {Object.entries(filteredDetails).map(([key, value]) => (
+          {Object.entries(displayDetails).map(([key, value]) => (
             <div key={key} className="flex justify-between text-sm">
               <span className="text-gray-500">{formatKey(key)}</span>
               <span className="font-medium">{formatValue(key, value)}</span>
             </div>
           ))}
+          {macroLiquidityDisplay && (
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Daily Liquidity Trend</span>
+              <span className={`font-medium ${macroLiquidityDisplay.trendColor}`}>
+                {macroLiquidityDisplay.formattedTrend}
+              </span>
+            </div>
+          )}
           {eventRiskDisplay && (
             <div className="pt-2 border-t border-white/10">
               <div className="flex justify-between text-sm">
