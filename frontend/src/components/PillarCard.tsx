@@ -155,7 +155,7 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
           ))}
           {macroLiquidityDisplay && (
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Daily Liquidity Trend</span>
+              <span className="text-gray-500">Net Liquidity Trend</span>
               <span className={`font-medium ${macroLiquidityDisplay.trendColor}`}>
                 {macroLiquidityDisplay.formattedTrend}
               </span>
