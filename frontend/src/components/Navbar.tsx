@@ -58,12 +58,16 @@ export function Navbar() {
             >
               User Guide
             </Link>
-            <a 
-              href="mailto:feedback@tickergrade.com" 
-              className="text-sm font-medium text-slate-400 hover:text-white transition-colors"
+            <Link 
+              href="/feedback" 
+              className={`text-sm font-medium transition-colors ${
+                isActive('/feedback') 
+                  ? 'text-blue-400' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
             >
               Feedback
-            </a>
+            </Link>
           </div>
         </div>
       </div>

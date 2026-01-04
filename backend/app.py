@@ -1,9 +1,11 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import logging
 import pandas as pd
+
+from models import db, Feedback
 
 from data_services import (
     get_stock_quote, get_stock_profile, get_historical_prices,
@@ -22,6 +24,13 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 CORS(app)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
+
+with app.app_context():
+    db.create_all()
 
 @app.route('/api/analyze/<path:ticker>', methods=['GET'])
 def analyze_stock(ticker):
@@ -240,6 +249,42 @@ def root_health_check():
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'healthy'})
+
+
+@app.route('/api/feedback', methods=['POST'])
+def submit_feedback():
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        message = data.get('message', '').strip()
+        if not message:
+            return jsonify({'error': 'Message is required'}), 400
+        
+        category = data.get('category', 'Other')
+        if category not in ['Bug', 'Data Error', 'Feature', 'Other']:
+            category = 'Other'
+        
+        feedback = Feedback(
+            category=category,
+            ticker=data.get('ticker', '').strip().upper() or None,
+            message=message,
+            contact_email=data.get('contact_email', '').strip() or None
+        )
+        
+        db.session.add(feedback)
+        db.session.commit()
+        
+        logger.info(f"Feedback received: {category} - {message[:50]}...")
+        return jsonify({'success': True, 'message': 'Report received. Thank you for helping us improve.'})
+    
+    except Exception as e:
+        logger.error(f"Error saving feedback: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to save feedback'}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)
