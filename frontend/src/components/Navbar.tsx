@@ -29,6 +29,16 @@ export function Navbar() {
               Dashboard
             </Link>
             <Link 
+              href="/about" 
+              className={`text-sm font-medium transition-colors ${
+                isActive('/about') 
+                  ? 'text-blue-400' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              About
+            </Link>
+            <Link 
               href="/methodology" 
               className={`text-sm font-medium transition-colors ${
                 isActive('/methodology') 

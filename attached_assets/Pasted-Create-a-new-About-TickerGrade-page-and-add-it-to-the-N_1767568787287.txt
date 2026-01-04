@@ -1,0 +1,58 @@
+Create a new "About TickerGrade" page and add it to the Navigation.
+
+**1. Create the Template (`templates/about.html`)**
+- Create a new HTML file that extends our base layout.
+- Use a clean, readable "article" layout (max-width 800px, centered).
+- **Styling:** Use the same dark mode theme as the dashboard. Use clear headers (H2) for the sections.
+
+**2. Insert the Content**
+Paste the following text exactly into the body of the page:
+
+---
+<h1 class="text-3xl font-bold mb-6 text-center text-white">About TickerGrade</h1>
+
+<div class="space-y-8 text-gray-300 leading-relaxed">
+
+  <section>
+    <h2 class="text-xl font-semibold text-white mb-2">1. The Overview: A Rational "Second Opinion"</h2>
+    <p>
+      TickerGrade is a specialized analytics terminal designed for the self-directed Swing Trader. In a market flooded with "Black Box" AI predictors and noisy alert services, TickerGrade takes a different approach: <strong>Evidence-Based Grading.</strong>
+    </p>
+    <p class="mt-2">
+      We do not predict the future. Instead, we rigorously grade the <em>present condition</em> of a stock. Our proprietary algorithm processes real-time data through five distinct pillars—<strong>Technical Trend, Relative Value, Fundamental Health, Macro Liquidity, and Event Risks</strong>—to generate a single, unbiased "Confidence Score" (0–10).
+    </p>
+    <p class="mt-2">
+      Think of it as a <strong>mariner's pre-departure checklist</strong> for your portfolio: it ensures the conditions are in your favor and the engine is sound before you leave for your next voyage.
+    </p>
+  </section>
+
+  <section>
+    <h2 class="text-xl font-semibold text-white mb-2">2. The Background: Engineered, Not Hyped</h2>
+    <p>
+      TickerGrade was born from a simple engineering problem. As a <strong>retired senior maritime professional</strong> and active swing trader, our founder realized that most retail tools offer only a slice of the picture. Charting software ignores valuation; fundamental screeners ignore market timing; and almost no one accounts for <strong>Net Liquidity</strong> (the Fed’s impact on market flow) in their daily scans.
+    </p>
+    <p class="mt-2">
+      To solve this, we built a system that integrates these disconnected datasets into a single, unified view. What started as a private, proprietary tool for personal wealth management has evolved into a commercial-grade platform. We ensure data quality by using the same data feeds as the institutions, but we present them through a lens of clarity rather than complexity.
+    </p>
+  </section>
+
+  <section>
+    <h2 class="text-xl font-semibold text-white mb-2">3. Our Mission: The "Glass Box" Philosophy</h2>
+    <p>
+      Our mission is to eliminate the "Black Box." Most trading algorithms hide their logic to appear magical. We believe that <strong>transparency is the ultimate edge.</strong>
+    </p>
+    <p class="mt-2">
+      When TickerGrade gives a stock a score of "8.5," you can click to see exactly why—down to the specific Moving Average crossover, the PEG ratio, or the Net Liquidity Trend. We do not aim to replace your judgment; we aim to empower it. Our goal is to give you the objective data you need to act with conviction, manage risk without emotion, and trade with the precision of an engineer.
+    </p>
+  </section>
+
+</div>
+---
+
+**3. Update Backend (`routes.py`)**
+- Add a new route `@app.route('/about')` that renders `about.html`.
+
+**4. Update Navigation (`templates/base.html` or `navbar.html`)**
+- Add a new link in the top navigation bar labeled **"About"**.
+- **Placement:** Place it strictly to the right of the existing "Dashboard" link.
+- Ensure the active state highlighting works (so "About" lights up when selected).
