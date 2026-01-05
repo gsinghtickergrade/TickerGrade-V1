@@ -83,7 +83,7 @@ def analyze_stock(ticker):
         
         current_price = quote.get('price', 0)
         price_change = quote.get('change', 0)
-        price_change_percent = quote.get('changesPercentage', 0)
+        price_change_percent = quote.get('changePercentage', 0)
         
         catalysts_score, catalysts_details = score_catalysts(analyst_ratings, news)
         technicals_score, technicals_details = score_technicals(hist_df)
