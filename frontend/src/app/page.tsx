@@ -9,7 +9,6 @@ import { ScoreGauge } from '@/components/ScoreGauge';
 import { PillarCard } from '@/components/PillarCard';
 import { PriceChart } from '@/components/PriceChart';
 import { ActionCard } from '@/components/ActionCard';
-import { ShareButton } from '@/components/ShareButton';
 import { WelcomeModal } from '@/components/WelcomeModal';
 import { CookieBanner } from '@/components/CookieBanner';
 import { NetLiquidityChart } from '@/components/NetLiquidityChart';
@@ -84,16 +83,6 @@ export default function Home() {
     }
   };
 
-  const getVerdictColor = (type: string) => {
-    switch (type) {
-      case 'success': return 'text-green-400';
-      case 'info': return 'text-blue-400';
-      case 'warning': return 'text-yellow-400';
-      case 'danger': return 'text-red-400';
-      default: return 'text-slate-400';
-    }
-  };
-
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-24">
       <WelcomeModal />
@@ -156,18 +145,6 @@ export default function Home() {
                   <p className="text-2xl text-white mt-2">
                     ${stockData.current_price.toFixed(2)}
                   </p>
-                  <div className="mt-4">
-                    <span className={`text-2xl font-bold ${getVerdictColor(stockData.verdict_type)}`}>
-                      {stockData.verdict}
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <ShareButton 
-                      ticker={stockData.ticker} 
-                      score={stockData.final_score} 
-                      verdict={stockData.verdict} 
-                    />
-                  </div>
                 </div>
                 <ScoreGauge score={stockData.final_score} isEarningsBlackout={stockData.pillars.event_risk.details.blackout === true} />
               </div>

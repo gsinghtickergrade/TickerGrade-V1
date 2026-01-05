@@ -17,7 +17,7 @@ export function ScoreGauge({ score, isEarningsBlackout = false }: ScoreGaugeProp
   };
 
   const getLabel = (score: number) => {
-    if (isEarningsBlackout) return 'Wait';
+    if (isEarningsBlackout) return 'Wait (Earnings)';
     if (score >= 8.5) return 'Strong Bullish';
     if (score >= 6.5) return 'Bullish';
     if (score >= 5.0) return 'Neutral';
