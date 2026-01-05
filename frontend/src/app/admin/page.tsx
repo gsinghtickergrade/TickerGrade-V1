@@ -148,7 +148,7 @@ export default function AdminPage() {
               placeholder="Enter admin password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-slate-800 border-white/10"
+              className="bg-slate-800 border-white/10 text-white placeholder:text-slate-400"
             />
             <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
               Login
@@ -162,7 +162,20 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 pt-24 pb-12">
       <div className="container mx-auto px-4 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-8 text-center text-white">Trade Ideas Admin</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-white">Trade Ideas Admin</h1>
+          <Button
+            onClick={() => {
+              setAuthenticated(false);
+              setPassword('');
+              setIdeas([]);
+            }}
+            variant="outline"
+            className="border-white/20 text-slate-300 hover:bg-white/10"
+          >
+            Logout
+          </Button>
+        </div>
 
         <Card className="p-6 bg-white/5 border-white/10 mb-8">
           <h2 className="text-xl font-semibold text-white mb-4">Add New Trade Idea</h2>
@@ -188,7 +201,7 @@ export default function AdminPage() {
                   placeholder="e.g., NVDA"
                   value={newTicker}
                   onChange={(e) => setNewTicker(e.target.value.toUpperCase())}
-                  className="bg-slate-800 border-white/10"
+                  className="bg-slate-800 border-white/10 text-white placeholder:text-slate-400"
                   maxLength={10}
                   required
                 />
