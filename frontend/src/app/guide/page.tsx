@@ -59,11 +59,11 @@ export default function GuidePage() {
           <div className="space-y-4">
             <Card className="p-6 bg-white/5 border-white/10">
               <div className="flex items-start gap-4">
-                <span className="px-4 py-2 rounded-lg text-lg font-bold bg-green-500/20 text-green-400 border border-green-500/30 whitespace-nowrap">
-                  8.0 - 10.0
+                <span className="px-4 py-2 rounded-lg text-lg font-bold whitespace-nowrap" style={{ backgroundColor: 'rgba(0, 200, 5, 0.2)', color: '#00C805', border: '1px solid rgba(0, 200, 5, 0.3)' }}>
+                  8.5 - 10.0
                 </span>
                 <div>
-                  <h3 className="text-xl font-semibold text-white">Strong Buy</h3>
+                  <h3 className="text-xl font-semibold text-white">Strong Bullish</h3>
                   <p className="text-slate-400 mt-1">
                     All systems go. Macro, Technicals, and Fundamentals align. This is the highest-conviction setup—consider it a green light for your trade.
                   </p>
@@ -74,10 +74,10 @@ export default function GuidePage() {
             <Card className="p-6 bg-white/5 border-white/10">
               <div className="flex items-start gap-4">
                 <span className="px-4 py-2 rounded-lg text-lg font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 whitespace-nowrap">
-                  6.0 - 7.9
+                  6.5 - 8.4
                 </span>
                 <div>
-                  <h3 className="text-xl font-semibold text-white">Buy</h3>
+                  <h3 className="text-xl font-semibold text-white">Bullish</h3>
                   <p className="text-slate-400 mt-1">
                     Solid setup, but check for specific warnings. One or two pillars may be neutral. Still actionable, but size your position accordingly.
                   </p>
@@ -88,10 +88,10 @@ export default function GuidePage() {
             <Card className="p-6 bg-white/5 border-white/10">
               <div className="flex items-start gap-4">
                 <span className="px-4 py-2 rounded-lg text-lg font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 whitespace-nowrap">
-                  4.0 - 5.9
+                  5.0 - 6.4
                 </span>
                 <div>
-                  <h3 className="text-xl font-semibold text-white">Hold</h3>
+                  <h3 className="text-xl font-semibold text-white">Neutral</h3>
                   <p className="text-slate-400 mt-1">
                     Mixed signals. Usually means "Good Company, Bad Timing." Wait for the setup to improve before committing capital.
                   </p>
@@ -102,12 +102,12 @@ export default function GuidePage() {
             <Card className="p-6 bg-white/5 border-white/10">
               <div className="flex items-start gap-4">
                 <span className="px-4 py-2 rounded-lg text-lg font-bold bg-red-500/20 text-red-400 border border-red-500/30 whitespace-nowrap">
-                  0.0 - 3.9
+                  0.0 - 4.9
                 </span>
                 <div>
-                  <h3 className="text-xl font-semibold text-white">Avoid/Sell</h3>
+                  <h3 className="text-xl font-semibold text-white">Bearish</h3>
                   <p className="text-slate-400 mt-1">
-                    Deteriorating conditions. Capital preservation mode. The risk/reward is not in your favor—stay on the sidelines or sell.
+                    Deteriorating conditions. Capital preservation mode. The risk/reward is not in your favor.
                   </p>
                 </div>
               </div>

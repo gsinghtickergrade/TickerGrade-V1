@@ -10,18 +10,18 @@ interface ScoreGaugeProps {
 export function ScoreGauge({ score, isEarningsBlackout = false }: ScoreGaugeProps) {
   const getColor = (score: number) => {
     if (isEarningsBlackout) return '#eab308';
-    if (score >= 8) return '#22c55e';
-    if (score >= 6) return '#3b82f6';
-    if (score >= 4) return '#eab308';
-    return '#ef4444';
+    if (score >= 8.5) return '#00C805';
+    if (score >= 6.5) return '#3B82F6';
+    if (score >= 5.0) return '#EAB308';
+    return '#EF4444';
   };
 
   const getLabel = (score: number) => {
     if (isEarningsBlackout) return 'Wait';
-    if (score >= 8) return 'Strong Buy';
-    if (score >= 6) return 'Buy';
-    if (score >= 4) return 'Hold';
-    return 'Avoid / Sell';
+    if (score >= 8.5) return 'Strong Bullish';
+    if (score >= 6.5) return 'Bullish';
+    if (score >= 5.0) return 'Neutral';
+    return 'Bearish';
   };
 
   const percentage = (score / 10) * 100;
