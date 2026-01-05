@@ -20,7 +20,7 @@ export function ActionCard({ entryZone, stopLoss, target, riskReward, score, isE
           <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
-          Trade Setup
+          Hypothetical Risk/Reward
         </h3>
         <div className="flex flex-col items-center justify-center py-8">
           <div className="p-4 rounded-full bg-yellow-500/20 mb-4">
@@ -42,7 +42,7 @@ export function ActionCard({ entryZone, stopLoss, target, riskReward, score, isE
           <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
-          Trade Setup
+          Hypothetical Risk/Reward
         </h3>
         <div className="flex flex-col items-center justify-center py-8">
           <div className="p-4 rounded-full bg-red-500/20 mb-4">
@@ -64,7 +64,7 @@ export function ActionCard({ entryZone, stopLoss, target, riskReward, score, isE
           <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
-          Trade Setup
+          Hypothetical Risk/Reward
         </h3>
         <div className="flex flex-col items-center justify-center py-8">
           <div className="p-4 rounded-full bg-yellow-500/20 mb-4">
@@ -95,12 +95,12 @@ export function ActionCard({ entryZone, stopLoss, target, riskReward, score, isE
         </div>
         
         <div className="flex justify-between items-center p-3 bg-red-500/10 rounded-lg border border-red-500/30">
-          <span className="text-slate-400">Stop Loss</span>
+          <span className="text-slate-400">Support / Invalidation Level</span>
           <span className="text-xl font-bold text-red-400">${stopLoss.toFixed(2)}</span>
         </div>
         
         <div className="flex justify-between items-center p-3 bg-green-500/10 rounded-lg border border-green-500/30">
-          <span className="text-slate-400">Target (60-Day)</span>
+          <span className="text-slate-400">Resistance / Target Zone</span>
           <span className="text-xl font-bold text-green-400">
             {target ? `$${target.toFixed(2)}` : 'N/A'}
           </span>
@@ -113,6 +113,10 @@ export function ActionCard({ entryZone, stopLoss, target, riskReward, score, isE
           </div>
         )}
       </div>
+      
+      <p className="mt-4 text-xs text-slate-500 italic">
+        Note: These levels are algorithmic projections based on volatility and technical structure. They are for educational risk planning only and not a recommendation to trade.
+      </p>
     </Card>
   );
 }

@@ -123,10 +123,10 @@ export default function GuidePage() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Why is the Trade Setup hidden?
+                Why is the Risk/Reward card hidden?
               </h3>
               <p className="text-slate-300">
-                If a stock scores below 6.0, we deliberately hide the Entry, Stop Loss, and Target prices. This prevents you from "forcing" a trade on a weak setup. Our philosophy: <span className="text-white font-medium">No trade is better than a bad trade.</span>
+                If a stock scores below 6.0, we deliberately hide the Entry, Support, and Target levels. This prevents you from "forcing" a trade on a weak setup. Our philosophy: <span className="text-white font-medium">No trade is better than a bad trade.</span>
               </p>
             </Card>
 
@@ -170,9 +170,9 @@ export default function GuidePage() {
               </p>
             </Card>
             <Card className="p-5 bg-white/5 border-white/10">
-              <h3 className="text-white font-semibold mb-2">Use the Stop Loss</h3>
+              <h3 className="text-white font-semibold mb-2">Use Support Levels</h3>
               <p className="text-slate-400 text-sm">
-                Our ATR-based stop losses give you breathing room while protecting capital. Never ignore them.
+                Our ATR-based support levels give you breathing room while protecting capital. Never ignore them.
               </p>
             </Card>
             <Card className="p-5 bg-white/5 border-white/10">

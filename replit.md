@@ -141,6 +141,13 @@ Global components in layout.tsx:
 
 ## Recent Changes
 
+- 2026-01-05: Trade Setup Card Compliance Update
+  - Renamed "Trade Setup" to "Hypothetical Risk/Reward"
+  - Changed "Stop Loss" to "Support / Invalidation Level"
+  - Changed "Target (60-Day)" to "Resistance / Target Zone"
+  - Added educational disclaimer at bottom of card
+  - Updated User Guide page with consistent terminology
+
 - 2026-01-05: Trade Ideas Feature
   - Added TradeIdea model (ticker, direction, thesis, timestamp, active)
   - Created `/trade-ideas` public page with color-coded signal cards
