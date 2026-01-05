@@ -59,6 +59,16 @@ export function Navbar() {
               User Guide
             </Link>
             <Link 
+              href="/trade-ideas" 
+              className={`text-sm font-medium transition-colors ${
+                isActive('/trade-ideas') 
+                  ? 'text-blue-400' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Trade Ideas
+            </Link>
+            <Link 
               href="/feedback" 
               className={`text-sm font-medium transition-colors ${
                 isActive('/feedback') 
