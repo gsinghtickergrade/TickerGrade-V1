@@ -31,6 +31,8 @@ interface StockData {
   ticker: string;
   company_name: string;
   current_price: number;
+  price_change: number;
+  price_change_percent: number;
   final_score: number;
   verdict: string;
   verdict_type: string;
@@ -144,6 +146,9 @@ export default function Home() {
                   <p className="text-xl text-slate-400">{stockData.ticker}</p>
                   <p className="text-2xl text-white mt-2">
                     ${stockData.current_price.toFixed(2)}
+                  </p>
+                  <p className={`text-lg mt-1 font-medium ${stockData.price_change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {stockData.price_change >= 0 ? '+' : ''}{stockData.price_change.toFixed(2)} ({stockData.price_change >= 0 ? '+' : ''}{stockData.price_change_percent.toFixed(2)}%)
                   </p>
                 </div>
                 <ScoreGauge score={stockData.final_score} isEarningsBlackout={stockData.pillars.event_risk.details.blackout === true} />

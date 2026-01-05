@@ -82,6 +82,8 @@ def analyze_stock(ticker):
         pcr = get_put_call_ratio(ticker)
         
         current_price = quote.get('price', 0)
+        price_change = quote.get('change', 0)
+        price_change_percent = quote.get('changesPercentage', 0)
         
         catalysts_score, catalysts_details = score_catalysts(analyst_ratings, news)
         technicals_score, technicals_details = score_technicals(hist_df)
@@ -167,6 +169,8 @@ def analyze_stock(ticker):
             'ticker': ticker,
             'company_name': profile.get('companyName', ticker) if profile else ticker,
             'current_price': round(current_price, 2),
+            'price_change': round(price_change, 2) if price_change else 0,
+            'price_change_percent': round(price_change_percent, 2) if price_change_percent else 0,
             'final_score': final_score,
             'verdict': verdict,
             'verdict_type': verdict_type,
