@@ -399,5 +399,33 @@ def admin_delete_trade_idea(idea_id):
         return jsonify({'error': 'Failed to delete trade idea'}), 500
 
 
+@app.route('/api/admin/feedback', methods=['GET'])
+def admin_get_feedback():
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        feedback_list = Feedback.query.order_by(Feedback.timestamp.desc()).all()
+        return jsonify({
+            'feedback': [
+                {
+                    'id': f.id,
+                    'category': f.category,
+                    'ticker': f.ticker,
+                    'message': f.message,
+                    'contact_email': f.contact_email,
+                    'timestamp': f.timestamp.isoformat() if f.timestamp else None
+                }
+                for f in feedback_list
+            ]
+        })
+    except Exception as e:
+        logger.error(f"Error fetching feedback: {e}")
+        return jsonify({'error': 'Failed to fetch feedback'}), 500
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)

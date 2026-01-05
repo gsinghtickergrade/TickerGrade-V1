@@ -14,12 +14,24 @@ interface TradeIdea {
   active: boolean;
 }
 
+interface FeedbackItem {
+  id: number;
+  category: string;
+  ticker: string | null;
+  message: string;
+  contact_email: string | null;
+  timestamp: string;
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [ideas, setIdeas] = useState<TradeIdea[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
   
   const [newTicker, setNewTicker] = useState('');
   const [newDirection, setNewDirection] = useState('Bullish');
@@ -46,6 +58,7 @@ export default function AdminPage() {
       
       setAuthenticated(true);
       fetchIdeas();
+      fetchFeedback();
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Authentication failed');
     }
@@ -67,6 +80,25 @@ export default function AdminPage() {
       console.error('Failed to fetch ideas:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchFeedback = async () => {
+    setFeedbackLoading(true);
+    try {
+      const response = await fetch('/api/admin/feedback', {
+        headers: { 'X-Admin-Password': password }
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setFeedback(data.feedback || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch feedback:', err);
+    } finally {
+      setFeedbackLoading(false);
     }
   };
 
@@ -285,6 +317,54 @@ export default function AdminPage() {
                   >
                     Delete
                   </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        <div className="my-8 border-t border-white/10" />
+
+        <Card className="p-6 bg-white/5 border-white/10">
+          <h2 className="text-xl font-semibold text-white mb-4">User Feedback Inbox</h2>
+          
+          {feedbackLoading && (
+            <div className="flex justify-center py-8">
+              <svg className="animate-spin h-6 w-6 text-blue-500" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            </div>
+          )}
+          
+          {!feedbackLoading && feedback.length === 0 && (
+            <p className="text-slate-400 text-center py-4">No new feedback reports.</p>
+          )}
+          
+          {!feedbackLoading && feedback.length > 0 && (
+            <div className="space-y-4">
+              {feedback.map((item) => (
+                <div key={item.id} className="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                  <div className="flex flex-wrap items-center gap-3 mb-2">
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                      item.category === 'Bug' ? 'bg-red-500/20 text-red-400' :
+                      item.category === 'Feature' ? 'bg-blue-500/20 text-blue-400' :
+                      item.category === 'Data Issue' ? 'bg-yellow-500/20 text-yellow-400' :
+                      'bg-slate-500/20 text-slate-400'
+                    }`}>
+                      {item.category}
+                    </span>
+                    {item.ticker && (
+                      <span className="text-sm font-bold text-white">{item.ticker}</span>
+                    )}
+                    <span className="text-xs text-slate-500">{formatDate(item.timestamp)}</span>
+                    {item.contact_email && (
+                      <a href={`mailto:${item.contact_email}`} className="text-xs text-blue-400 hover:underline">
+                        {item.contact_email}
+                      </a>
+                    )}
+                  </div>
+                  <p className="text-slate-300 text-sm whitespace-pre-wrap">{item.message}</p>
                 </div>
               ))}
             </div>
