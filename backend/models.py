@@ -48,3 +48,11 @@ class TradeIdea(db.Model):
     thesis = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     active = db.Column(db.Boolean, default=True)
+
+
+class TrafficLog(db.Model):
+    __tablename__ = 'traffic_logs'
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    page = db.Column(db.String(255), nullable=False)
+    visitor_hash = db.Column(db.String(32), nullable=False, index=True)

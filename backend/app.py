@@ -5,7 +5,10 @@ import os
 import logging
 import pandas as pd
 
-from models import db, Feedback, TradeIdea
+from models import db, Feedback, TradeIdea, TrafficLog
+import hashlib
+from datetime import datetime, timedelta
+from sqlalchemy import func
 
 from data_services import (
     get_stock_quote, get_stock_profile, get_historical_prices,
@@ -31,6 +34,33 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
+
+@app.before_request
+def track_traffic():
+    path = request.path
+    
+    if path.startswith('/static') or path.endswith(('.css', '.js', '.png', '.jpg', '.ico', '.svg', '.woff', '.woff2')):
+        return
+    
+    if path.startswith('/api/admin') or path == '/admin':
+        return
+    
+    try:
+        ip = request.remote_addr or 'unknown'
+        user_agent = request.headers.get('User-Agent', 'unknown')
+        today = datetime.utcnow().strftime('%Y-%m-%d')
+        
+        hash_input = f"{ip}{user_agent}{today}"
+        visitor_hash = hashlib.md5(hash_input.encode()).hexdigest()
+        
+        log = TrafficLog(page=path, visitor_hash=visitor_hash)
+        db.session.add(log)
+        db.session.commit()
+    except Exception as e:
+        logger.warning(f"Traffic tracking error: {e}")
+        db.session.rollback()
+
 
 @app.route('/api/analyze/<path:ticker>', methods=['GET'])
 def analyze_stock(ticker):
@@ -425,6 +455,67 @@ def admin_get_feedback():
     except Exception as e:
         logger.error(f"Error fetching feedback: {e}")
         return jsonify({'error': 'Failed to fetch feedback'}), 500
+
+
+@app.route('/api/admin/traffic-stats', methods=['GET'])
+def admin_get_traffic_stats():
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        now = datetime.utcnow()
+        last_24h = now - timedelta(hours=24)
+        last_7d = now - timedelta(days=7)
+        
+        views_24h = TrafficLog.query.filter(TrafficLog.timestamp >= last_24h).count()
+        uniques_24h = db.session.query(func.count(func.distinct(TrafficLog.visitor_hash))).filter(TrafficLog.timestamp >= last_24h).scalar() or 0
+        
+        daily_stats = db.session.query(
+            func.date(TrafficLog.timestamp).label('date'),
+            func.count(TrafficLog.id).label('views'),
+            func.count(func.distinct(TrafficLog.visitor_hash)).label('uniques')
+        ).filter(
+            TrafficLog.timestamp >= last_7d
+        ).group_by(
+            func.date(TrafficLog.timestamp)
+        ).order_by(
+            func.date(TrafficLog.timestamp).desc()
+        ).all()
+        
+        top_pages = db.session.query(
+            TrafficLog.page,
+            func.count(TrafficLog.id).label('count')
+        ).group_by(
+            TrafficLog.page
+        ).order_by(
+            func.count(TrafficLog.id).desc()
+        ).limit(5).all()
+        
+        return jsonify({
+            'views_24h': views_24h,
+            'uniques_24h': uniques_24h,
+            'daily_stats': [
+                {
+                    'date': str(row.date),
+                    'views': row.views,
+                    'uniques': row.uniques
+                }
+                for row in daily_stats
+            ],
+            'top_pages': [
+                {
+                    'page': row.page,
+                    'count': row.count
+                }
+                for row in top_pages
+            ]
+        })
+    except Exception as e:
+        logger.error(f"Error fetching traffic stats: {e}")
+        return jsonify({'error': 'Failed to fetch traffic stats'}), 500
 
 
 if __name__ == '__main__':

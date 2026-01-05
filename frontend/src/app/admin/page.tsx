@@ -23,6 +23,24 @@ interface FeedbackItem {
   timestamp: string;
 }
 
+interface DailyStat {
+  date: string;
+  views: number;
+  uniques: number;
+}
+
+interface TopPage {
+  page: string;
+  count: number;
+}
+
+interface TrafficStats {
+  views_24h: number;
+  uniques_24h: number;
+  daily_stats: DailyStat[];
+  top_pages: TopPage[];
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
@@ -32,6 +50,9 @@ export default function AdminPage() {
   
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
+  
+  const [trafficStats, setTrafficStats] = useState<TrafficStats | null>(null);
+  const [trafficLoading, setTrafficLoading] = useState(false);
   
   const [newTicker, setNewTicker] = useState('');
   const [newDirection, setNewDirection] = useState('Bullish');
@@ -59,6 +80,7 @@ export default function AdminPage() {
       setAuthenticated(true);
       fetchIdeas();
       fetchFeedback();
+      fetchTrafficStats();
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Authentication failed');
     }
@@ -99,6 +121,25 @@ export default function AdminPage() {
       console.error('Failed to fetch feedback:', err);
     } finally {
       setFeedbackLoading(false);
+    }
+  };
+
+  const fetchTrafficStats = async () => {
+    setTrafficLoading(true);
+    try {
+      const response = await fetch('/api/admin/traffic-stats', {
+        headers: { 'X-Admin-Password': password }
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setTrafficStats(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch traffic stats:', err);
+    } finally {
+      setTrafficLoading(false);
     }
   };
 
@@ -201,6 +242,8 @@ export default function AdminPage() {
               setAuthenticated(false);
               setPassword('');
               setIdeas([]);
+              setFeedback([]);
+              setTrafficStats(null);
             }}
             variant="outline"
             className="border-white/20 text-slate-300 hover:bg-white/10"
@@ -208,6 +251,87 @@ export default function AdminPage() {
             Logout
           </Button>
         </div>
+
+        <Card className="p-6 bg-white/5 border-white/10 mb-8">
+          <h2 className="text-xl font-semibold text-white mb-4">Traffic Command Center</h2>
+          
+          {trafficLoading && (
+            <div className="flex justify-center py-8">
+              <svg className="animate-spin h-6 w-6 text-blue-500" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            </div>
+          )}
+          
+          {!trafficLoading && trafficStats && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/30 text-center">
+                  <p className="text-3xl font-bold text-blue-400">{trafficStats.views_24h}</p>
+                  <p className="text-sm text-slate-400">Views (24h)</p>
+                </div>
+                <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/30 text-center">
+                  <p className="text-3xl font-bold text-green-400">{trafficStats.uniques_24h}</p>
+                  <p className="text-sm text-slate-400">Unique Visitors (24h)</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-sm font-medium text-slate-300 mb-3">Last 7 Days</h3>
+                  {trafficStats.daily_stats.length === 0 ? (
+                    <p className="text-slate-500 text-sm">No traffic data yet.</p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-white/10">
+                            <th className="text-left py-2 text-slate-400 font-medium">Date</th>
+                            <th className="text-right py-2 text-slate-400 font-medium">Views</th>
+                            <th className="text-right py-2 text-slate-400 font-medium">Uniques</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {trafficStats.daily_stats.map((stat) => (
+                            <tr key={stat.date} className="border-b border-white/5">
+                              <td className="py-2 text-slate-300">{stat.date}</td>
+                              <td className="py-2 text-right text-white">{stat.views}</td>
+                              <td className="py-2 text-right text-green-400">{stat.uniques}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-medium text-slate-300 mb-3">Top Pages</h3>
+                  {trafficStats.top_pages.length === 0 ? (
+                    <p className="text-slate-500 text-sm">No page data yet.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {trafficStats.top_pages.map((page, index) => (
+                        <div key={page.page} className="flex justify-between items-center p-2 bg-slate-800/50 rounded">
+                          <span className="text-slate-300 text-sm truncate flex-1">
+                            <span className="text-slate-500 mr-2">#{index + 1}</span>
+                            {page.page}
+                          </span>
+                          <span className="text-blue-400 font-medium ml-2">{page.count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {!trafficLoading && !trafficStats && (
+            <p className="text-slate-500 text-center py-4">Failed to load traffic stats.</p>
+          )}
+        </Card>
 
         <Card className="p-6 bg-white/5 border-white/10 mb-8">
           <h2 className="text-xl font-semibold text-white mb-4">Add New Trade Idea</h2>
