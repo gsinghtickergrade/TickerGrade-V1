@@ -118,24 +118,41 @@ The application uses an **Anonymous Clickwrap Modal** for terms acceptance:
 
 ## Verdict Scale
 
-- 8.0-10.0: **Strong Buy** (Sniper Entry)
-- 6.0-7.9: **Watchlist** (Setup Developing)
-- <6.0: **Pass / Hold**
+- 8.5-10.0: **Strong Bullish**
+- 6.5-8.4: **Bullish**
+- 5.0-6.4: **Neutral**
+- 0.0-4.9: **Bearish**
 
 ## Site Structure (Multi-Page)
 
 The application uses Next.js App Router for file-based routing:
 - **Dashboard** (`/`) - Main stock scanner with "Why TickerGrade?" philosophy section
+- **About** (`/about`) - Project background and "Glass Box" philosophy
 - **Methodology** (`/methodology`) - Detailed 5-pillar scoring explanations
 - **User Guide** (`/guide`) - Score interpretation cheat sheet and safety features
+- **Trade Ideas** (`/trade-ideas`) - Curated analyst watchlist with signal cards
+- **Feedback** (`/feedback`) - Beta tester feedback form (database-backed)
+- **Admin** (`/admin`) - Password-protected admin panel for managing trade ideas
 - **Legal** (`/legal`) - Privacy, Terms, Disclaimer tabs
-- **Feedback** (mailto link) - Email contact for user feedback
 
 Global components in layout.tsx:
 - **Navbar** - Fixed header with navigation links (uses pt-24 padding on pages)
 - **Footer** - Data attribution, legal links, copyright
 
 ## Recent Changes
+
+- 2026-01-05: Trade Ideas Feature
+  - Added TradeIdea model (ticker, direction, thesis, timestamp, active)
+  - Created `/trade-ideas` public page with color-coded signal cards
+  - Created `/admin` password-protected panel for CRUD operations
+  - Direction badges match scoreboard colors (Strong Bullish=Green, Bullish=Blue, Neutral=Yellow, Bearish=Red)
+  - Added disclaimer footer about educational purposes
+
+- 2026-01-05: UI Cleanup & Scoreboard Update
+  - Updated score thresholds: 8.5+ Strong Bullish, 6.5+ Bullish, 5.0+ Neutral, <5.0 Bearish
+  - Removed score signal and share button from dashboard
+  - ScoreGauge now shows "Wait (Earnings)" during blackout periods
+  - Feedback page now uses database instead of mailto link
 
 - 2026-01-01: Multi-Page Navigation Refactor
   - Converted single-page app to multi-page structure using Next.js App Router
