@@ -74,7 +74,19 @@ export default function TradeIdeasPage() {
 
         {error && (
           <Card className="p-6 bg-red-500/10 border-red-500/30 mb-8">
-            <p className="text-red-400 text-center">{error}</p>
+            <p className="text-red-400 text-center mb-4">{error}</p>
+            <div className="flex justify-center">
+              <button
+                onClick={() => {
+                  setError(null);
+                  setLoading(true);
+                  fetchIdeas();
+                }}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              >
+                Retry
+              </button>
+            </div>
           </Card>
         )}
 
