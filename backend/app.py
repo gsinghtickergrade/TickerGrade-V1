@@ -5,7 +5,7 @@ import os
 import logging
 import pandas as pd
 
-from models import db, Feedback
+from models import db, Feedback, TradeIdea
 
 from data_services import (
     get_stock_quote, get_stock_profile, get_historical_prices,
@@ -284,6 +284,119 @@ def submit_feedback():
         logger.error(f"Error saving feedback: {e}")
         db.session.rollback()
         return jsonify({'error': 'Failed to save feedback'}), 500
+
+
+@app.route('/api/trade-ideas', methods=['GET'])
+def get_trade_ideas():
+    try:
+        ideas = TradeIdea.query.filter_by(active=True).order_by(TradeIdea.timestamp.desc()).all()
+        return jsonify({
+            'ideas': [{
+                'id': idea.id,
+                'ticker': idea.ticker,
+                'direction': idea.direction,
+                'thesis': idea.thesis,
+                'timestamp': idea.timestamp.isoformat()
+            } for idea in ideas]
+        })
+    except Exception as e:
+        logger.error(f"Error fetching trade ideas: {e}")
+        return jsonify({'error': 'Failed to fetch trade ideas'}), 500
+
+
+@app.route('/api/admin/verify', methods=['POST'])
+def verify_admin():
+    data = request.get_json()
+    password = data.get('password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password:
+        return jsonify({'error': 'Admin not configured'}), 500
+    
+    if password == admin_password:
+        return jsonify({'success': True})
+    return jsonify({'error': 'Invalid password'}), 401
+
+
+@app.route('/api/admin/trade-ideas', methods=['GET'])
+def admin_get_trade_ideas():
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        ideas = TradeIdea.query.order_by(TradeIdea.timestamp.desc()).all()
+        return jsonify({
+            'ideas': [{
+                'id': idea.id,
+                'ticker': idea.ticker,
+                'direction': idea.direction,
+                'thesis': idea.thesis,
+                'timestamp': idea.timestamp.isoformat(),
+                'active': idea.active
+            } for idea in ideas]
+        })
+    except Exception as e:
+        logger.error(f"Error fetching trade ideas: {e}")
+        return jsonify({'error': 'Failed to fetch trade ideas'}), 500
+
+
+@app.route('/api/admin/trade-ideas', methods=['POST'])
+def admin_create_trade_idea():
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        data = request.get_json()
+        
+        ticker = data.get('ticker', '').strip().upper()
+        direction = data.get('direction', '')
+        thesis = data.get('thesis', '').strip()
+        
+        if not ticker or not direction or not thesis:
+            return jsonify({'error': 'Ticker, direction, and thesis are required'}), 400
+        
+        valid_directions = ['Strong Bullish', 'Bullish', 'Neutral', 'Bearish']
+        if direction not in valid_directions:
+            return jsonify({'error': f'Direction must be one of: {", ".join(valid_directions)}'}), 400
+        
+        idea = TradeIdea(ticker=ticker, direction=direction, thesis=thesis)
+        db.session.add(idea)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'id': idea.id})
+    except Exception as e:
+        logger.error(f"Error creating trade idea: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to create trade idea'}), 500
+
+
+@app.route('/api/admin/trade-ideas/<int:idea_id>', methods=['DELETE'])
+def admin_delete_trade_idea(idea_id):
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        idea = TradeIdea.query.get(idea_id)
+        if not idea:
+            return jsonify({'error': 'Trade idea not found'}), 404
+        
+        db.session.delete(idea)
+        db.session.commit()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Error deleting trade idea: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete trade idea'}), 500
 
 
 if __name__ == '__main__':

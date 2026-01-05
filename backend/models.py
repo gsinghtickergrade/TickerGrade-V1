@@ -38,3 +38,13 @@ class Feedback(db.Model):
     message = db.Column(db.Text, nullable=False)
     contact_email = db.Column(db.String(255), nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class TradeIdea(db.Model):
+    __tablename__ = 'trade_ideas'
+    id = db.Column(db.Integer, primary_key=True)
+    ticker = db.Column(db.String(10), nullable=False)
+    direction = db.Column(db.String(20), nullable=False)
+    thesis = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    active = db.Column(db.Boolean, default=True)
