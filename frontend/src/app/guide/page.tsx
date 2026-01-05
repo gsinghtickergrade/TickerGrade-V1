@@ -126,7 +126,7 @@ export default function GuidePage() {
                 Why is the Risk/Reward card hidden?
               </h3>
               <p className="text-slate-300">
-                If a stock scores below 6.0, we deliberately hide the Entry, Support, and Target levels. This prevents you from "forcing" a trade on a weak setup. Our philosophy: <span className="text-white font-medium">No trade is better than a bad trade.</span>
+                If a stock scores below 6.5, we deliberately hide the Entry, Support, and Target levels. This prevents you from "forcing" a trade on a weak setup. Our philosophy: <span className="text-white font-medium">No trade is better than a bad trade.</span>
               </p>
             </Card>
 

@@ -35,7 +35,7 @@ export function ActionCard({ entryZone, stopLoss, target, riskReward, score, isE
     );
   }
 
-  if (score < 4) {
+  if (score < 5) {
     return (
       <Card className="p-6 bg-gradient-to-br from-slate-800 to-slate-900 border-white/10">
         <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -50,14 +50,14 @@ export function ActionCard({ entryZone, stopLoss, target, riskReward, score, isE
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
             </svg>
           </div>
-          <span className="text-2xl font-bold text-red-400">Avoid / Sell</span>
-          <p className="text-slate-400 text-center mt-2">Score too low for a buy setup</p>
+          <span className="text-2xl font-bold text-red-400">Bearish</span>
+          <p className="text-slate-400 text-center mt-2">Risk/reward not favorable at this time</p>
         </div>
       </Card>
     );
   }
 
-  if (score < 6) {
+  if (score < 6.5) {
     return (
       <Card className="p-6 bg-gradient-to-br from-slate-800 to-slate-900 border-white/10">
         <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -72,7 +72,7 @@ export function ActionCard({ entryZone, stopLoss, target, riskReward, score, isE
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <span className="text-2xl font-bold text-yellow-400">On Hold</span>
+          <span className="text-2xl font-bold text-yellow-400">Neutral</span>
           <p className="text-slate-400 text-center mt-2">Mixed signals - wait for better setup</p>
         </div>
       </Card>
