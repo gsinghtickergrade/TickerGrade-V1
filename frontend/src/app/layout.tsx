@@ -15,8 +15,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TickerGrade | Swing Trading Decision Engine",
-  description: "Data-driven analysis for 30-60 day swing trades",
+  title: "TickerGrade | Intelligent Swing Trading Analysis",
+  description: "Data-driven risk analysis for self-directed traders. Grade stocks based on Trend, Value, Macro, and Sentiment.",
+  openGraph: {
+    title: "TickerGrade - Intelligent Risk Scoring",
+    description: "Stop guessing. Start grading. Analyze stocks with institutional-grade logic for Trend, Value, and Macro liquidity.",
+    type: "website",
+    siteName: "TickerGrade",
+  },
+  twitter: {
+    card: "summary",
+    title: "TickerGrade",
+    description: "Institutional-grade risk analysis for the retail trader.",
+  },
 };
 
 export default function RootLayout({
