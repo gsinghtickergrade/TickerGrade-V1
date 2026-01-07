@@ -410,6 +410,44 @@ def admin_create_trade_idea():
         return jsonify({'error': 'Failed to create trade idea'}), 500
 
 
+@app.route('/api/admin/trade-ideas/<int:idea_id>', methods=['PUT'])
+def admin_update_trade_idea(idea_id):
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        idea = TradeIdea.query.get(idea_id)
+        if not idea:
+            return jsonify({'error': 'Trade idea not found'}), 404
+        
+        data = request.get_json()
+        
+        ticker = data.get('ticker', '').strip().upper()
+        direction = data.get('direction', '')
+        thesis = data.get('thesis', '').strip()
+        
+        if not ticker or not direction or not thesis:
+            return jsonify({'error': 'Ticker, direction, and thesis are required'}), 400
+        
+        valid_directions = ['Strong Bullish', 'Bullish', 'Neutral', 'Bearish']
+        if direction not in valid_directions:
+            return jsonify({'error': f'Direction must be one of: {", ".join(valid_directions)}'}), 400
+        
+        idea.ticker = ticker
+        idea.direction = direction
+        idea.thesis = thesis
+        db.session.commit()
+        
+        return jsonify({'success': True, 'id': idea.id})
+    except Exception as e:
+        logger.error(f"Error updating trade idea: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update trade idea'}), 500
+
+
 @app.route('/api/admin/trade-ideas/<int:idea_id>', methods=['DELETE'])
 def admin_delete_trade_idea(idea_id):
     password = request.headers.get('X-Admin-Password', '')
