@@ -59,6 +59,12 @@ export default function AdminPage() {
   const [newThesis, setNewThesis] = useState('');
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  
+  const [editingIdea, setEditingIdea] = useState<TradeIdea | null>(null);
+  const [editTicker, setEditTicker] = useState('');
+  const [editDirection, setEditDirection] = useState('');
+  const [editThesis, setEditThesis] = useState('');
+  const [editError, setEditError] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,6 +201,54 @@ export default function AdminPage() {
     }
   };
 
+  const startEdit = (idea: TradeIdea) => {
+    setEditingIdea(idea);
+    setEditTicker(idea.ticker);
+    setEditDirection(idea.direction);
+    setEditThesis(idea.thesis);
+    setEditError(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingIdea(null);
+    setEditTicker('');
+    setEditDirection('');
+    setEditThesis('');
+    setEditError(null);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingIdea) return;
+    setEditError(null);
+    
+    try {
+      const response = await fetch(`/api/admin/trade-ideas/${editingIdea.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Password': password
+        },
+        body: JSON.stringify({
+          ticker: editTicker,
+          direction: editDirection,
+          thesis: editThesis
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update trade idea');
+      }
+      
+      cancelEdit();
+      fetchIdeas();
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : 'Failed to update trade idea');
+    }
+  };
+
   const formatDate = (timestamp: string) => {
     return new Date(timestamp).toLocaleDateString('en-US', {
       month: 'short',
@@ -234,6 +288,69 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 pt-24 pb-12">
+      {editingIdea && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <Card className="p-6 bg-slate-900 border-white/10 w-full max-w-lg">
+            <h2 className="text-xl font-semibold text-white mb-4">Edit Trade Idea</h2>
+            
+            {editError && (
+              <div className="p-3 mb-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <p className="text-red-400 text-sm">{editError}</p>
+              </div>
+            )}
+            
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Ticker</label>
+                  <Input
+                    type="text"
+                    value={editTicker}
+                    onChange={(e) => setEditTicker(e.target.value.toUpperCase())}
+                    className="bg-slate-800 border-white/10 text-white"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Direction</label>
+                  <select
+                    value={editDirection}
+                    onChange={(e) => setEditDirection(e.target.value)}
+                    className="w-full h-10 px-3 rounded-md bg-slate-800 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="Strong Bullish">Strong Bullish</option>
+                    <option value="Bullish">Bullish</option>
+                    <option value="Neutral">Neutral</option>
+                    <option value="Bearish">Bearish</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Thesis</label>
+                <textarea
+                  value={editThesis}
+                  onChange={(e) => setEditThesis(e.target.value)}
+                  rows={4}
+                  className="w-full px-3 py-2 rounded-md bg-slate-800 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  required
+                />
+              </div>
+              
+              <div className="flex gap-3 justify-end">
+                <Button type="button" variant="outline" onClick={cancelEdit} className="border-white/20 text-slate-300 hover:bg-white/10">
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Trade Ideas Admin</h1>
@@ -433,14 +550,23 @@ export default function AdminPage() {
                     </div>
                     <p className="text-slate-400 text-sm">{idea.thesis}</p>
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDelete(idea.id)}
-                    className="shrink-0"
-                  >
-                    Delete
-                  </Button>
+                  <div className="flex gap-2 shrink-0">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => startEdit(idea)}
+                      className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10"
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(idea.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
