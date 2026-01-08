@@ -265,11 +265,20 @@ def get_spy_data():
 
 def get_put_call_ratio(ticker):
     """
-    Calculate Put/Call Ratio from options data using yfinance.
+    Calculate Put/Call Ratio from options data.
+    Primary: MarketData API, Fallback: Yahoo Finance
     Returns the PCR for the expiration date closest to 30 days out.
     """
     key = f"pcr_{ticker}"
     def fetch():
+        from services.marketdata_service import get_put_call_ratio as marketdata_pcr
+        
+        pcr = marketdata_pcr(ticker)
+        if pcr is not None:
+            logger.info(f"Using MarketData PCR for {ticker}: {pcr}")
+            return pcr
+        
+        logger.info(f"MarketData PCR unavailable for {ticker}, falling back to Yahoo Finance")
         try:
             stock = yf.Ticker(ticker)
             expirations = stock.options
@@ -296,7 +305,7 @@ def get_put_call_ratio(ticker):
                 return 0.7
             
             pcr = puts_volume / calls_volume
-            logger.info(f"PCR for {ticker}: {pcr:.2f} (Puts: {puts_volume}, Calls: {calls_volume}, Exp: {closest_exp})")
+            logger.info(f"Yahoo Finance PCR for {ticker}: {pcr:.2f} (Puts: {puts_volume}, Calls: {calls_volume}, Exp: {closest_exp})")
             return round(pcr, 2)
             
         except Exception as e:
