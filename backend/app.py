@@ -20,6 +20,7 @@ from scoring_engine import (
     score_catalysts, score_technicals, score_value, score_macro,
     score_event_risk, calculate_final_score, get_verdict
 )
+from services.marketdata_service import get_realtime_price
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -81,9 +82,19 @@ def analyze_stock(ticker):
         fred_df = get_fred_data()
         pcr = get_put_call_ratio(ticker)
         
-        current_price = quote.get('price', 0)
-        price_change = quote.get('change', 0)
-        price_change_percent = quote.get('changePercentage', 0)
+        realtime_data = get_realtime_price(ticker)
+        if realtime_data:
+            current_price = realtime_data.get('price', 0)
+            price_change = realtime_data.get('change', 0)
+            price_change_percent = realtime_data.get('change_percent', 0)
+            price_source = realtime_data.get('source', 'MarketData')
+            logger.info(f"Using MarketData real-time price for {ticker}: ${current_price}")
+        else:
+            current_price = quote.get('price', 0)
+            price_change = quote.get('change', 0)
+            price_change_percent = quote.get('changePercentage', 0)
+            price_source = 'FMP (Delayed)'
+            logger.info(f"Falling back to FMP quote for {ticker}: ${current_price}")
         
         catalysts_score, catalysts_details = score_catalysts(analyst_ratings, news)
         technicals_score, technicals_details = score_technicals(hist_df)
@@ -171,6 +182,7 @@ def analyze_stock(ticker):
             'current_price': round(current_price, 2),
             'price_change': round(price_change, 2) if price_change else 0,
             'price_change_percent': round(price_change_percent, 2) if price_change_percent else 0,
+            'price_source': price_source,
             'final_score': final_score,
             'verdict': verdict,
             'verdict_type': verdict_type,
