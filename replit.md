@@ -90,12 +90,14 @@ Both workflows are configured:
 
 ## Environment Variables (Secrets)
 
+- `MARKETDATA_API_KEY` - MarketData.app API key for real-time prices
 - `FMP_API_KEY` - Financial Modeling Prep API key
 - `FRED_API_KEY` - Federal Reserve FRED API key
 - `SESSION_SECRET` - Session encryption key
 
 ## Data Sources
 
+- **Real-Time Prices**: MarketData.app API (primary), FMP delayed quotes (fallback)
 - **Company & Calendar Data**: Financial Modeling Prep (FMP) Stable API
 - **Macro Economics**: Federal Reserve Bank of St. Louis (FRED) API
 - **Options Sentiment**: Yahoo Finance via yfinance library
@@ -140,6 +142,13 @@ Global components in layout.tsx:
 - **Footer** - Data attribution, legal links, copyright
 
 ## Recent Changes
+
+- 2026-01-08: MarketData Real-Time Pricing Integration
+  - Added `backend/services/marketdata_service.py` for real-time stock prices
+  - Primary price source: MarketData.app API (real-time)
+  - Fallback: FMP delayed quotes if MarketData unavailable
+  - API response includes `price_source` field
+  - Updated footer and methodology page data sources to include MarketData
 
 - 2026-01-05: Trade Setup Card Compliance Update
   - Renamed "Trade Setup" to "Hypothetical Risk/Reward"
