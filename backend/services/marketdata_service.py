@@ -27,7 +27,7 @@ def get_realtime_price(ticker):
                 return {
                     "price": data['last'][0],
                     "change": data['change'][0],
-                    "change_percent": data['changepct'][0],
+                    "change_percent": data['changepct'][0] * 100,
                     "volume": data['volume'][0],
                     "prev_close": data['last'][0] - data['change'][0],
                     "source": "MarketData (Real-Time)"
