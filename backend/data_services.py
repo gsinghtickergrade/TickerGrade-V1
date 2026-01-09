@@ -191,8 +191,13 @@ def get_earnings_calendar(ticker):
                         date_str = earnings_date.strftime('%Y-%m-%d')
                     else:
                         date_str = str(earnings_date)[:10]
-                    logger.info(f"yfinance earnings for {ticker}: {date_str}")
-                    return [{'date': date_str, 'symbol': ticker, 'source': 'yfinance'}]
+                    
+                    parsed_date = datetime.strptime(date_str, '%Y-%m-%d')
+                    if parsed_date > now:
+                        logger.info(f"yfinance earnings for {ticker}: {date_str}")
+                        return [{'date': date_str, 'symbol': ticker, 'source': 'yfinance'}]
+                    else:
+                        logger.warning(f"yfinance earnings date for {ticker} is in the past: {date_str}")
         except Exception as e:
             logger.warning(f"yfinance earnings lookup failed for {ticker}: {e}")
         
