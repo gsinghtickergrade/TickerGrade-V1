@@ -88,11 +88,11 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
     if (upsidePercent === null || valuationSignal === null) return null;
     
     if (upsidePercent > 10 && valuationSignal === 'Overvalued') {
-      return "Note: Analysts are bullish on price targets, but current fundamentals (PEG) suggest the stock is expensive.";
+      return { type: 'note', text: "Note: Analysts are bullish on price targets, but current fundamentals (PEG) suggest the stock is expensive." };
     }
     
-    if (upsidePercent < 0 && valuationSignal === 'Undervalued') {
-      return "Note: Fundamentals look cheap, but analysts expect further price drops.";
+    if (upsidePercent < 0 && (valuationSignal === 'Undervalued' || valuationSignal === 'Strongly Undervalued')) {
+      return { type: 'analyst_lag', text: "Analyst Lag: Price has run ahead of analyst targets despite attractive valuation." };
     }
     
     return null;
@@ -173,9 +173,14 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
             </div>
           )}
         </div>
-        {valueInsight && (
+        {valueInsight && valueInsight.type === 'analyst_lag' && (
+          <div className="mt-3 p-2 bg-yellow-900/30 border border-yellow-700/50 rounded text-xs text-yellow-200">
+            <strong>⚠️ {valueInsight.text}</strong>
+          </div>
+        )}
+        {valueInsight && valueInsight.type === 'note' && (
           <p className="mt-3 pt-3 border-t border-white/10 text-xs italic text-amber-400">
-            {valueInsight}
+            {valueInsight.text}
           </p>
         )}
       </CardContent>
