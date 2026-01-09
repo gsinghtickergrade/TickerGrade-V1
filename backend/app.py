@@ -37,6 +37,20 @@ with app.app_context():
     db.create_all()
 
 
+@app.errorhandler(500)
+def internal_error(error):
+    logger.error(f"Internal server error: {error}")
+    db.session.rollback()
+    return jsonify({'error': 'Internal server error. Please try again.'}), 500
+
+
+@app.errorhandler(Exception)
+def handle_exception(error):
+    logger.error(f"Unhandled exception: {error}")
+    db.session.rollback()
+    return jsonify({'error': 'An unexpected error occurred. Please try again.'}), 500
+
+
 @app.before_request
 def track_traffic():
     path = request.path
