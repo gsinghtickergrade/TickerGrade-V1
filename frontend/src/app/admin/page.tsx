@@ -92,6 +92,7 @@ export default function AdminPage() {
   const [publishingId, setPublishingId] = useState<number | null>(null);
   const [publishComment, setPublishComment] = useState('');
   const [publishLoading, setPublishLoading] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
 
   useEffect(() => {
     const savedPassword = localStorage.getItem('admin_password');
@@ -402,9 +403,13 @@ export default function AdminPage() {
     }
   };
 
-  const publishStaging = async () => {
+  const publishStaging = async (retryCount = 0) => {
     if (!publishingId || !publishComment.trim() || publishLoading) return;
     setPublishLoading(true);
+    setPublishError(null);
+    
+    const maxRetries = 2;
+    
     try {
       const response = await fetch(`/api/admin/staging/${publishingId}/publish`, {
         method: 'POST',
@@ -418,15 +423,26 @@ export default function AdminPage() {
       if (response.ok) {
         setPublishingId(null);
         setPublishComment('');
+        setPublishError(null);
         fetchStaging();
         fetchIdeas();
       } else {
         console.error('Publish failed:', data.error);
-        alert(`Failed to publish: ${data.error || 'Unknown error'}`);
+        if (retryCount < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          setPublishLoading(false);
+          return publishStaging(retryCount + 1);
+        }
+        setPublishError(data.error || 'Failed to publish. Please try again.');
       }
     } catch (err) {
       console.error('Failed to publish:', err);
-      alert('Failed to publish: Network error');
+      if (retryCount < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setPublishLoading(false);
+        return publishStaging(retryCount + 1);
+      }
+      setPublishError('Network error. Please check your connection and try again.');
     } finally {
       setPublishLoading(false);
     }
@@ -851,6 +867,13 @@ export default function AdminPage() {
             <Card className="p-6 bg-slate-900 border-white/10 w-full max-w-lg">
               <h2 className="text-xl font-semibold text-white mb-4">Publish Trade Idea</h2>
               <p className="text-slate-400 mb-4">Add your analysis comment for this trade idea:</p>
+              
+              {publishError && (
+                <div className="p-3 mb-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <p className="text-red-400 text-sm">{publishError}</p>
+                </div>
+              )}
+              
               <textarea
                 value={publishComment}
                 onChange={(e) => setPublishComment(e.target.value)}
@@ -862,17 +885,17 @@ export default function AdminPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => { setPublishingId(null); setPublishComment(''); }}
+                  onClick={() => { setPublishingId(null); setPublishComment(''); setPublishError(null); }}
                   className="border-white/20 text-slate-300 hover:bg-white/10"
                 >
                   Cancel
                 </Button>
                 <Button
-                  onClick={publishStaging}
+                  onClick={() => publishStaging(0)}
                   disabled={!publishComment.trim() || publishLoading}
                   className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
                 >
-                  {publishLoading ? 'Publishing...' : 'Publish'}
+                  {publishLoading ? 'Publishing...' : publishError ? 'Retry' : 'Publish'}
                 </Button>
               </div>
             </Card>
