@@ -842,6 +842,16 @@ export default function AdminPage() {
                         </span>
                         <span className="text-sm text-slate-400">Score: {item.score.toFixed(1)}</span>
                       </div>
+                      <span className="text-xs text-slate-500">
+                        {new Date(item.scanned_at).toLocaleString('en-US', {
+                          timeZone: 'America/Los_Angeles',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })} PST
+                      </span>
                     </div>
                     <div className="flex gap-2">
                       <Button
