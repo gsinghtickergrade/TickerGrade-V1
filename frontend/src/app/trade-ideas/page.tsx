@@ -49,6 +49,13 @@ export default function TradeIdeasPage() {
     }
   };
 
+  const getScoreColor = (score: number) => {
+    if (score >= 8.5) return 'text-[#00C805]';
+    if (score >= 6.5) return 'text-blue-400';
+    if (score >= 5.0) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
   const formatDate = (timestamp: string) => {
     return new Date(timestamp).toLocaleDateString('en-US', {
       month: 'short',
@@ -108,21 +115,15 @@ export default function TradeIdeasPage() {
                     <div className="flex items-center gap-2">
                       <h3 className="text-2xl font-bold text-white">{idea.ticker}</h3>
                       {idea.score !== null && (
-                        <span className="text-sm text-slate-400 font-medium">({idea.score.toFixed(1)})</span>
+                        <span className={`text-sm font-bold ${getScoreColor(idea.score)}`}>({idea.score.toFixed(1)})</span>
                       )}
                     </div>
                     <span className="text-sm text-slate-500">{formatDate(idea.timestamp)}</span>
                   </div>
                   
                   <p className="text-slate-300 flex-grow mb-4 leading-relaxed">
-                    {idea.thesis}
+                    {idea.admin_comment || idea.thesis}
                   </p>
-                  
-                  {idea.admin_comment && (
-                    <div className="mb-4 p-3 bg-slate-800/50 rounded-lg border-l-2 border-blue-500">
-                      <p className="text-slate-400 text-sm italic">{idea.admin_comment}</p>
-                    </div>
-                  )}
                   
                   <div className="mt-auto">
                     <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${colors.bg} ${colors.text} border ${colors.border}`}>
