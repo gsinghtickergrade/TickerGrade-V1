@@ -46,8 +46,26 @@ class TradeIdea(db.Model):
     ticker = db.Column(db.String(10), nullable=False)
     direction = db.Column(db.String(20), nullable=False)
     thesis = db.Column(db.Text, nullable=False)
+    score = db.Column(db.Float, nullable=True)
+    admin_comment = db.Column(db.Text, nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     active = db.Column(db.Boolean, default=True)
+
+
+class Watchlist(db.Model):
+    __tablename__ = 'watchlist'
+    id = db.Column(db.Integer, primary_key=True)
+    ticker = db.Column(db.String(10), nullable=False, unique=True)
+    added_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ScanStaging(db.Model):
+    __tablename__ = 'scan_staging'
+    id = db.Column(db.Integer, primary_key=True)
+    ticker = db.Column(db.String(10), nullable=False)
+    score = db.Column(db.Float, nullable=False)
+    direction = db.Column(db.String(20), nullable=False)
+    scanned_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class TrafficLog(db.Model):
