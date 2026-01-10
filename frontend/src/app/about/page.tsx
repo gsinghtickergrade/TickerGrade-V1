@@ -6,11 +6,11 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 pt-24 pb-12">
       <div className="container mx-auto px-4 max-w-3xl">
-        <h1 className="text-3xl font-bold mb-8 text-center text-white">About TickerGrade</h1>
+        <h1 className="text-3xl font-bold mb-8 text-center text-blue-400">About TickerGrade</h1>
 
-        <div className="space-y-8 text-gray-300 leading-relaxed">
-          <section>
-            <h2 className="text-xl font-semibold text-white mb-3">1. The Overview: A Rational "Second Opinion"</h2>
+        <div className="space-y-6 text-gray-300 leading-relaxed">
+          <section className="p-6 rounded-xl bg-gradient-to-br from-blue-900/30 to-blue-950/50 border border-blue-500/20">
+            <h2 className="text-xl font-semibold text-blue-400 mb-3">1. The Overview: A Rational "Second Opinion"</h2>
             <p>
               TickerGrade is a specialized analytics terminal designed for the self-directed Swing Trader. In a market flooded with "Black Box" AI predictors and noisy alert services, TickerGrade takes a different approach: <strong className="text-white">Evidence-Based Grading.</strong>
             </p>
@@ -22,8 +22,8 @@ export default function AboutPage() {
             </p>
           </section>
 
-          <section>
-            <h2 className="text-xl font-semibold text-white mb-3">2. The Background: Engineered, Not Hyped</h2>
+          <section className="p-6 rounded-xl bg-gradient-to-br from-emerald-900/30 to-emerald-950/50 border border-emerald-500/20">
+            <h2 className="text-xl font-semibold text-emerald-400 mb-3">2. The Background: Engineered, Not Hyped</h2>
             <p>
               TickerGrade was born from a simple engineering problem. As a <strong className="text-white">retired senior maritime professional</strong> and active swing trader, our founder realized that most retail tools offer only a slice of the picture. Charting software ignores valuation; fundamental screeners ignore market timing; and almost no one accounts for <strong className="text-white">Net Liquidity</strong> (the Fed's impact on market flow) in their daily scans.
             </p>
@@ -32,8 +32,8 @@ export default function AboutPage() {
             </p>
           </section>
 
-          <section>
-            <h2 className="text-xl font-semibold text-white mb-3">3. Our Mission: The "Glass Box" Philosophy</h2>
+          <section className="p-6 rounded-xl bg-gradient-to-br from-purple-900/30 to-purple-950/50 border border-purple-500/20">
+            <h2 className="text-xl font-semibold text-purple-400 mb-3">3. Our Mission: The "Glass Box" Philosophy</h2>
             <p>
               Our mission is to eliminate the "Black Box." Most trading algorithms hide their logic to appear magical. We believe that <strong className="text-white">transparency is the ultimate edge.</strong>
             </p>
