@@ -143,6 +143,17 @@ Global components in layout.tsx:
 
 ## Recent Changes
 
+- 2026-01-10: Admin-Curated Scanner Workflow
+  - Added Watchlist model for tracking tickers to scan
+  - Added ScanStaging model for holding scanner results before publishing
+  - Created `backend/services/scanner.py` for automated watchlist analysis
+  - Scanner identifies Bullish (score ≥8) and Bearish (score ≤5) candidates
+  - Admin panel updated with Scanner Watchlist management section
+  - Admin panel updated with Scanner Staging section for review/publish workflow
+  - Publish modal requires admin commentary before moving to trade ideas
+  - Trade ideas page now displays admin comments and scores
+  - Direction mapping: Strong Bullish (≥8.5), Bullish (≥6.5), Neutral (≥5.0), Bearish (<5.0)
+
 - 2026-01-08: MarketData Real-Time Pricing Integration
   - Added `backend/services/marketdata_service.py` for real-time stock prices
   - Primary price source: MarketData.app API (real-time)
