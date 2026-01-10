@@ -60,6 +60,7 @@ export default function AdminPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [ideas, setIdeas] = useState<TradeIdea[]>([]);
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
@@ -90,6 +91,41 @@ export default function AdminPage() {
   
   const [publishingId, setPublishingId] = useState<number | null>(null);
   const [publishComment, setPublishComment] = useState('');
+  const [publishLoading, setPublishLoading] = useState(false);
+
+  useEffect(() => {
+    const savedPassword = localStorage.getItem('admin_password');
+    if (savedPassword) {
+      setPassword(savedPassword);
+      verifyStoredSession(savedPassword);
+    } else {
+      setCheckingSession(false);
+    }
+  }, []);
+
+  const verifyStoredSession = async (storedPassword: string) => {
+    try {
+      const response = await fetch('/api/admin/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: storedPassword })
+      });
+      if (response.ok) {
+        setAuthenticated(true);
+        fetchIdeasWithPassword(storedPassword);
+        fetchFeedbackWithPassword(storedPassword);
+        fetchTrafficStatsWithPassword(storedPassword);
+        fetchWatchlistWithPassword(storedPassword);
+        fetchStagingWithPassword(storedPassword);
+      } else {
+        localStorage.removeItem('admin_password');
+      }
+    } catch {
+      localStorage.removeItem('admin_password');
+    } finally {
+      setCheckingSession(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,6 +145,7 @@ export default function AdminPage() {
       }
       
       setAuthenticated(true);
+      localStorage.setItem('admin_password', password);
       fetchIdeas();
       fetchFeedback();
       fetchTrafficStats();
@@ -116,6 +153,91 @@ export default function AdminPage() {
       fetchStaging();
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Authentication failed');
+    }
+  };
+
+  const fetchIdeasWithPassword = async (pw: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/trade-ideas', {
+        headers: { 'X-Admin-Password': pw }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setIdeas(data.ideas);
+      }
+    } catch (err) {
+      console.error('Failed to fetch ideas:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchFeedbackWithPassword = async (pw: string) => {
+    setFeedbackLoading(true);
+    try {
+      const response = await fetch('/api/admin/feedback', {
+        headers: { 'X-Admin-Password': pw }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setFeedback(data.feedback || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch feedback:', err);
+    } finally {
+      setFeedbackLoading(false);
+    }
+  };
+
+  const fetchTrafficStatsWithPassword = async (pw: string) => {
+    setTrafficLoading(true);
+    try {
+      const response = await fetch('/api/admin/traffic-stats', {
+        headers: { 'X-Admin-Password': pw }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setTrafficStats(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch traffic stats:', err);
+    } finally {
+      setTrafficLoading(false);
+    }
+  };
+
+  const fetchWatchlistWithPassword = async (pw: string) => {
+    setWatchlistLoading(true);
+    try {
+      const response = await fetch('/api/admin/watchlist', {
+        headers: { 'X-Admin-Password': pw }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setWatchlist(data.watchlist || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch watchlist:', err);
+    } finally {
+      setWatchlistLoading(false);
+    }
+  };
+
+  const fetchStagingWithPassword = async (pw: string) => {
+    setStagingLoading(true);
+    try {
+      const response = await fetch('/api/admin/staging', {
+        headers: { 'X-Admin-Password': pw }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setStaging(data.staging || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch staging:', err);
+    } finally {
+      setStagingLoading(false);
     }
   };
 
@@ -281,7 +403,8 @@ export default function AdminPage() {
   };
 
   const publishStaging = async () => {
-    if (!publishingId || !publishComment.trim()) return;
+    if (!publishingId || !publishComment.trim() || publishLoading) return;
+    setPublishLoading(true);
     try {
       const response = await fetch(`/api/admin/staging/${publishingId}/publish`, {
         method: 'POST',
@@ -291,14 +414,21 @@ export default function AdminPage() {
         },
         body: JSON.stringify({ admin_comment: publishComment.trim() })
       });
+      const data = await response.json();
       if (response.ok) {
         setPublishingId(null);
         setPublishComment('');
         fetchStaging();
         fetchIdeas();
+      } else {
+        console.error('Publish failed:', data.error);
+        alert(`Failed to publish: ${data.error || 'Unknown error'}`);
       }
     } catch (err) {
       console.error('Failed to publish:', err);
+      alert('Failed to publish: Network error');
+    } finally {
+      setPublishLoading(false);
     }
   };
 
@@ -410,6 +540,20 @@ export default function AdminPage() {
     });
   };
 
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 pt-24 pb-12 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <svg className="animate-spin h-8 w-8 text-blue-500" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          <p className="text-slate-400">Checking session...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 pt-24 pb-12 flex items-center justify-center">
@@ -509,11 +653,14 @@ export default function AdminPage() {
           <h1 className="text-3xl font-bold text-white">Trade Ideas Admin</h1>
           <Button
             onClick={() => {
+              localStorage.removeItem('admin_password');
               setAuthenticated(false);
               setPassword('');
               setIdeas([]);
               setFeedback([]);
               setTrafficStats(null);
+              setWatchlist([]);
+              setStaging([]);
             }}
             variant="outline"
             className="border-white/20 text-slate-300 hover:bg-white/10"
@@ -722,10 +869,10 @@ export default function AdminPage() {
                 </Button>
                 <Button
                   onClick={publishStaging}
-                  disabled={!publishComment.trim()}
+                  disabled={!publishComment.trim() || publishLoading}
                   className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
                 >
-                  Publish
+                  {publishLoading ? 'Publishing...' : 'Publish'}
                 </Button>
               </div>
             </Card>

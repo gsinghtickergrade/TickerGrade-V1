@@ -369,7 +369,9 @@ def get_trade_ideas():
                 'ticker': idea.ticker,
                 'direction': idea.direction,
                 'thesis': idea.thesis,
-                'timestamp': idea.timestamp.isoformat()
+                'timestamp': idea.timestamp.isoformat(),
+                'admin_comment': idea.admin_comment,
+                'score': idea.score
             } for idea in ideas]
         })
     except Exception as e:
