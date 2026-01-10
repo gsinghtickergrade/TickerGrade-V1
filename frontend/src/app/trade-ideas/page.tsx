@@ -64,6 +64,13 @@ export default function TradeIdeasPage() {
     });
   };
 
+  const isNew = (timestamp: string) => {
+    const postedTime = new Date(timestamp).getTime();
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+    return (now - postedTime) < twentyFourHours;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 pt-24 pb-12">
       <div className="container mx-auto px-4 max-w-6xl">
@@ -125,10 +132,13 @@ export default function TradeIdeasPage() {
                     {idea.admin_comment || idea.thesis}
                   </p>
                   
-                  <div className="mt-auto">
+                  <div className="mt-auto flex justify-between items-end">
                     <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${colors.bg} ${colors.text} border ${colors.border}`}>
                       {idea.direction}
                     </span>
+                    {isNew(idea.timestamp) && (
+                      <span className="text-yellow-400 font-bold text-sm">New</span>
+                    )}
                   </div>
                 </Card>
               );
