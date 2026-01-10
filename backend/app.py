@@ -709,7 +709,7 @@ def admin_get_staging():
                 'ticker': s.ticker,
                 'score': s.score,
                 'direction': s.direction,
-                'scanned_at': s.scanned_at.isoformat()
+                'scanned_at': s.scanned_at.isoformat() + 'Z'
             } for s in items]
         })
     except Exception as e:
