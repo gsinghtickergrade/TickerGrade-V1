@@ -395,11 +395,16 @@ export default function AdminPage() {
         method: 'POST',
         headers: { 'X-Admin-Password': password }
       });
-      if (response.ok) {
+      if (response.ok || response.status === 404) {
+        fetchStaging();
+      } else {
+        const data = await response.json();
+        console.error('Failed to discard:', data.error);
         fetchStaging();
       }
     } catch (err) {
       console.error('Failed to discard:', err);
+      fetchStaging();
     }
   };
 
