@@ -5,7 +5,7 @@ import os
 import logging
 import pandas as pd
 
-from models import db, Feedback, TradeIdea, TrafficLog
+from models import db, Feedback, TradeIdea, TrafficLog, Watchlist, ScanStaging
 import hashlib
 from datetime import datetime, timedelta
 from sqlalchemy import func
@@ -21,6 +21,7 @@ from scoring_engine import (
     score_event_risk, calculate_final_score, get_verdict
 )
 from services.marketdata_service import get_realtime_price
+from services.scanner import run_scanner
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -77,69 +78,127 @@ def track_traffic():
         db.session.rollback()
 
 
+def analyze_stock_internal(ticker):
+    ticker = ticker.upper()
+    
+    quote = get_stock_quote(ticker)
+    if not quote:
+        return {'error': 'Invalid ticker symbol or no data available'}
+    
+    profile = get_stock_profile(ticker)
+    hist_df = get_historical_prices(ticker, days=730)
+    analyst_ratings = get_analyst_ratings(ticker)
+    news = get_stock_news_sentiment(ticker)
+    price_targets = get_analyst_price_targets(ticker)
+    key_metrics = get_key_metrics(ticker)
+    earnings = get_earnings_calendar(ticker)
+    fred_df = get_fred_data()
+    pcr = get_put_call_ratio(ticker)
+    
+    realtime_data = get_realtime_price(ticker)
+    if realtime_data:
+        current_price = realtime_data.get('price', 0)
+        price_change = realtime_data.get('change', 0)
+        price_change_percent = realtime_data.get('change_percent', 0)
+        price_source = realtime_data.get('source', 'MarketData')
+        logger.info(f"Using MarketData real-time price for {ticker}: ${current_price}")
+    else:
+        current_price = quote.get('price', 0)
+        price_change = quote.get('change', 0)
+        price_change_percent = quote.get('changePercentage', 0)
+        price_source = 'FMP (Delayed)'
+        logger.info(f"Falling back to FMP quote for {ticker}: ${current_price}")
+    
+    catalysts_score, catalysts_details = score_catalysts(analyst_ratings, news)
+    technicals_score, technicals_details = score_technicals(hist_df)
+    value_score, value_details = score_value(price_targets, key_metrics, current_price)
+    macro_score, macro_details = score_macro(fred_df)
+    event_risk_score, event_risk_details = score_event_risk(earnings, pcr)
+    
+    is_blackout = event_risk_details.get('blackout', False)
+    
+    final_score = calculate_final_score(
+        catalysts_score, technicals_score, value_score, macro_score, event_risk_score
+    )
+    
+    verdict, verdict_type = get_verdict(final_score, is_blackout)
+    
+    atr_14 = technicals_details.get('atr_14', None)
+    analyst_target = value_details.get('avg_price_target', None)
+    
+    if atr_14:
+        atr_stop_dist = 2.5 * atr_14
+        min_stop_dist = current_price * 0.04
+        stop_loss = current_price - max(atr_stop_dist, min_stop_dist)
+        atr_target = current_price + (5.0 * atr_14)
+        if analyst_target and analyst_target > current_price:
+            target_price = min(atr_target, analyst_target)
+        else:
+            target_price = atr_target
+    else:
+        stop_loss = technicals_details.get('key_support_level', current_price * 0.95)
+        target_price = analyst_target if (analyst_target and analyst_target > current_price) else current_price * 1.10
+    
+    return {
+        'ticker': ticker,
+        'company_name': profile.get('companyName', ticker) if profile else ticker,
+        'current_price': round(current_price, 2),
+        'price_change': round(price_change, 2) if price_change else 0,
+        'price_change_percent': round(price_change_percent, 2) if price_change_percent else 0,
+        'price_source': price_source,
+        'total_score': final_score,
+        'verdict': verdict,
+        'verdict_type': verdict_type,
+        'action_card': {
+            'entry_zone': round(current_price, 2),
+            'stop_loss': round(stop_loss, 2),
+            'target': round(target_price, 2) if target_price else None,
+            'risk_reward': round((target_price - current_price) / (current_price - stop_loss), 2) if target_price and stop_loss < current_price else None
+        },
+        'pillars': {
+            'catalysts': {
+                'score': catalysts_score,
+                'weight': 20,
+                'name': 'Catalysts & Sentiment',
+                'details': catalysts_details
+            },
+            'technicals': {
+                'score': technicals_score,
+                'weight': 35,
+                'name': 'Technical Structure',
+                'details': technicals_details
+            },
+            'value': {
+                'score': value_score,
+                'weight': 15,
+                'name': 'Relative Value',
+                'details': value_details
+            },
+            'macro': {
+                'score': macro_score,
+                'weight': 20,
+                'name': 'Macro Liquidity',
+                'details': macro_details
+            },
+            'event_risk': {
+                'score': event_risk_score,
+                'weight': 10,
+                'name': 'Event Risk',
+                'details': event_risk_details
+            }
+        }
+    }
+
+
 @app.route('/api/analyze/<path:ticker>', methods=['GET'])
 def analyze_stock(ticker):
     try:
-        ticker = ticker.upper()
+        result = analyze_stock_internal(ticker)
         
-        quote = get_stock_quote(ticker)
-        if not quote:
-            return jsonify({'error': 'Invalid ticker symbol or no data available'}), 404
+        if 'error' in result:
+            return jsonify(result), 404
         
-        profile = get_stock_profile(ticker)
-        hist_df = get_historical_prices(ticker, days=730)
-        analyst_ratings = get_analyst_ratings(ticker)
-        news = get_stock_news_sentiment(ticker)
-        price_targets = get_analyst_price_targets(ticker)
-        key_metrics = get_key_metrics(ticker)
-        earnings = get_earnings_calendar(ticker)
-        fred_df = get_fred_data()
-        pcr = get_put_call_ratio(ticker)
-        
-        realtime_data = get_realtime_price(ticker)
-        if realtime_data:
-            current_price = realtime_data.get('price', 0)
-            price_change = realtime_data.get('change', 0)
-            price_change_percent = realtime_data.get('change_percent', 0)
-            price_source = realtime_data.get('source', 'MarketData')
-            logger.info(f"Using MarketData real-time price for {ticker}: ${current_price}")
-        else:
-            current_price = quote.get('price', 0)
-            price_change = quote.get('change', 0)
-            price_change_percent = quote.get('changePercentage', 0)
-            price_source = 'FMP (Delayed)'
-            logger.info(f"Falling back to FMP quote for {ticker}: ${current_price}")
-        
-        catalysts_score, catalysts_details = score_catalysts(analyst_ratings, news)
-        technicals_score, technicals_details = score_technicals(hist_df)
-        value_score, value_details = score_value(price_targets, key_metrics, current_price)
-        macro_score, macro_details = score_macro(fred_df)
-        event_risk_score, event_risk_details = score_event_risk(earnings, pcr)
-        
-        is_blackout = event_risk_details.get('blackout', False)
-        
-        final_score = calculate_final_score(
-            catalysts_score, technicals_score, value_score, macro_score, event_risk_score
-        )
-        
-        verdict, verdict_type = get_verdict(final_score, is_blackout)
-        
-        atr_14 = technicals_details.get('atr_14', None)
-        analyst_target = value_details.get('avg_price_target', None)
-        
-        if atr_14:
-            atr_stop_dist = 2.5 * atr_14
-            min_stop_dist = current_price * 0.04
-            stop_loss = current_price - max(atr_stop_dist, min_stop_dist)
-            atr_target = current_price + (5.0 * atr_14)
-            if analyst_target and analyst_target > current_price:
-                target_price = min(atr_target, analyst_target)
-            else:
-                target_price = atr_target
-        else:
-            stop_loss = technicals_details.get('key_support_level', current_price * 0.95)
-            target_price = analyst_target if (analyst_target and analyst_target > current_price) else current_price * 1.10
-        
+        hist_df = get_historical_prices(ticker.upper(), days=730)
         price_history = []
         if hist_df is not None and len(hist_df) > 0:
             from scoring_engine import calculate_rsi_series, calculate_macd_series
@@ -190,56 +249,10 @@ def analyze_stock(ticker):
             
             price_history = price_history[-365:]
         
-        return jsonify({
-            'ticker': ticker,
-            'company_name': profile.get('companyName', ticker) if profile else ticker,
-            'current_price': round(current_price, 2),
-            'price_change': round(price_change, 2) if price_change else 0,
-            'price_change_percent': round(price_change_percent, 2) if price_change_percent else 0,
-            'price_source': price_source,
-            'final_score': final_score,
-            'verdict': verdict,
-            'verdict_type': verdict_type,
-            'action_card': {
-                'entry_zone': round(current_price, 2),
-                'stop_loss': round(stop_loss, 2),
-                'target': round(target_price, 2) if target_price else None,
-                'risk_reward': round((target_price - current_price) / (current_price - stop_loss), 2) if target_price and stop_loss < current_price else None
-            },
-            'pillars': {
-                'catalysts': {
-                    'score': catalysts_score,
-                    'weight': 20,
-                    'name': 'Catalysts & Sentiment',
-                    'details': catalysts_details
-                },
-                'technicals': {
-                    'score': technicals_score,
-                    'weight': 35,
-                    'name': 'Technical Structure',
-                    'details': technicals_details
-                },
-                'value': {
-                    'score': value_score,
-                    'weight': 15,
-                    'name': 'Relative Value',
-                    'details': value_details
-                },
-                'macro': {
-                    'score': macro_score,
-                    'weight': 20,
-                    'name': 'Macro Liquidity',
-                    'details': macro_details
-                },
-                'event_risk': {
-                    'score': event_risk_score,
-                    'weight': 10,
-                    'name': 'Event Risk',
-                    'details': event_risk_details
-                }
-            },
-            'price_history': price_history
-        })
+        result['final_score'] = result.pop('total_score')
+        result['price_history'] = price_history
+        
+        return jsonify(result)
     
     except Exception as e:
         logger.error(f"Error analyzing {ticker}: {e}")
@@ -584,6 +597,182 @@ def admin_get_traffic_stats():
     except Exception as e:
         logger.error(f"Error fetching traffic stats: {e}")
         return jsonify({'error': 'Failed to fetch traffic stats'}), 500
+
+
+@app.route('/api/admin/watchlist', methods=['GET'])
+def admin_get_watchlist():
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        items = Watchlist.query.order_by(Watchlist.ticker).all()
+        return jsonify({
+            'watchlist': [{'id': w.id, 'ticker': w.ticker} for w in items]
+        })
+    except Exception as e:
+        logger.error(f"Error fetching watchlist: {e}")
+        return jsonify({'error': 'Failed to fetch watchlist'}), 500
+
+
+@app.route('/api/admin/watchlist', methods=['POST'])
+def admin_add_watchlist():
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        data = request.get_json()
+        ticker = data.get('ticker', '').strip().upper()
+        
+        if not ticker:
+            return jsonify({'error': 'Ticker is required'}), 400
+        
+        existing = Watchlist.query.filter_by(ticker=ticker).first()
+        if existing:
+            return jsonify({'error': f'{ticker} already in watchlist'}), 400
+        
+        item = Watchlist(ticker=ticker)
+        db.session.add(item)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'id': item.id, 'ticker': item.ticker})
+    except Exception as e:
+        logger.error(f"Error adding to watchlist: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to add ticker'}), 500
+
+
+@app.route('/api/admin/watchlist/<int:item_id>', methods=['DELETE'])
+def admin_delete_watchlist(item_id):
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        item = Watchlist.query.get(item_id)
+        if not item:
+            return jsonify({'error': 'Ticker not found'}), 404
+        
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Error deleting from watchlist: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete ticker'}), 500
+
+
+@app.route('/api/admin/scanner/run', methods=['POST'])
+def admin_run_scanner():
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        results = run_scanner(analyze_stock_internal)
+        return jsonify({
+            'success': True,
+            'scanned': results['scanned'],
+            'bullish': results['bullish'],
+            'bearish': results['bearish'],
+            'errors': results['errors']
+        })
+    except Exception as e:
+        logger.error(f"Scanner error: {e}")
+        return jsonify({'error': 'Scanner failed'}), 500
+
+
+@app.route('/api/admin/staging', methods=['GET'])
+def admin_get_staging():
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        items = ScanStaging.query.order_by(ScanStaging.scanned_at.desc()).all()
+        return jsonify({
+            'staging': [{
+                'id': s.id,
+                'ticker': s.ticker,
+                'score': s.score,
+                'direction': s.direction,
+                'scanned_at': s.scanned_at.isoformat()
+            } for s in items]
+        })
+    except Exception as e:
+        logger.error(f"Error fetching staging: {e}")
+        return jsonify({'error': 'Failed to fetch staging'}), 500
+
+
+@app.route('/api/admin/staging/<int:staging_id>/discard', methods=['POST'])
+def admin_discard_staging(staging_id):
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        item = ScanStaging.query.get(staging_id)
+        if not item:
+            return jsonify({'error': 'Staging item not found'}), 404
+        
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Error discarding staging: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to discard'}), 500
+
+
+@app.route('/api/admin/staging/<int:staging_id>/publish', methods=['POST'])
+def admin_publish_staging(staging_id):
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        data = request.get_json()
+        admin_comment = data.get('admin_comment', '').strip()
+        
+        if not admin_comment:
+            return jsonify({'error': 'Admin comment is required'}), 400
+        
+        item = ScanStaging.query.get(staging_id)
+        if not item:
+            return jsonify({'error': 'Staging item not found'}), 404
+        
+        trade_idea = TradeIdea(
+            ticker=item.ticker,
+            direction=item.direction,
+            thesis=admin_comment,
+            score=item.score,
+            admin_comment=admin_comment,
+            active=True
+        )
+        db.session.add(trade_idea)
+        db.session.delete(item)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'id': trade_idea.id})
+    except Exception as e:
+        logger.error(f"Error publishing staging: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to publish'}), 500
 
 
 if __name__ == '__main__':
