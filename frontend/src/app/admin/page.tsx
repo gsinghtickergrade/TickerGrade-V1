@@ -41,6 +41,19 @@ interface TrafficStats {
   top_pages: TopPage[];
 }
 
+interface WatchlistItem {
+  id: number;
+  ticker: string;
+}
+
+interface StagingItem {
+  id: number;
+  ticker: string;
+  score: number;
+  direction: string;
+  scanned_at: string;
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
@@ -66,6 +79,18 @@ export default function AdminPage() {
   const [editThesis, setEditThesis] = useState('');
   const [editError, setEditError] = useState<string | null>(null);
 
+  const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
+  const [watchlistLoading, setWatchlistLoading] = useState(false);
+  const [newWatchlistTicker, setNewWatchlistTicker] = useState('');
+  
+  const [staging, setStaging] = useState<StagingItem[]>([]);
+  const [stagingLoading, setStagingLoading] = useState(false);
+  const [scannerRunning, setScannerRunning] = useState(false);
+  const [scannerResult, setScannerResult] = useState<string | null>(null);
+  
+  const [publishingId, setPublishingId] = useState<number | null>(null);
+  const [publishComment, setPublishComment] = useState('');
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
@@ -87,6 +112,8 @@ export default function AdminPage() {
       fetchIdeas();
       fetchFeedback();
       fetchTrafficStats();
+      fetchWatchlist();
+      fetchStaging();
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Authentication failed');
     }
@@ -146,6 +173,132 @@ export default function AdminPage() {
       console.error('Failed to fetch traffic stats:', err);
     } finally {
       setTrafficLoading(false);
+    }
+  };
+
+  const fetchWatchlist = async () => {
+    setWatchlistLoading(true);
+    try {
+      const response = await fetch('/api/admin/watchlist', {
+        headers: { 'X-Admin-Password': password }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setWatchlist(data.watchlist || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch watchlist:', err);
+    } finally {
+      setWatchlistLoading(false);
+    }
+  };
+
+  const fetchStaging = async () => {
+    setStagingLoading(true);
+    try {
+      const response = await fetch('/api/admin/staging', {
+        headers: { 'X-Admin-Password': password }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setStaging(data.staging || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch staging:', err);
+    } finally {
+      setStagingLoading(false);
+    }
+  };
+
+  const addToWatchlist = async () => {
+    if (!newWatchlistTicker.trim()) return;
+    try {
+      const response = await fetch('/api/admin/watchlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Password': password
+        },
+        body: JSON.stringify({ ticker: newWatchlistTicker.trim().toUpperCase() })
+      });
+      if (response.ok) {
+        setNewWatchlistTicker('');
+        fetchWatchlist();
+      }
+    } catch (err) {
+      console.error('Failed to add to watchlist:', err);
+    }
+  };
+
+  const removeFromWatchlist = async (id: number) => {
+    try {
+      const response = await fetch(`/api/admin/watchlist/${id}`, {
+        method: 'DELETE',
+        headers: { 'X-Admin-Password': password }
+      });
+      if (response.ok) {
+        fetchWatchlist();
+      }
+    } catch (err) {
+      console.error('Failed to remove from watchlist:', err);
+    }
+  };
+
+  const runScanner = async () => {
+    setScannerRunning(true);
+    setScannerResult(null);
+    try {
+      const response = await fetch('/api/admin/scanner/run', {
+        method: 'POST',
+        headers: { 'X-Admin-Password': password }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setScannerResult(`Scanned ${data.scanned} tickers: ${data.bullish} bullish, ${data.bearish} bearish`);
+        fetchStaging();
+      } else {
+        setScannerResult(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      setScannerResult('Scanner failed');
+    } finally {
+      setScannerRunning(false);
+    }
+  };
+
+  const discardStaging = async (id: number) => {
+    try {
+      const response = await fetch(`/api/admin/staging/${id}/discard`, {
+        method: 'POST',
+        headers: { 'X-Admin-Password': password }
+      });
+      if (response.ok) {
+        fetchStaging();
+      }
+    } catch (err) {
+      console.error('Failed to discard:', err);
+    }
+  };
+
+  const publishStaging = async () => {
+    if (!publishingId || !publishComment.trim()) return;
+    try {
+      const response = await fetch(`/api/admin/staging/${publishingId}/publish`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Password': password
+        },
+        body: JSON.stringify({ admin_comment: publishComment.trim() })
+      });
+      if (response.ok) {
+        setPublishingId(null);
+        setPublishComment('');
+        fetchStaging();
+        fetchIdeas();
+      }
+    } catch (err) {
+      console.error('Failed to publish:', err);
     }
   };
 
@@ -449,6 +602,135 @@ export default function AdminPage() {
             <p className="text-slate-500 text-center py-4">Failed to load traffic stats.</p>
           )}
         </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <Card className="p-6 bg-white/5 border-white/10">
+            <h2 className="text-xl font-semibold text-white mb-4">Scanner Watchlist</h2>
+            <div className="flex gap-2 mb-4">
+              <Input
+                type="text"
+                placeholder="Add ticker..."
+                value={newWatchlistTicker}
+                onChange={(e) => setNewWatchlistTicker(e.target.value.toUpperCase())}
+                className="bg-slate-800 border-white/10 text-white placeholder:text-slate-400 flex-grow"
+                maxLength={10}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addToWatchlist())}
+              />
+              <Button onClick={addToWatchlist} className="bg-blue-600 hover:bg-blue-700">Add</Button>
+            </div>
+            {watchlistLoading ? (
+              <p className="text-slate-400 text-sm">Loading...</p>
+            ) : watchlist.length === 0 ? (
+              <p className="text-slate-500 text-sm">No tickers in watchlist. Add some to run the scanner.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {watchlist.map((item) => (
+                  <span key={item.id} className="px-3 py-1 bg-slate-800 rounded-full text-sm text-white flex items-center gap-2">
+                    {item.ticker}
+                    <button
+                      onClick={() => removeFromWatchlist(item.id)}
+                      className="text-slate-400 hover:text-red-400"
+                    >
+                      x
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <Button
+                onClick={runScanner}
+                disabled={scannerRunning || watchlist.length === 0}
+                className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50"
+              >
+                {scannerRunning ? 'Scanning...' : 'Run Scanner'}
+              </Button>
+              {scannerResult && (
+                <p className="text-sm text-slate-400 mt-2 text-center">{scannerResult}</p>
+              )}
+            </div>
+          </Card>
+
+          <Card className="p-6 bg-white/5 border-white/10">
+            <h2 className="text-xl font-semibold text-white mb-4">Scanner Staging</h2>
+            {stagingLoading ? (
+              <p className="text-slate-400 text-sm">Loading...</p>
+            ) : staging.length === 0 ? (
+              <p className="text-slate-500 text-sm">No pending scanner results. Run the scanner to find candidates.</p>
+            ) : (
+              <div className="space-y-3">
+                {staging.map((item) => (
+                  <div key={item.id} className="p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-white">{item.ticker}</span>
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                          item.direction === 'Strong Bullish' ? 'bg-[#00C805]/20 text-[#00C805]' :
+                          item.direction === 'Bullish' ? 'bg-blue-500/20 text-blue-400' :
+                          item.direction === 'Bearish' ? 'bg-red-500/20 text-red-400' :
+                          'bg-yellow-500/20 text-yellow-400'
+                        }`}>
+                          {item.direction}
+                        </span>
+                        <span className="text-sm text-slate-400">Score: {item.score.toFixed(1)}</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => discardStaging(item.id)}
+                        className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+                      >
+                        Discard
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => setPublishingId(item.id)}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        Publish
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        </div>
+
+        {publishingId && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <Card className="p-6 bg-slate-900 border-white/10 w-full max-w-lg">
+              <h2 className="text-xl font-semibold text-white mb-4">Publish Trade Idea</h2>
+              <p className="text-slate-400 mb-4">Add your analysis comment for this trade idea:</p>
+              <textarea
+                value={publishComment}
+                onChange={(e) => setPublishComment(e.target.value)}
+                rows={4}
+                placeholder="Why is this a good opportunity?"
+                className="w-full px-3 py-2 rounded-md bg-slate-800 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-4"
+              />
+              <div className="flex gap-3 justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => { setPublishingId(null); setPublishComment(''); }}
+                  className="border-white/20 text-slate-300 hover:bg-white/10"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={publishStaging}
+                  disabled={!publishComment.trim()}
+                  className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                >
+                  Publish
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
 
         <Card className="p-6 bg-white/5 border-white/10 mb-8">
           <h2 className="text-xl font-semibold text-white mb-4">Add New Trade Idea</h2>
