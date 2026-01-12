@@ -7,20 +7,14 @@ from cachetools import TTLCache
 from fredapi import Fred
 import yfinance as yf
 import logging
+from services import finnhub_service
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-FMP_API_KEY = os.environ.get('FMP_API_KEY')
 FRED_API_KEY = os.environ.get('FRED_API_KEY')
 
-FMP_BASE_URL = 'https://financialmodelingprep.com/stable'
-
 cache = TTLCache(maxsize=100, ttl=600)
-
-def normalize_ticker(ticker):
-    """Convert ticker format for FMP API (e.g., BRK.B -> BRK-B)"""
-    return ticker.replace('.', '-')
 
 def get_cached(key, fetch_func):
     if key in cache:
@@ -32,145 +26,141 @@ def get_cached(key, fetch_func):
         cache[key] = data
     return data
 
-def fmp_get(endpoint, params=None):
-    if params is None:
-        params = {}
-    params['apikey'] = FMP_API_KEY
-    url = f"{FMP_BASE_URL}/{endpoint}"
-    try:
-        response = requests.get(url, params=params, timeout=30)
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        logger.error(f"FMP API error for {endpoint}: {e}")
-        return None
-
 def get_stock_quote(ticker):
+    """Get stock quote using yfinance."""
     key = f"quote_{ticker}"
-    fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        data = fmp_get("quote", {'symbol': fmp_ticker})
-        return data[0] if data and len(data) > 0 else None
+        try:
+            stock = yf.Ticker(ticker)
+            info = stock.info
+            if info:
+                return {
+                    'price': info.get('currentPrice') or info.get('regularMarketPrice'),
+                    'change': info.get('regularMarketChange'),
+                    'changesPercentage': info.get('regularMarketChangePercent'),
+                    'name': info.get('shortName') or info.get('longName'),
+                    'symbol': ticker
+                }
+        except Exception as e:
+            logger.error(f"Error fetching quote for {ticker}: {e}")
+        return None
     return get_cached(key, fetch)
 
 def get_stock_profile(ticker):
+    """Get stock profile using yfinance."""
     key = f"profile_{ticker}"
-    fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        data = fmp_get("profile", {'symbol': fmp_ticker})
-        return data[0] if data and len(data) > 0 else None
+        try:
+            stock = yf.Ticker(ticker)
+            info = stock.info
+            if info:
+                return {
+                    'companyName': info.get('shortName') or info.get('longName'),
+                    'sector': info.get('sector'),
+                    'industry': info.get('industry'),
+                    'description': info.get('longBusinessSummary'),
+                    'website': info.get('website'),
+                    'symbol': ticker
+                }
+        except Exception as e:
+            logger.error(f"Error fetching profile for {ticker}: {e}")
+        return None
     return get_cached(key, fetch)
 
 def get_historical_prices(ticker, days=120):
+    """Get historical prices using yfinance."""
     key = f"historical_{ticker}_{days}"
-    fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=days)
-        data = fmp_get("historical-price-eod/full", {
-            'symbol': fmp_ticker,
-            'from': start_date.strftime('%Y-%m-%d'),
-            'to': end_date.strftime('%Y-%m-%d')
-        })
-        if data and isinstance(data, list) and len(data) > 0:
-            df = pd.DataFrame(data)
-            df['date'] = pd.to_datetime(df['date'])
-            df = df.sort_values('date').reset_index(drop=True)
-            return df
+        try:
+            stock = yf.Ticker(ticker)
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=days)
+            df = stock.history(start=start_date.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'))
+            if df is not None and len(df) > 0:
+                df = df.reset_index()
+                df.columns = [c.lower().replace(' ', '_') for c in df.columns]
+                if 'date' in df.columns:
+                    df['date'] = pd.to_datetime(df['date'])
+                return df
+        except Exception as e:
+            logger.error(f"Error fetching historical prices for {ticker}: {e}")
         return None
     return get_cached(key, fetch)
 
 def get_analyst_ratings(ticker):
+    """Get analyst ratings from Finnhub."""
     key = f"analyst_{ticker}"
-    fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        data = fmp_get("grades", {'symbol': fmp_ticker})
-        if data:
-            thirty_days_ago = datetime.now() - timedelta(days=30)
-            recent = []
-            for r in data:
-                try:
-                    grade_date = datetime.strptime(r.get('date', '')[:10], '%Y-%m-%d')
-                    if grade_date >= thirty_days_ago:
-                        recent.append(r)
-                except:
-                    continue
-            return recent[:30]
+        sentiment = finnhub_service.get_analyst_sentiment(ticker)
+        if sentiment:
+            ratings = []
+            for ud in sentiment.get('upgrades_downgrades', []):
+                ratings.append({
+                    'action': ud.get('action', '').lower(),
+                    'previousGrade': ud.get('from_grade'),
+                    'newGrade': ud.get('to_grade'),
+                    'company': ud.get('company'),
+                    'date': ud.get('date')
+                })
+            return ratings
         return []
     return get_cached(key, fetch)
 
 def get_stock_news_sentiment(ticker):
+    """Get stock news from Finnhub for sentiment analysis."""
     key = f"news_{ticker}"
     def fetch():
-        data = fmp_get("fmp-articles", {'limit': 30})
-        if data:
-            ticker_upper = ticker.upper()
-            filtered = [
-                article for article in data 
-                if ticker_upper in (article.get('tickers') or '')
-            ]
-            return filtered[:20] if filtered else data[:10]
+        news = finnhub_service.get_company_news(ticker, days=30)
+        if news:
+            return [{'title': n.get('headline'), 'source': n.get('source')} for n in news]
         return []
     return get_cached(key, fetch)
 
 def get_analyst_price_targets(ticker):
+    """Get analyst price targets from Finnhub."""
     key = f"targets_{ticker}"
-    fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        data = fmp_get("price-target-summary", {'symbol': fmp_ticker})
-        if data and len(data) > 0:
-            summary = data[0]
+        sentiment = finnhub_service.get_analyst_sentiment(ticker)
+        if sentiment and sentiment.get('price_target'):
+            pt = sentiment['price_target']
             return {
-                'targetConsensus': summary.get('lastQuarterAvgPriceTarget', 0),
-                'targetHigh': summary.get('lastMonthAvgPriceTarget', 0),
-                'targetLow': summary.get('lastYearAvgPriceTarget', 0),
-                'numberOfAnalysts': summary.get('lastQuarterCount', 0)
+                'targetConsensus': pt.get('target_mean') or pt.get('target_median'),
+                'targetHigh': pt.get('target_high'),
+                'targetLow': pt.get('target_low'),
+                'targetMean': pt.get('target_mean'),
+                'numberOfAnalysts': None
             }
         return None
     return get_cached(key, fetch)
 
 def get_key_metrics(ticker):
+    """Get key metrics from Finnhub."""
     key = f"metrics_{ticker}"
-    fmp_ticker = normalize_ticker(ticker)
     def fetch():
-        data = fmp_get("ratios-ttm", {'symbol': fmp_ticker})
-        if data and len(data) > 0:
-            ratios = data[0]
-            metrics = fmp_get("key-metrics-ttm", {'symbol': fmp_ticker})
-            if metrics and len(metrics) > 0:
-                ratios.update(metrics[0])
-            return ratios
+        financials = finnhub_service.get_basic_financials(ticker)
+        if financials:
+            return {
+                'peRatioTTM': financials.get('pe_ratio'),
+                'priceToEarningsGrowthRatioTTM': financials.get('peg_ratio'),
+                'priceToBookRatioTTM': financials.get('pb_ratio'),
+                'priceToSalesRatioTTM': financials.get('ps_ratio'),
+                'dividendYieldTTM': financials.get('dividend_yield'),
+                'beta': financials.get('beta'),
+                'epsTTM': financials.get('eps_ttm')
+            }
         return None
     return get_cached(key, fetch)
 
 def get_earnings_calendar(ticker):
+    """Get earnings calendar from Finnhub with yfinance fallback."""
     key = f"earnings_{ticker}"
-    fmp_ticker = normalize_ticker(ticker)
     def fetch():
         now = datetime.now()
-        from_date = now.strftime('%Y-%m-%d')
-        to_date = (now + timedelta(days=90)).strftime('%Y-%m-%d')
         
-        data = fmp_get("earnings-calendar", {
-            'from': from_date,
-            'to': to_date
-        })
-        
-        if data:
-            future = []
-            for e in data:
-                try:
-                    if e.get('symbol') != fmp_ticker:
-                        continue
-                    edate = datetime.strptime(e.get('date', '1900-01-01'), '%Y-%m-%d')
-                    if edate > now:
-                        future.append(e)
-                except:
-                    continue
-            if future:
-                result = sorted(future, key=lambda x: x.get('date', ''))[:1]
-                logger.info(f"FMP earnings for {ticker}: {result}")
-                return result
+        finnhub_earnings = finnhub_service.get_earnings_calendar(ticker)
+        if finnhub_earnings and len(finnhub_earnings) > 0:
+            logger.info(f"Finnhub earnings for {ticker}: {finnhub_earnings}")
+            return finnhub_earnings
         
         try:
             stock = yf.Ticker(ticker)
@@ -250,21 +240,23 @@ def get_fred_data():
     return get_cached(key, fetch)
 
 def get_spy_data():
+    """Get SPY historical data using yfinance."""
     key = "spy_data"
     def fetch():
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=180)
-        data = fmp_get("historical-price-eod/full", {
-            'symbol': 'SPY',
-            'from': start_date.strftime('%Y-%m-%d'),
-            'to': end_date.strftime('%Y-%m-%d')
-        })
-        if data and isinstance(data, list) and len(data) > 0:
-            df = pd.DataFrame(data)
-            df['date'] = pd.to_datetime(df['date'])
-            df = df.sort_values('date').reset_index(drop=True)
-            df.set_index('date', inplace=True)
-            return df
+        try:
+            spy = yf.Ticker('SPY')
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=180)
+            df = spy.history(start=start_date.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'))
+            if df is not None and len(df) > 0:
+                df = df.reset_index()
+                df.columns = [c.lower().replace(' ', '_') for c in df.columns]
+                if 'date' in df.columns:
+                    df['date'] = pd.to_datetime(df['date'])
+                    df.set_index('date', inplace=True)
+                return df
+        except Exception as e:
+            logger.error(f"Error fetching SPY data: {e}")
         return None
     return get_cached(key, fetch)
 

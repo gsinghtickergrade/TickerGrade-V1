@@ -6,7 +6,7 @@ A comprehensive swing trading analysis dashboard optimized for **30-60 day "Inte
 
 ## Overview
 
-This application provides data-driven stock analysis by fetching real-time data from Financial Modeling Prep (FMP) and Federal Reserve (FRED) APIs. It calculates weighted scores across catalysts, technicals, value, macro liquidity, and event risk indicators.
+This application provides data-driven stock analysis by fetching real-time data from Finnhub, Yahoo Finance, and Federal Reserve (FRED) APIs. It calculates weighted scores across catalysts, technicals, value, macro liquidity, and event risk indicators.
 
 ## Project Architecture
 
@@ -14,9 +14,10 @@ This application provides data-driven stock analysis by fetching real-time data 
 - **Location**: `/backend`
 - **Port**: 8000
 - **Main file**: `backend/app.py`
-- **Data services**: `backend/data_services.py` (FMP/FRED API clients with 10-min caching)
+- **Data services**: `backend/data_services.py` (Finnhub/FRED/yfinance API clients with 10-min caching)
+- **Finnhub service**: `backend/services/finnhub_service.py` (Finnhub API wrapper)
 - **Scoring engine**: `backend/scoring_engine.py` (5-pillar scoring logic)
-- **Dependencies**: Flask, Flask-CORS, fredapi, textblob, cachetools, pandas, numpy
+- **Dependencies**: Flask, Flask-CORS, fredapi, finnhub-python, textblob, cachetools, pandas, numpy, yfinance
 
 ### Frontend (Next.js/React)
 - **Location**: `/frontend`
@@ -26,12 +27,12 @@ This application provides data-driven stock analysis by fetching real-time data 
 ## Scoring Engine (5 Pillars)
 
 ### Pillar A: Catalysts & Sentiment (20% weight)
-- **Analyst Activity**: Uses `/stable/grades` endpoint to fetch grades from last 30 days
-  - Compares `newGrade` vs `previousGrade` to determine upgrades/downgrades
+- **Analyst Activity**: Uses Finnhub `upgrade_downgrade` endpoint to fetch grades from last 6 months
+  - Compares `from_grade` vs `to_grade` to determine upgrades/downgrades
   - Grade ranking: Strong Sell < Sell < Hold < Buy < Strong Buy
-- **News Sentiment**: Uses `/stable/fmp-articles` endpoint for raw news
-  - TextBlob analyzes sentiment polarity on article titles only
-  - Averages sentiment scores across up to 10 articles
+- **News Sentiment**: Uses Finnhub `company_news` endpoint for raw news
+  - TextBlob analyzes sentiment polarity on article headlines only
+  - Averages sentiment scores across up to 20 articles
 
 ### Pillar B: Technical Structure (35% weight) - Advanced Divergence
 - **RSI Strategy (Divergence Focus)**:
@@ -49,24 +50,27 @@ This application provides data-driven stock analysis by fetching real-time data 
 - **Support Levels**: Lowest Low of last 20 days as "Stop Loss Support"
 
 ### Pillar C: Relative Value (15% weight)
-- **Data Source**: `/stable/key-metrics-ttm` and `/stable/ratios-ttm` endpoints
-- **Primary Metric: PEG Ratio** (`pegRatioTTM`)
+- **Data Source**: Finnhub `company_basic_financials` endpoint
+- **Primary Metric: PEG Ratio** (`pegRatio`)
   - PEG < 1.0: Bullish (Undervalued Growth)
   - PEG 1.0-2.0: Neutral
   - PEG > 2.0: Bearish (Overvalued)
 - **Fallback: P/S Ratio** (if PEG unavailable)
-  - Uses `priceToSalesRatioTTM` when PEG is N/A
+  - Uses `psTTM` when PEG is N/A
   - P/S < 3.0: Bullish (Undervalued)
   - P/S > 10.0: Bearish (Expensive)
   - UI displays "Using P/S (PEG N/A)" label when fallback is used
-- **Analyst Price Targets**: Upside percentage from consensus target
+- **Analyst Price Targets**: From Finnhub `price_target` endpoint
 
 ### Pillar D: Macro Liquidity (20% weight)
 - Fed Net Liquidity = WALCL - WTREGEN - RRPONTSYD
 - Credit Spreads (BAMLH0A0HYM2) - > 4.0% or rising = bearish
 
 ### Pillar E: Event Risk (10% weight) - Dual-Layer Safety Check
-- **Calendar Risk (FMP)**: Earnings blackout rule - If next earnings within 15 days, force "WAIT" recommendation
+- **Calendar Risk (Finnhub/yfinance)**: Earnings blackout rule
+  - Pre-earnings: 1-15 calendar days before earnings = Blackout
+  - Earnings day: 0 days = Blackout
+  - Post-earnings: 1-5 calendar days after earnings (3 working days proxy) = Blackout
 - **Smart Money Fear Gauge (Yahoo Finance)**:
   - Fetches Put/Call Ratio from options market using yfinance
   - Target expiration: Closest to 30 days from today
@@ -91,14 +95,15 @@ Both workflows are configured:
 ## Environment Variables (Secrets)
 
 - `MARKETDATA_API_KEY` - MarketData.app API key for real-time prices
-- `FMP_API_KEY` - Financial Modeling Prep API key
+- `FINNHUB_API_KEY` - Finnhub API key for company data, analyst ratings, earnings
 - `FRED_API_KEY` - Federal Reserve FRED API key
 - `SESSION_SECRET` - Session encryption key
 
 ## Data Sources
 
-- **Real-Time Prices**: MarketData.app API (primary), FMP delayed quotes (fallback)
-- **Company & Calendar Data**: Financial Modeling Prep (FMP) Stable API
+- **Real-Time Prices**: MarketData.app API (primary), Yahoo Finance (fallback)
+- **Company Data & Analyst Ratings**: Finnhub API
+- **Historical Prices**: Yahoo Finance via yfinance library
 - **Macro Economics**: Federal Reserve Bank of St. Louis (FRED) API
 - **Options Sentiment**: Yahoo Finance via yfinance library
 
