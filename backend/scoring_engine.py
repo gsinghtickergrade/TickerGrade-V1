@@ -417,35 +417,75 @@ def score_macro(fred_df):
     return round(score, 1), details
 
 def check_earnings_blackout(earnings_calendar):
+    """
+    Check if we're in an earnings blackout window.
+    
+    Blackout conditions (Danger Zone):
+    - Pre-earnings: 1-15 calendar days before earnings
+    - Earnings day: 0 days (event day)
+    - Post-earnings: 1-5 calendar days after earnings (proxy for 3 working days)
+    """
     details = {}
     
     if not earnings_calendar or len(earnings_calendar) == 0:
         details['next_earnings'] = None
         details['days_to_earnings'] = None
+        details['days_to_earnings_display'] = None
         details['blackout'] = False
+        details['blackout_reason'] = None
         return False, details
     
     next_earnings = earnings_calendar[0]
     earnings_date_str = next_earnings.get('date', '')
     
     try:
-        earnings_date = datetime.strptime(earnings_date_str, '%Y-%m-%d')
-        days_to_earnings = (earnings_date - datetime.now()).days
+        earnings_date = datetime.strptime(earnings_date_str, '%Y-%m-%d').replace(hour=0, minute=0, second=0)
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        days_to_earnings = (earnings_date - today).days
         
         details['next_earnings'] = earnings_date_str
         details['days_to_earnings'] = days_to_earnings
-        details['blackout'] = 0 < days_to_earnings <= 15
         
-        return details['blackout'], details
+        if days_to_earnings < 0:
+            details['days_to_earnings_display'] = f"{abs(days_to_earnings)} Days Ago (Post-Earnings)"
+        elif days_to_earnings == 0:
+            details['days_to_earnings_display'] = "Today (Earnings Day)"
+        else:
+            details['days_to_earnings_display'] = f"{days_to_earnings} Days"
+        
+        is_blackout = False
+        blackout_reason = None
+        
+        if days_to_earnings < 0 and days_to_earnings >= -5:
+            is_blackout = True
+            blackout_reason = "Post-Earnings Volatility"
+        elif days_to_earnings == 0:
+            is_blackout = True
+            blackout_reason = "Earnings Day"
+        elif days_to_earnings > 0 and days_to_earnings <= 15:
+            is_blackout = True
+            blackout_reason = "Pre-Earnings Window"
+        
+        details['blackout'] = is_blackout
+        details['blackout_reason'] = blackout_reason
+        
+        return is_blackout, details
     except:
         details['next_earnings'] = None
         details['days_to_earnings'] = None
+        details['days_to_earnings_display'] = None
         details['blackout'] = False
+        details['blackout_reason'] = None
         return False, details
 
 def score_event_risk(earnings_calendar, pcr=0.7):
     """
     Score event risk based on earnings calendar and Put/Call Ratio.
+    
+    Blackout windows:
+    - Pre-earnings: 1-15 calendar days before earnings
+    - Earnings day: 0 days (event day)
+    - Post-earnings: 1-5 calendar days after earnings (3 working days)
     
     PCR thresholds:
     - PCR > 2.0: High bearish hedging (Warning) -> -2.0 points
@@ -456,7 +496,8 @@ def score_event_risk(earnings_calendar, pcr=0.7):
     
     if is_blackout:
         score = 0
-        details['signal'] = 'Earnings Blackout'
+        reason = details.get('blackout_reason', 'Earnings Risk')
+        details['signal'] = f'Blackout ({reason})'
     else:
         score = 10
         details['signal'] = 'Clear'
