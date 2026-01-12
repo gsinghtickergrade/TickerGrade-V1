@@ -26,6 +26,9 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
       if (key.includes('growth') || key.includes('margin') || key.includes('percent') || key.includes('upside')) {
         return `${value.toFixed(2)}%`;
       }
+      if (key.includes('volume')) {
+        return value.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
       if (key.includes('price') || key.includes('sma') || key.includes('target') || key.includes('support')) {
         return `$${value.toFixed(2)}`;
       }
