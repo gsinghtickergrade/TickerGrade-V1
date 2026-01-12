@@ -39,7 +39,7 @@ def get_basic_financials(ticker):
             metric = data['metric']
             return {
                 'pe_ratio': metric.get('peBasicExclExtraTTM') or metric.get('peTTM'),
-                'peg_ratio': metric.get('pegRatio'),
+                'peg_ratio': metric.get('pegTTM'),
                 'pb_ratio': metric.get('pbQuarterly') or metric.get('pbAnnual'),
                 'ps_ratio': metric.get('psTTM'),
                 'dividend_yield': metric.get('dividendYieldIndicatedAnnual'),
