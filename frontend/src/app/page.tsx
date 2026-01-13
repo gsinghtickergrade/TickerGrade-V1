@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 TickerGrade LLC. All rights reserved.
+ * This code is the proprietary property of TickerGrade LLC.
+ */
 'use client';
 
 import React, { useState } from 'react';

@@ -19,7 +19,7 @@ export function Footer() {
       </div>
       <div className="text-center text-slate-500 text-sm pb-8">
         <p>Data provided by MarketData, Finnhub, FRED, and Yahoo Finance. Not financial advice.</p>
-        <p className="mt-2">© {new Date().getFullYear()} TickerGrade. All rights reserved.</p>
+        <p className="mt-2">© 2026 TickerGrade LLC. All rights reserved.</p>
       </div>
     </footer>
   );

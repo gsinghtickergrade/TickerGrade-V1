@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 TickerGrade LLC. All rights reserved.
+ * This code is the proprietary property of TickerGrade LLC.
+ */
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
