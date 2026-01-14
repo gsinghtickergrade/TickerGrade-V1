@@ -96,8 +96,9 @@ export default function Home() {
       
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 flex items-center justify-center gap-3">
             TickerGrade
+            <span className="text-sm font-medium bg-blue-600 text-white px-2 py-1 rounded-md">Beta</span>
           </h1>
           <p className="text-slate-400 text-lg">
             The Decision Engine for 30-60 Day Swing Trades. Catch the trend between earnings.
