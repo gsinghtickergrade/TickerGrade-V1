@@ -134,19 +134,34 @@ The application uses an **Anonymous Clickwrap Modal** for terms acceptance:
 
 The application uses Next.js App Router for file-based routing:
 - **Dashboard** (`/`) - Main stock scanner with "Why TickerGrade?" philosophy section
-- **About** (`/about`) - Project background and "Glass Box" philosophy
+- **About Dropdown** (in navbar) - Contains:
+  - **Our Story** (`/our-story`) - Project background and "Glass Box" philosophy
+  - **Legal & Compliance** (`/legal`) - Privacy, Terms, Disclaimer tabs with LLC disclaimer
+  - **Contact** (`/contact`) - Feedback instructions and support email
 - **Methodology** (`/methodology`) - Detailed 5-pillar scoring explanations
 - **User Guide** (`/guide`) - Score interpretation cheat sheet and safety features
 - **Trade Ideas** (`/trade-ideas`) - Curated analyst watchlist with signal cards
 - **Feedback** (`/feedback`) - Beta tester feedback form (database-backed)
 - **Admin** (`/admin`) - Password-protected admin panel for managing trade ideas
-- **Legal** (`/legal`) - Privacy, Terms, Disclaimer tabs
 
 Global components in layout.tsx:
-- **Navbar** - Fixed header with navigation links (uses pt-24 padding on pages)
-- **Footer** - Data attribution, legal links, copyright
+- **Navbar** - Fixed header with dropdown menu for About section (mobile responsive)
+- **Footer** - Simplified data attribution (MarketData, Finnhub, FRED) and copyright
 
 ## Recent Changes
+
+- 2026-01-14: Navigation Refactor & Footer Cleanup
+  - Converted "About" link to dropdown menu with 3 items: Our Story, Legal & Compliance, Contact
+  - Created `/our-story` page (migrated from `/about`)
+  - Created `/contact` page with feedback instructions and support email
+  - Updated `/legal` page title to "Legal & Compliance" with bold LLC disclaimer at top
+  - Removed legal links from Footer (now in About dropdown)
+  - Updated Footer data attribution: "MarketData, Finnhub, and FRED"
+  - Updated WelcomeModal data attribution to match
+
+- 2026-01-14: Earnings Blackout & Liquidity Chart Fixes
+  - Fixed earnings calendar to include past dates (within 5 days) for post-earnings blackout
+  - Fixed liquidity chart timezone mismatch between FRED and yfinance data
 
 - 2026-01-10: Admin-Curated Scanner Workflow
   - Added Watchlist model for tracking tickers to scan
