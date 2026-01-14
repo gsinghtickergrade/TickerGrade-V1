@@ -138,16 +138,16 @@ export default function GuidePage() {
                 What is 'Event Risk'?
               </h3>
               <p className="text-slate-300">
-                We run a dual-layer safety check:
+                We check the earnings calendar to protect you from binary volatility events:
               </p>
               <ul className="mt-3 space-y-2 text-slate-400">
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 font-bold">1.</span>
-                  <span><span className="text-white font-medium">Earnings Blackout:</span> If the next earnings report is less than 15 days away, we lock the score to "Wait" to protect you from binary volatility events.</span>
+                  <span><span className="text-white font-medium">Pre-Earnings Blackout:</span> If the next earnings report is less than 15 days away, we lock the score to "Wait" to protect you from announcement volatility.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 font-bold">2.</span>
-                  <span><span className="text-white font-medium">Put/Call Ratio:</span> If the options market shows a PCR &gt; 2.0 (institutions aggressively hedging), we penalize the score even if the chart looks perfect.</span>
+                  <span><span className="text-white font-medium">Post-Earnings Blackout:</span> 1-5 days after an earnings release, we maintain the "Wait" status to avoid post-announcement volatility swings.</span>
                 </li>
               </ul>
             </Card>

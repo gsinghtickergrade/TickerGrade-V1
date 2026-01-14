@@ -6,7 +6,7 @@ A comprehensive swing trading analysis dashboard optimized for **30-60 day "Inte
 
 ## Overview
 
-This application provides data-driven stock analysis by fetching real-time data from Finnhub, Yahoo Finance, and Federal Reserve (FRED) APIs. It calculates weighted scores across catalysts, technicals, value, macro liquidity, and event risk indicators.
+This application provides data-driven stock analysis by fetching real-time data from MarketData.app, Finnhub, and Federal Reserve (FRED) APIs. It calculates weighted scores across catalysts, technicals, value, macro liquidity, and event risk indicators.
 
 ## Project Architecture
 
@@ -14,10 +14,10 @@ This application provides data-driven stock analysis by fetching real-time data 
 - **Location**: `/backend`
 - **Port**: 8000
 - **Main file**: `backend/app.py`
-- **Data services**: `backend/data_services.py` (Finnhub/FRED/yfinance API clients with 10-min caching)
-- **Finnhub service**: `backend/services/finnhub_service.py` (Finnhub API wrapper)
+- **Data services**: `backend/data_services.py` (Finnhub/FRED API clients with 10-min caching)
+- **Finnhub service**: `backend/services/finnhub_service.py` (Finnhub API wrapper with stock_candles for historical data)
 - **Scoring engine**: `backend/scoring_engine.py` (5-pillar scoring logic)
-- **Dependencies**: Flask, Flask-CORS, fredapi, finnhub-python, textblob, cachetools, pandas, numpy, yfinance
+- **Dependencies**: Flask, Flask-CORS, fredapi, finnhub-python, textblob, cachetools, pandas, numpy, scipy
 
 ### Frontend (Next.js/React)
 - **Location**: `/frontend`
@@ -66,18 +66,11 @@ This application provides data-driven stock analysis by fetching real-time data 
 - Fed Net Liquidity = WALCL - WTREGEN - RRPONTSYD
 - Credit Spreads (BAMLH0A0HYM2) - > 4.0% or rising = bearish
 
-### Pillar E: Event Risk (10% weight) - Dual-Layer Safety Check
-- **Calendar Risk (Finnhub/yfinance)**: Earnings blackout rule
+### Pillar E: Event Risk (10% weight) - Earnings Calendar Check
+- **Calendar Risk (Finnhub)**: Earnings blackout rule
   - Pre-earnings: 1-15 calendar days before earnings = Blackout
   - Earnings day: 0 days = Blackout
   - Post-earnings: 1-5 calendar days after earnings (3 working days proxy) = Blackout
-- **Smart Money Fear Gauge (Yahoo Finance)**:
-  - Fetches Put/Call Ratio from options market using yfinance
-  - Target expiration: Closest to 30 days from today
-  - PCR > 2.0: High Bearish Hedging → Penalize score by -2.0 points, Status = "Warning"
-  - PCR < 0.5: Excessive Call Buying → Status = "Greed" (neutral score)
-  - PCR 0.5-2.0: Normal range
-  - Safety fallback: If yfinance fails, defaults PCR to 0.7
 
 ## API Endpoints
 
@@ -101,11 +94,10 @@ Both workflows are configured:
 
 ## Data Sources
 
-- **Real-Time Prices**: MarketData.app API (primary), Yahoo Finance (fallback)
+- **Real-Time Prices**: MarketData.app API
 - **Company Data & Analyst Ratings**: Finnhub API
-- **Historical Prices**: Yahoo Finance via yfinance library
+- **Historical Prices**: Finnhub `stock_candles` endpoint (daily OHLCV)
 - **Macro Economics**: Federal Reserve Bank of St. Louis (FRED) API
-- **Options Sentiment**: Yahoo Finance via yfinance library
 
 ## Access Control
 
@@ -150,6 +142,16 @@ Global components in layout.tsx:
 
 ## Recent Changes
 
+- 2026-01-14: Remove yfinance Dependency (Legal Compliance)
+  - Replaced all yfinance historical data calls with Finnhub `stock_candles` endpoint
+  - Added `get_stock_candles()` function to finnhub_service.py returning DataFrame format
+  - Replaced SPY benchmark data source with Finnhub stock_candles
+  - Removed Put/Call Ratio feature (no legal options data source available)
+  - Removed PCR logic from scoring_engine.py and app.py
+  - Removed PCR UI card from PillarCard.tsx
+  - Updated methodology page, guide page, and replit.md to reflect changes
+  - Removed yfinance from pyproject.toml dependencies
+
 - 2026-01-14: Navigation Refactor & Footer Cleanup
   - Converted "About" link to dropdown menu with 3 items: Our Story, Legal & Compliance, Contact
   - Created `/our-story` page (migrated from `/about`)
@@ -161,7 +163,7 @@ Global components in layout.tsx:
 
 - 2026-01-14: Earnings Blackout & Liquidity Chart Fixes
   - Fixed earnings calendar to include past dates (within 5 days) for post-earnings blackout
-  - Fixed liquidity chart timezone mismatch between FRED and yfinance data
+  - Fixed liquidity chart timezone mismatch between FRED and SPY data
 
 - 2026-01-10: Admin-Curated Scanner Workflow
   - Added Watchlist model for tracking tickers to scan

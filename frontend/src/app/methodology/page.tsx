@@ -144,14 +144,14 @@ export default function MethodologyPage() {
               </div>
             </div>
             <p className="text-slate-300 mb-4">
-              We hate surprises. The system runs a dual-layer safety check to protect you from binary volatility events.
+              We hate surprises. The system checks the earnings calendar to protect you from binary volatility events.
             </p>
             <div className="bg-slate-800/50 rounded-lg p-4 space-y-2">
               <p className="text-slate-400 text-sm">
                 <span className="text-white font-medium">Calendar Risk:</span> If earnings are due within 15 days, we lock the score to 'Wait'.
               </p>
               <p className="text-slate-400 text-sm">
-                <span className="text-white font-medium">Smart Money Fear Gauge:</span> Real-time Put/Call Ratio from options market. PCR &gt;2.0 triggers a warning.
+                <span className="text-white font-medium">Post-Earnings Blackout:</span> 1-5 days after earnings release to avoid post-announcement volatility.
               </p>
             </div>
           </Card>
@@ -159,7 +159,7 @@ export default function MethodologyPage() {
 
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-white text-center mb-8">Data Sources</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="p-6 bg-white/5 border-white/10 text-center">
               <h3 className="text-lg font-semibold text-white mb-2">Real-Time Prices</h3>
               <a href="https://www.marketdata.app" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
@@ -167,7 +167,7 @@ export default function MethodologyPage() {
               </a>
             </Card>
             <Card className="p-6 bg-white/5 border-white/10 text-center">
-              <h3 className="text-lg font-semibold text-white mb-2">Company & Analyst Data</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">Company, Historical & Analyst Data</h3>
               <a href="https://finnhub.io" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
                 Finnhub
               </a>
@@ -176,12 +176,6 @@ export default function MethodologyPage() {
               <h3 className="text-lg font-semibold text-white mb-2">Macro Economics</h3>
               <a href="https://fred.stlouisfed.org" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
                 Federal Reserve (FRED)
-              </a>
-            </Card>
-            <Card className="p-6 bg-white/5 border-white/10 text-center">
-              <h3 className="text-lg font-semibold text-white mb-2">Options Sentiment</h3>
-              <a href="https://finance.yahoo.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
-                Yahoo Finance
               </a>
             </Card>
           </div>

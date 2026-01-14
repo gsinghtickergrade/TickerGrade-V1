@@ -167,3 +167,69 @@ def get_earnings_calendar(ticker):
         return []
     
     return get_cached(key, fetch)
+
+
+def get_stock_candles(ticker, days=120):
+    """
+    Get historical OHLCV data from Finnhub stock_candles endpoint.
+    Returns a pandas DataFrame with columns: date, open, high, low, close, volume
+    """
+    import pandas as pd
+    
+    key = f"finnhub_candles_{ticker}_{days}"
+    
+    def fetch():
+        try:
+            end_timestamp = int(datetime.now().timestamp())
+            start_timestamp = int((datetime.now() - timedelta(days=days)).timestamp())
+            
+            data = finnhub_client.stock_candles(ticker, 'D', start_timestamp, end_timestamp)
+            
+            if data and data.get('s') == 'ok':
+                df = pd.DataFrame({
+                    'date': pd.to_datetime(data['t'], unit='s'),
+                    'open': data['o'],
+                    'high': data['h'],
+                    'low': data['l'],
+                    'close': data['c'],
+                    'volume': data['v']
+                })
+                df = df.sort_values('date').reset_index(drop=True)
+                logger.info(f"Finnhub candles for {ticker}: {len(df)} rows")
+                return df
+            else:
+                logger.warning(f"Finnhub candles returned no data for {ticker}: {data}")
+                return None
+        except Exception as e:
+            logger.error(f"Error fetching Finnhub candles for {ticker}: {e}")
+            return None
+    
+    return get_cached(key, fetch)
+
+
+def get_company_profile(ticker):
+    """
+    Get company profile from Finnhub.
+    """
+    key = f"finnhub_profile_{ticker}"
+    
+    def fetch():
+        try:
+            profile = finnhub_client.company_profile2(symbol=ticker)
+            if profile:
+                return {
+                    'companyName': profile.get('name'),
+                    'sector': profile.get('finnhubIndustry'),
+                    'industry': profile.get('finnhubIndustry'),
+                    'description': None,
+                    'website': profile.get('weburl'),
+                    'symbol': ticker,
+                    'exchange': profile.get('exchange'),
+                    'marketCap': profile.get('marketCapitalization'),
+                    'logo': profile.get('logo')
+                }
+        except Exception as e:
+            logger.warning(f"Failed to get company profile for {ticker}: {e}")
+        return None
+    
+    return get_cached(key, fetch)

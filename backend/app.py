@@ -13,8 +13,7 @@ from sqlalchemy import func
 from data_services import (
     get_stock_quote, get_stock_profile, get_historical_prices,
     get_analyst_ratings, get_stock_news_sentiment, get_analyst_price_targets,
-    get_key_metrics, get_earnings_calendar, get_fred_data, get_spy_data,
-    get_put_call_ratio
+    get_key_metrics, get_earnings_calendar, get_fred_data, get_spy_data
 )
 from scoring_engine import (
     score_catalysts, score_technicals, score_value, score_macro,
@@ -93,7 +92,6 @@ def analyze_stock_internal(ticker):
     key_metrics = get_key_metrics(ticker)
     earnings = get_earnings_calendar(ticker)
     fred_df = get_fred_data()
-    pcr = get_put_call_ratio(ticker)
     
     realtime_data = get_realtime_price(ticker)
     if realtime_data:
@@ -113,7 +111,7 @@ def analyze_stock_internal(ticker):
     technicals_score, technicals_details = score_technicals(hist_df)
     value_score, value_details = score_value(price_targets, key_metrics, current_price)
     macro_score, macro_details = score_macro(fred_df)
-    event_risk_score, event_risk_details = score_event_risk(earnings, pcr)
+    event_risk_score, event_risk_details = score_event_risk(earnings)
     
     is_blackout = event_risk_details.get('blackout', False)
     

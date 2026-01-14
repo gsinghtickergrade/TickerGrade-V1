@@ -5,7 +5,6 @@ import numpy as np
 from datetime import datetime, timedelta
 from cachetools import TTLCache
 from fredapi import Fred
-import yfinance as yf
 import logging
 from services import finnhub_service
 
@@ -27,18 +26,22 @@ def get_cached(key, fetch_func):
     return data
 
 def get_stock_quote(ticker):
-    """Get stock quote using yfinance."""
+    """Get stock quote using Finnhub candles for latest price."""
     key = f"quote_{ticker}"
     def fetch():
         try:
-            stock = yf.Ticker(ticker)
-            info = stock.info
-            if info:
+            df = finnhub_service.get_stock_candles(ticker, days=5)
+            profile = finnhub_service.get_company_profile(ticker)
+            if df is not None and len(df) > 0:
+                latest = df.iloc[-1]
+                prev = df.iloc[-2] if len(df) > 1 else latest
+                change = latest['close'] - prev['close']
+                change_pct = (change / prev['close']) * 100 if prev['close'] > 0 else 0
                 return {
-                    'price': info.get('currentPrice') or info.get('regularMarketPrice'),
-                    'change': info.get('regularMarketChange'),
-                    'changesPercentage': info.get('regularMarketChangePercent'),
-                    'name': info.get('shortName') or info.get('longName'),
+                    'price': latest['close'],
+                    'change': change,
+                    'changesPercentage': change_pct,
+                    'name': profile.get('companyName') if profile else ticker,
                     'symbol': ticker
                 }
         except Exception as e:
@@ -47,45 +50,12 @@ def get_stock_quote(ticker):
     return get_cached(key, fetch)
 
 def get_stock_profile(ticker):
-    """Get stock profile using yfinance."""
-    key = f"profile_{ticker}"
-    def fetch():
-        try:
-            stock = yf.Ticker(ticker)
-            info = stock.info
-            if info:
-                return {
-                    'companyName': info.get('shortName') or info.get('longName'),
-                    'sector': info.get('sector'),
-                    'industry': info.get('industry'),
-                    'description': info.get('longBusinessSummary'),
-                    'website': info.get('website'),
-                    'symbol': ticker
-                }
-        except Exception as e:
-            logger.error(f"Error fetching profile for {ticker}: {e}")
-        return None
-    return get_cached(key, fetch)
+    """Get stock profile using Finnhub."""
+    return finnhub_service.get_company_profile(ticker)
 
 def get_historical_prices(ticker, days=120):
-    """Get historical prices using yfinance."""
-    key = f"historical_{ticker}_{days}"
-    def fetch():
-        try:
-            stock = yf.Ticker(ticker)
-            end_date = datetime.now()
-            start_date = end_date - timedelta(days=days)
-            df = stock.history(start=start_date.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'))
-            if df is not None and len(df) > 0:
-                df = df.reset_index()
-                df.columns = [c.lower().replace(' ', '_') for c in df.columns]
-                if 'date' in df.columns:
-                    df['date'] = pd.to_datetime(df['date'])
-                return df
-        except Exception as e:
-            logger.error(f"Error fetching historical prices for {ticker}: {e}")
-        return None
-    return get_cached(key, fetch)
+    """Get historical prices using Finnhub stock_candles."""
+    return finnhub_service.get_stock_candles(ticker, days=days)
 
 def get_analyst_ratings(ticker):
     """Get analyst ratings from Finnhub."""
@@ -152,48 +122,13 @@ def get_key_metrics(ticker):
     return get_cached(key, fetch)
 
 def get_earnings_calendar(ticker):
-    """Get earnings calendar from Finnhub with yfinance fallback."""
+    """Get earnings calendar from Finnhub."""
     key = f"earnings_{ticker}"
     def fetch():
-        now = datetime.now()
-        
         finnhub_earnings = finnhub_service.get_earnings_calendar(ticker)
         if finnhub_earnings and len(finnhub_earnings) > 0:
             logger.info(f"Finnhub earnings for {ticker}: {finnhub_earnings}")
             return finnhub_earnings
-        
-        try:
-            stock = yf.Ticker(ticker)
-            calendar = stock.calendar
-            if calendar is not None:
-                earnings_date = None
-                if isinstance(calendar, dict) and 'Earnings Date' in calendar:
-                    earnings_date = calendar['Earnings Date']
-                    if isinstance(earnings_date, list) and len(earnings_date) > 0:
-                        earnings_date = earnings_date[0]
-                elif hasattr(calendar, 'index') and 'Earnings Date' in calendar.index:
-                    earnings_date = calendar.loc['Earnings Date']
-                    if hasattr(earnings_date, 'iloc'):
-                        earnings_date = earnings_date.iloc[0]
-                
-                if earnings_date is not None:
-                    if hasattr(earnings_date, 'strftime'):
-                        date_str = earnings_date.strftime('%Y-%m-%d')
-                    else:
-                        date_str = str(earnings_date)[:10]
-                    
-                    parsed_date = datetime.strptime(date_str, '%Y-%m-%d')
-                    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
-                    days_diff = (today - parsed_date).days
-                    
-                    if days_diff <= 5:
-                        logger.info(f"yfinance earnings for {ticker}: {date_str} (days_diff={days_diff})")
-                        return [{'date': date_str, 'symbol': ticker, 'source': 'yfinance'}]
-                    else:
-                        logger.warning(f"yfinance earnings date for {ticker} is too old: {date_str} ({days_diff} days ago)")
-        except Exception as e:
-            logger.warning(f"yfinance earnings lookup failed for {ticker}: {e}")
-        
         return []
     return get_cached(key, fetch)
 
@@ -243,64 +178,15 @@ def get_fred_data():
     return get_cached(key, fetch)
 
 def get_spy_data():
-    """Get SPY historical data using yfinance."""
+    """Get SPY historical data using Finnhub stock_candles."""
     key = "spy_data"
     def fetch():
         try:
-            spy = yf.Ticker('SPY')
-            end_date = datetime.now()
-            start_date = end_date - timedelta(days=180)
-            df = spy.history(start=start_date.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'))
+            df = finnhub_service.get_stock_candles('SPY', days=180)
             if df is not None and len(df) > 0:
-                df = df.reset_index()
-                df.columns = [c.lower().replace(' ', '_') for c in df.columns]
-                if 'date' in df.columns:
-                    df['date'] = pd.to_datetime(df['date'])
-                    df.set_index('date', inplace=True)
+                df = df.set_index('date')
                 return df
         except Exception as e:
             logger.error(f"Error fetching SPY data: {e}")
         return None
-    return get_cached(key, fetch)
-
-def get_put_call_ratio(ticker):
-    """
-    Calculate Put/Call Ratio from options data using Yahoo Finance.
-    Returns the PCR for the expiration date closest to 30 days out.
-    """
-    key = f"pcr_{ticker}"
-    def fetch():
-        try:
-            stock = yf.Ticker(ticker)
-            expirations = stock.options
-            
-            if not expirations:
-                logger.warning(f"No options data available for {ticker}")
-                return 0.7
-            
-            target_date = datetime.now() + timedelta(days=30)
-            closest_exp = min(expirations, key=lambda x: abs(datetime.strptime(x, '%Y-%m-%d') - target_date))
-            
-            chain = stock.option_chain(closest_exp)
-            
-            calls_volume = chain.calls['volume'].sum() if 'volume' in chain.calls.columns else 0
-            puts_volume = chain.puts['volume'].sum() if 'volume' in chain.puts.columns else 0
-            
-            if pd.isna(calls_volume):
-                calls_volume = 0
-            if pd.isna(puts_volume):
-                puts_volume = 0
-            
-            if calls_volume == 0:
-                logger.warning(f"No call volume for {ticker}, defaulting PCR to 0.7")
-                return 0.7
-            
-            pcr = puts_volume / calls_volume
-            logger.info(f"Yahoo Finance PCR for {ticker}: {pcr:.2f} (Puts: {puts_volume}, Calls: {calls_volume}, Exp: {closest_exp})")
-            return round(pcr, 2)
-            
-        except Exception as e:
-            logger.error(f"Error fetching options data for {ticker}: {e}")
-            return 0.7
-    
     return get_cached(key, fetch)

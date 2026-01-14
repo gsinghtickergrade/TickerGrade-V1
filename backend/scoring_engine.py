@@ -478,19 +478,14 @@ def check_earnings_blackout(earnings_calendar):
         details['blackout_reason'] = None
         return False, details
 
-def score_event_risk(earnings_calendar, pcr=0.7):
+def score_event_risk(earnings_calendar):
     """
-    Score event risk based on earnings calendar and Put/Call Ratio.
+    Score event risk based on earnings calendar.
     
     Blackout windows:
     - Pre-earnings: 1-15 calendar days before earnings
     - Earnings day: 0 days (event day)
     - Post-earnings: 1-5 calendar days after earnings (3 working days)
-    
-    PCR thresholds:
-    - PCR > 2.0: High bearish hedging (Warning) -> -2.0 points
-    - PCR < 0.5: Excessive call buying (Greed) -> Neutral
-    - PCR 0.5-2.0: Normal range
     """
     is_blackout, details = check_earnings_blackout(earnings_calendar)
     
@@ -501,20 +496,6 @@ def score_event_risk(earnings_calendar, pcr=0.7):
     else:
         score = 10
         details['signal'] = 'Clear'
-    
-    details['put_call_ratio'] = round(pcr, 2)
-    
-    if pcr > 2.0:
-        score -= 2.0
-        details['pcr_signal'] = 'Warning (High Put Hedging)'
-        if not is_blackout:
-            details['signal'] = 'Warning'
-    elif pcr < 0.5:
-        details['pcr_signal'] = 'Greed (Excessive Calls)'
-        if not is_blackout:
-            details['signal'] = 'Greed'
-    else:
-        details['pcr_signal'] = 'Normal'
     
     score = max(0, min(10, score))
     return round(score, 1), details
