@@ -35,9 +35,9 @@ export function WelcomeModal() {
         <div className="text-slate-300 mb-8">
           <p className="text-center leading-relaxed">
             TickerGrade is a free research tool for educational purposes only. We are not financial advisors. By entering, you agree that you are solely responsible for your trades. Data is provided by{' '}
-            <a href="https://finnhub.io" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Finnhub</a>,{' '}
-            <a href="https://fred.stlouisfed.org" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">FRED</a>, and{' '}
-            <a href="https://finance.yahoo.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Yahoo Finance</a>.
+            <a href="https://www.marketdata.app" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">MarketData</a>,{' '}
+            <a href="https://finnhub.io" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Finnhub</a>, and{' '}
+            <a href="https://fred.stlouisfed.org" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">FRED</a>.
           </p>
         </div>
         

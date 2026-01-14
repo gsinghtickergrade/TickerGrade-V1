@@ -2,11 +2,11 @@
 
 import React from 'react';
 
-export default function AboutPage() {
+export default function OurStoryPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 pt-24 pb-12">
       <div className="container mx-auto px-4 max-w-3xl">
-        <h1 className="text-3xl font-bold mb-8 text-center text-blue-400">About TickerGrade</h1>
+        <h1 className="text-3xl font-bold mb-8 text-center text-blue-400">Our Story</h1>
 
         <div className="space-y-6 text-gray-300 leading-relaxed">
           <section className="p-6 rounded-xl bg-gradient-to-br from-blue-900/30 to-blue-950/50 border border-blue-500/20">

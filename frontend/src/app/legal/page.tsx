@@ -19,7 +19,13 @@ export default function LegalPage() {
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-24">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
 
-        <h1 className="text-3xl font-bold text-white mb-8">Legal Information</h1>
+        <h1 className="text-3xl font-bold text-white mb-8">Legal & Compliance</h1>
+
+        <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-lg mb-8">
+          <p className="text-blue-200 font-bold text-center">
+            TickerGrade is operated by TickerGrade, LLC, a California limited liability company. Data provided for informational purposes only.
+          </p>
+        </div>
 
         <div className="flex gap-2 mb-6">
           {tabs.map((tab) => (
