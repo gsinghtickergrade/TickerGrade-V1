@@ -610,10 +610,12 @@ def admin_get_watchlist():
     try:
         category_filter = request.args.get('category')
         
+        query = Watchlist.query.filter(~Watchlist.ticker.startswith('_PLACEHOLDER_'))
+        
         if category_filter:
-            items = Watchlist.query.filter_by(category=category_filter).order_by(Watchlist.ticker).all()
-        else:
-            items = Watchlist.query.order_by(Watchlist.ticker).all()
+            query = query.filter_by(category=category_filter)
+        
+        items = query.order_by(Watchlist.ticker).all()
         
         categories = db.session.query(Watchlist.category).distinct().order_by(Watchlist.category).all()
         unique_categories = [c[0] for c in categories]
@@ -681,6 +683,57 @@ def admin_delete_watchlist(item_id):
         logger.error(f"Error deleting from watchlist: {e}")
         db.session.rollback()
         return jsonify({'error': 'Failed to delete ticker'}), 500
+
+
+@app.route('/api/admin/categories', methods=['POST'])
+def admin_create_category():
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        data = request.get_json()
+        name = data.get('name', '').strip()
+        
+        if not name:
+            return jsonify({'error': 'Category name is required'}), 400
+        
+        existing = Watchlist.query.filter_by(category=name).first()
+        if existing:
+            return jsonify({'error': f'Category "{name}" already exists'}), 400
+        
+        placeholder = Watchlist(ticker=f'_PLACEHOLDER_{name}', category=name)
+        db.session.add(placeholder)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'name': name})
+    except Exception as e:
+        logger.error(f"Error creating category: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to create category'}), 500
+
+
+@app.route('/api/admin/categories/<path:category_name>', methods=['DELETE'])
+def admin_delete_category(category_name):
+    password = request.headers.get('X-Admin-Password', '')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_password or password != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    if category_name == 'Main':
+        return jsonify({'error': 'Cannot delete the Main category'}), 400
+    
+    try:
+        Watchlist.query.filter_by(category=category_name).update({'category': 'Main'})
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Error deleting category: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete category'}), 500
 
 
 @app.route('/api/admin/scanner/run', methods=['POST'])

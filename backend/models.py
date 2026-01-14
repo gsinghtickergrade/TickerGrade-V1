@@ -55,7 +55,7 @@ class TradeIdea(db.Model):
 class Watchlist(db.Model):
     __tablename__ = 'watchlist'
     id = db.Column(db.Integer, primary_key=True)
-    ticker = db.Column(db.String(10), nullable=False, unique=True)
+    ticker = db.Column(db.String(100), nullable=False, unique=True)
     category = db.Column(db.String(50), nullable=False, default='Main')
     added_at = db.Column(db.DateTime, default=datetime.utcnow)
 

@@ -145,11 +145,15 @@ Global components in layout.tsx:
 
 - 2026-01-14: Multi-Watchlist Categories for Admin Scanner
   - Added `category` field to Watchlist model with default "Main"
-  - Admin Panel now has category filter dropdown in Scanner Watchlist section
-  - Add Stock form now includes category input with autocomplete suggestions
-  - Categories are created dynamically by typing new names when adding stocks
+  - Admin Panel now has "Manage Categories" section with Create/Delete controls
+  - Admins can create empty categories before adding any tickers to them
+  - Category delete moves all tickers in that category to "Main"
+  - "Main" category is protected and cannot be deleted
+  - Category filter dropdown to view/scan specific subsets
+  - Add Stock form includes category input with autocomplete suggestions
   - Scanner "Run Scan" button only processes tickers in selected category
-  - API savings: Scan subsets instead of entire database
+  - Placeholder tickers (_PLACEHOLDER_) used internally, hidden from UI
+  - API endpoints: POST/DELETE /api/admin/categories
 
 - 2026-01-14: FRED API 24-Hour File Cache
   - Implemented file-based caching for FRED macro data (fred_cache.json)

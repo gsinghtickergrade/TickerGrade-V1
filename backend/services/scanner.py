@@ -24,11 +24,13 @@ def run_scanner(analyze_func, category=None):
         'errors': []
     }
     
+    base_query = Watchlist.query.filter(~Watchlist.ticker.startswith('_PLACEHOLDER_'))
+    
     if category:
-        tickers = Watchlist.query.filter_by(category=category).all()
+        tickers = base_query.filter_by(category=category).all()
         logger.info(f"Scanning category '{category}' with {len(tickers)} tickers")
     else:
-        tickers = Watchlist.query.all()
+        tickers = base_query.all()
         logger.info(f"Scanning all categories with {len(tickers)} tickers")
     
     if not tickers:

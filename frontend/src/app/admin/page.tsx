@@ -87,6 +87,8 @@ export default function AdminPage() {
   const [newWatchlistCategory, setNewWatchlistCategory] = useState('Main');
   const [categories, setCategories] = useState<string[]>(['Main']);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [categoryCreating, setCategoryCreating] = useState(false);
   
   const [staging, setStaging] = useState<StagingItem[]>([]);
   const [stagingLoading, setStagingLoading] = useState(false);
@@ -384,6 +386,48 @@ export default function AdminPage() {
       }
     } catch (err) {
       console.error('Failed to remove from watchlist:', err);
+    }
+  };
+
+  const createCategory = async () => {
+    const categoryName = newCategoryName.trim();
+    if (!categoryName) return;
+    if (categories.includes(categoryName)) {
+      return;
+    }
+    setCategoryCreating(true);
+    try {
+      const response = await fetch('/api/admin/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Password': password
+        },
+        body: JSON.stringify({ name: categoryName })
+      });
+      if (response.ok) {
+        setNewCategoryName('');
+        setCategories([...categories, categoryName].sort());
+      }
+    } catch (err) {
+      console.error('Failed to create category:', err);
+    } finally {
+      setCategoryCreating(false);
+    }
+  };
+
+  const deleteCategory = async (categoryName: string) => {
+    if (!confirm(`Delete category "${categoryName}"? All tickers in this category will be moved to "Main".`)) return;
+    try {
+      const response = await fetch(`/api/admin/categories/${encodeURIComponent(categoryName)}`, {
+        method: 'DELETE',
+        headers: { 'X-Admin-Password': password }
+      });
+      if (response.ok) {
+        fetchWatchlist();
+      }
+    } catch (err) {
+      console.error('Failed to delete category:', err);
     }
   };
 
@@ -802,6 +846,44 @@ export default function AdminPage() {
           <Card className="p-6 bg-white/5 border-white/10">
             <h2 className="text-xl font-semibold text-white mb-4">Scanner Watchlist</h2>
             
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-400 mb-2">Manage Categories</label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  type="text"
+                  placeholder="New category name..."
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className="bg-slate-800 border-white/10 text-white placeholder:text-slate-400 flex-grow"
+                  maxLength={50}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), createCategory())}
+                />
+                <Button 
+                  onClick={createCategory} 
+                  disabled={categoryCreating || !newCategoryName.trim()}
+                  className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+                >
+                  {categoryCreating ? '...' : 'Create'}
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-1 mb-3">
+                {categories.map((cat) => (
+                  <span key={cat} className="px-2 py-1 bg-purple-900/50 rounded text-xs text-purple-300 flex items-center gap-1">
+                    {cat}
+                    {cat !== 'Main' && (
+                      <button
+                        onClick={() => deleteCategory(cat)}
+                        className="text-purple-400 hover:text-red-400 ml-1"
+                        title={`Delete ${cat}`}
+                      >
+                        x
+                      </button>
+                    )}
+                  </span>
+                ))}
+              </div>
+            </div>
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-slate-400 mb-2">Filter by Category</label>
               <select
