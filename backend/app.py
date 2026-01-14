@@ -269,11 +269,11 @@ def get_net_liquidity():
             return jsonify({'error': 'Unable to fetch FRED data'}), 500
         
         fred_df = fred_df.copy()
-        fred_df.index = pd.to_datetime(fred_df.index).normalize()
+        fred_df.index = pd.to_datetime(fred_df.index).tz_localize(None).normalize()
         
         if spy_df is not None:
             spy_df = spy_df.copy()
-            spy_df.index = pd.to_datetime(spy_df.index).normalize()
+            spy_df.index = pd.to_datetime(spy_df.index).tz_localize(None).normalize()
             spy_df = spy_df[~spy_df.index.duplicated(keep='first')]
             spy_reindexed = spy_df['close'].reindex(fred_df.index, method='ffill')
             fred_df['spy_close'] = spy_reindexed
