@@ -143,6 +143,19 @@ Global components in layout.tsx:
 
 ## Recent Changes
 
+- 2026-01-14: Multi-Watchlist Categories for Admin Scanner
+  - Added `category` field to Watchlist model with default "Main"
+  - Admin Panel now has category filter dropdown in Scanner Watchlist section
+  - Add Stock form now includes category input with autocomplete suggestions
+  - Categories are created dynamically by typing new names when adding stocks
+  - Scanner "Run Scan" button only processes tickers in selected category
+  - API savings: Scan subsets instead of entire database
+
+- 2026-01-14: FRED API 24-Hour File Cache
+  - Implemented file-based caching for FRED macro data (fred_cache.json)
+  - Cache TTL: 24 hours before refreshing from API
+  - Reduces FRED API calls from per-request to once per day
+
 - 2026-01-14: Remove yfinance Dependency (Legal Compliance)
   - Replaced all yfinance historical data calls with MarketData.app `stocks/candles` endpoint
   - Added `get_historical_candles()` function to marketdata_service.py returning DataFrame format

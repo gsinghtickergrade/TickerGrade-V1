@@ -44,6 +44,7 @@ interface TrafficStats {
 interface WatchlistItem {
   id: number;
   ticker: string;
+  category: string;
 }
 
 interface StagingItem {
@@ -83,6 +84,9 @@ export default function AdminPage() {
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [watchlistLoading, setWatchlistLoading] = useState(false);
   const [newWatchlistTicker, setNewWatchlistTicker] = useState('');
+  const [newWatchlistCategory, setNewWatchlistCategory] = useState('Main');
+  const [categories, setCategories] = useState<string[]>(['Main']);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   
   const [staging, setStaging] = useState<StagingItem[]>([]);
   const [stagingLoading, setStagingLoading] = useState(false);
@@ -208,15 +212,21 @@ export default function AdminPage() {
     }
   };
 
-  const fetchWatchlistWithPassword = async (pw: string) => {
+  const fetchWatchlistWithPassword = async (pw: string, category?: string) => {
     setWatchlistLoading(true);
     try {
-      const response = await fetch('/api/admin/watchlist', {
+      const url = category && category !== 'All' 
+        ? `/api/admin/watchlist?category=${encodeURIComponent(category)}`
+        : '/api/admin/watchlist';
+      const response = await fetch(url, {
         headers: { 'X-Admin-Password': pw }
       });
       const data = await response.json();
       if (response.ok) {
         setWatchlist(data.watchlist || []);
+        if (data.categories && data.categories.length > 0) {
+          setCategories(data.categories);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch watchlist:', err);
@@ -299,15 +309,22 @@ export default function AdminPage() {
     }
   };
 
-  const fetchWatchlist = async () => {
+  const fetchWatchlist = async (category?: string) => {
     setWatchlistLoading(true);
     try {
-      const response = await fetch('/api/admin/watchlist', {
+      const cat = category ?? selectedCategory;
+      const url = cat && cat !== 'All' 
+        ? `/api/admin/watchlist?category=${encodeURIComponent(cat)}`
+        : '/api/admin/watchlist';
+      const response = await fetch(url, {
         headers: { 'X-Admin-Password': password }
       });
       const data = await response.json();
       if (response.ok) {
         setWatchlist(data.watchlist || []);
+        if (data.categories && data.categories.length > 0) {
+          setCategories(data.categories);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch watchlist:', err);
@@ -342,7 +359,10 @@ export default function AdminPage() {
           'Content-Type': 'application/json',
           'X-Admin-Password': password
         },
-        body: JSON.stringify({ ticker: newWatchlistTicker.trim().toUpperCase() })
+        body: JSON.stringify({ 
+          ticker: newWatchlistTicker.trim().toUpperCase(),
+          category: newWatchlistCategory.trim() || 'Main'
+        })
       });
       if (response.ok) {
         setNewWatchlistTicker('');
@@ -373,11 +393,18 @@ export default function AdminPage() {
     try {
       const response = await fetch('/api/admin/scanner/run', {
         method: 'POST',
-        headers: { 'X-Admin-Password': password }
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Admin-Password': password 
+        },
+        body: JSON.stringify({ 
+          category: selectedCategory !== 'All' ? selectedCategory : null 
+        })
       });
       const data = await response.json();
       if (response.ok) {
-        setScannerResult(`Scanned ${data.scanned} tickers: ${data.bullish} bullish, ${data.bearish} bearish`);
+        const categoryLabel = data.category || 'All';
+        setScannerResult(`Scanned ${data.scanned} tickers (${categoryLabel}): ${data.bullish} bullish, ${data.bearish} bearish`);
         fetchStaging();
       } else {
         setScannerResult(`Error: ${data.error}`);
@@ -774,27 +801,62 @@ export default function AdminPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card className="p-6 bg-white/5 border-white/10">
             <h2 className="text-xl font-semibold text-white mb-4">Scanner Watchlist</h2>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-400 mb-2">Filter by Category</label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  fetchWatchlist(e.target.value);
+                }}
+                className="w-full h-10 px-3 rounded-md bg-slate-800 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="All">All Categories</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+            
             <div className="flex gap-2 mb-4">
               <Input
                 type="text"
-                placeholder="Add ticker..."
+                placeholder="Ticker..."
                 value={newWatchlistTicker}
                 onChange={(e) => setNewWatchlistTicker(e.target.value.toUpperCase())}
-                className="bg-slate-800 border-white/10 text-white placeholder:text-slate-400 flex-grow"
+                className="bg-slate-800 border-white/10 text-white placeholder:text-slate-400 w-24"
                 maxLength={10}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addToWatchlist())}
               />
+              <Input
+                type="text"
+                placeholder="Category (e.g., Tech, Main)"
+                value={newWatchlistCategory}
+                onChange={(e) => setNewWatchlistCategory(e.target.value)}
+                className="bg-slate-800 border-white/10 text-white placeholder:text-slate-400 flex-grow"
+                maxLength={50}
+                list="category-suggestions"
+              />
+              <datalist id="category-suggestions">
+                {categories.map((cat) => (
+                  <option key={cat} value={cat} />
+                ))}
+              </datalist>
               <Button onClick={addToWatchlist} className="bg-blue-600 hover:bg-blue-700">Add</Button>
             </div>
             {watchlistLoading ? (
               <p className="text-slate-400 text-sm">Loading...</p>
             ) : watchlist.length === 0 ? (
-              <p className="text-slate-500 text-sm">No tickers in watchlist. Add some to run the scanner.</p>
+              <p className="text-slate-500 text-sm">No tickers in {selectedCategory === 'All' ? 'watchlist' : `"${selectedCategory}" category`}. Add some to run the scanner.</p>
             ) : (
               <div className="flex flex-wrap gap-2">
                 {watchlist.map((item) => (
                   <span key={item.id} className="px-3 py-1 bg-slate-800 rounded-full text-sm text-white flex items-center gap-2">
-                    {item.ticker}
+                    <span className="font-medium">{item.ticker}</span>
+                    {selectedCategory === 'All' && (
+                      <span className="text-xs text-slate-400">({item.category})</span>
+                    )}
                     <button
                       onClick={() => removeFromWatchlist(item.id)}
                       className="text-slate-400 hover:text-red-400"
@@ -811,7 +873,7 @@ export default function AdminPage() {
                 disabled={scannerRunning || watchlist.length === 0}
                 className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50"
               >
-                {scannerRunning ? 'Scanning...' : 'Run Scanner'}
+                {scannerRunning ? 'Scanning...' : `Run Scanner${selectedCategory !== 'All' ? ` (${selectedCategory})` : ''}`}
               </Button>
               {scannerResult && (
                 <p className="text-sm text-slate-400 mt-2 text-center">{scannerResult}</p>

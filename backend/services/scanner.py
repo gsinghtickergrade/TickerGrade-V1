@@ -16,7 +16,7 @@ def get_direction_from_score(score: float) -> str:
         return 'Bearish'
 
 
-def run_scanner(analyze_func):
+def run_scanner(analyze_func, category=None):
     results = {
         'scanned': 0,
         'bullish': 0,
@@ -24,7 +24,13 @@ def run_scanner(analyze_func):
         'errors': []
     }
     
-    tickers = Watchlist.query.all()
+    if category:
+        tickers = Watchlist.query.filter_by(category=category).all()
+        logger.info(f"Scanning category '{category}' with {len(tickers)} tickers")
+    else:
+        tickers = Watchlist.query.all()
+        logger.info(f"Scanning all categories with {len(tickers)} tickers")
+    
     if not tickers:
         logger.info("No tickers in watchlist")
         return results

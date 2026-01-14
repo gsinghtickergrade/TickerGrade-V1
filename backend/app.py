@@ -608,9 +608,19 @@ def admin_get_watchlist():
         return jsonify({'error': 'Unauthorized'}), 401
     
     try:
-        items = Watchlist.query.order_by(Watchlist.ticker).all()
+        category_filter = request.args.get('category')
+        
+        if category_filter:
+            items = Watchlist.query.filter_by(category=category_filter).order_by(Watchlist.ticker).all()
+        else:
+            items = Watchlist.query.order_by(Watchlist.ticker).all()
+        
+        categories = db.session.query(Watchlist.category).distinct().order_by(Watchlist.category).all()
+        unique_categories = [c[0] for c in categories]
+        
         return jsonify({
-            'watchlist': [{'id': w.id, 'ticker': w.ticker} for w in items]
+            'watchlist': [{'id': w.id, 'ticker': w.ticker, 'category': w.category} for w in items],
+            'categories': unique_categories
         })
     except Exception as e:
         logger.error(f"Error fetching watchlist: {e}")
@@ -628,19 +638,23 @@ def admin_add_watchlist():
     try:
         data = request.get_json()
         ticker = data.get('ticker', '').strip().upper()
+        category = data.get('category', 'Main').strip()
         
         if not ticker:
             return jsonify({'error': 'Ticker is required'}), 400
+        
+        if not category:
+            category = 'Main'
         
         existing = Watchlist.query.filter_by(ticker=ticker).first()
         if existing:
             return jsonify({'error': f'{ticker} already in watchlist'}), 400
         
-        item = Watchlist(ticker=ticker)
+        item = Watchlist(ticker=ticker, category=category)
         db.session.add(item)
         db.session.commit()
         
-        return jsonify({'success': True, 'id': item.id, 'ticker': item.ticker})
+        return jsonify({'success': True, 'id': item.id, 'ticker': item.ticker, 'category': item.category})
     except Exception as e:
         logger.error(f"Error adding to watchlist: {e}")
         db.session.rollback()
@@ -678,13 +692,17 @@ def admin_run_scanner():
         return jsonify({'error': 'Unauthorized'}), 401
     
     try:
-        results = run_scanner(analyze_stock_internal)
+        data = request.get_json() or {}
+        category = data.get('category')
+        
+        results = run_scanner(analyze_stock_internal, category=category)
         return jsonify({
             'success': True,
             'scanned': results['scanned'],
             'bullish': results['bullish'],
             'bearish': results['bearish'],
-            'errors': results['errors']
+            'errors': results['errors'],
+            'category': category or 'All'
         })
     except Exception as e:
         logger.error(f"Scanner error: {e}")
