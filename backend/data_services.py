@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 import pandas as pd
 import numpy as np
@@ -8,6 +9,9 @@ from fredapi import Fred
 import logging
 from services import finnhub_service
 from services import marketdata_service
+
+FRED_CACHE_FILE = os.path.join(os.path.dirname(__file__), 'fred_cache.json')
+FRED_CACHE_TTL_HOURS = 24
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -132,50 +136,99 @@ def get_earnings_calendar(ticker):
         return []
     return get_cached(key, fetch)
 
+def _load_fred_cache():
+    """Load FRED data from file cache if valid (< 24 hours old)."""
+    try:
+        if os.path.exists(FRED_CACHE_FILE):
+            with open(FRED_CACHE_FILE, 'r') as f:
+                cache_data = json.load(f)
+            
+            cached_time = datetime.fromisoformat(cache_data.get('timestamp', '2000-01-01'))
+            age_hours = (datetime.now() - cached_time).total_seconds() / 3600
+            
+            if age_hours < FRED_CACHE_TTL_HOURS:
+                logger.info(f"FRED cache hit - age: {age_hours:.1f} hours")
+                df = pd.DataFrame(cache_data['data'])
+                df['date'] = pd.to_datetime(df['date'])
+                df = df.set_index('date')
+                return df
+            else:
+                logger.info(f"FRED cache expired - age: {age_hours:.1f} hours")
+    except Exception as e:
+        logger.warning(f"Error loading FRED cache: {e}")
+    return None
+
+def _save_fred_cache(df):
+    """Save FRED data to file cache with timestamp."""
+    try:
+        df_reset = df.reset_index()
+        df_reset['date'] = df_reset['date'].astype(str)
+        cache_data = {
+            'timestamp': datetime.now().isoformat(),
+            'data': df_reset.to_dict(orient='records')
+        }
+        with open(FRED_CACHE_FILE, 'w') as f:
+            json.dump(cache_data, f)
+        logger.info("FRED cache saved successfully")
+    except Exception as e:
+        logger.warning(f"Error saving FRED cache: {e}")
+
+def _fetch_fresh_fred_data():
+    """Fetch fresh FRED data from API."""
+    try:
+        fred = Fred(api_key=FRED_API_KEY)
+        
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=180)
+        
+        logger.info("Fetching fresh FRED data from API...")
+        walcl = fred.get_series('WALCL', start_date, end_date)
+        tga = fred.get_series('WTREGEN', start_date, end_date)
+        rrp = fred.get_series('RRPONTSYD', start_date, end_date)
+        credit_spreads = fred.get_series('BAMLH0A0HYM2', start_date, end_date)
+        
+        df = pd.DataFrame(index=pd.date_range(start_date, end_date, freq='D'))
+        df.index.name = 'date'
+        
+        if walcl is not None and len(walcl) > 0:
+            df['walcl'] = walcl.reindex(df.index, method='ffill')
+        else:
+            df['walcl'] = 7000000
+            
+        if tga is not None and len(tga) > 0:
+            df['tga'] = tga.reindex(df.index, method='ffill')
+        else:
+            df['tga'] = 800000
+            
+        if rrp is not None and len(rrp) > 0:
+            df['rrp'] = rrp.reindex(df.index, method='ffill')
+        else:
+            df['rrp'] = 500000
+            
+        if credit_spreads is not None and len(credit_spreads) > 0:
+            df['credit_spreads'] = credit_spreads.reindex(df.index, method='ffill')
+        else:
+            df['credit_spreads'] = 3.5
+        
+        df['net_liquidity'] = df['walcl'] - df['tga'] - df['rrp']
+        df = df.dropna()
+        
+        return df
+    except Exception as e:
+        logger.error(f"FRED API error: {e}")
+        return None
+
 def get_fred_data():
-    key = "fred_macro"
-    def fetch():
-        try:
-            fred = Fred(api_key=FRED_API_KEY)
-            
-            end_date = datetime.now()
-            start_date = end_date - timedelta(days=180)
-            
-            walcl = fred.get_series('WALCL', start_date, end_date)
-            tga = fred.get_series('WTREGEN', start_date, end_date)
-            rrp = fred.get_series('RRPONTSYD', start_date, end_date)
-            credit_spreads = fred.get_series('BAMLH0A0HYM2', start_date, end_date)
-            
-            df = pd.DataFrame(index=pd.date_range(start_date, end_date, freq='D'))
-            
-            if walcl is not None and len(walcl) > 0:
-                df['walcl'] = walcl.reindex(df.index, method='ffill')
-            else:
-                df['walcl'] = 7000000
-                
-            if tga is not None and len(tga) > 0:
-                df['tga'] = tga.reindex(df.index, method='ffill')
-            else:
-                df['tga'] = 800000
-                
-            if rrp is not None and len(rrp) > 0:
-                df['rrp'] = rrp.reindex(df.index, method='ffill')
-            else:
-                df['rrp'] = 500000
-                
-            if credit_spreads is not None and len(credit_spreads) > 0:
-                df['credit_spreads'] = credit_spreads.reindex(df.index, method='ffill')
-            else:
-                df['credit_spreads'] = 3.5
-            
-            df['net_liquidity'] = df['walcl'] - df['tga'] - df['rrp']
-            df = df.dropna()
-            
-            return df
-        except Exception as e:
-            logger.error(f"FRED API error: {e}")
-            return None
-    return get_cached(key, fetch)
+    """Get FRED macro data with 24-hour file-based caching."""
+    cached_df = _load_fred_cache()
+    if cached_df is not None:
+        return cached_df
+    
+    fresh_df = _fetch_fresh_fred_data()
+    if fresh_df is not None:
+        _save_fred_cache(fresh_df)
+    
+    return fresh_df
 
 def get_spy_data():
     """Get SPY historical data using MarketData.app candles."""
