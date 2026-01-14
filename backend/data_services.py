@@ -7,6 +7,7 @@ from cachetools import TTLCache
 from fredapi import Fred
 import logging
 from services import finnhub_service
+from services import marketdata_service
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -26,21 +27,17 @@ def get_cached(key, fetch_func):
     return data
 
 def get_stock_quote(ticker):
-    """Get stock quote using Finnhub candles for latest price."""
+    """Get stock quote using MarketData real-time price."""
     key = f"quote_{ticker}"
     def fetch():
         try:
-            df = finnhub_service.get_stock_candles(ticker, days=5)
+            price_data = marketdata_service.get_realtime_price(ticker)
             profile = finnhub_service.get_company_profile(ticker)
-            if df is not None and len(df) > 0:
-                latest = df.iloc[-1]
-                prev = df.iloc[-2] if len(df) > 1 else latest
-                change = latest['close'] - prev['close']
-                change_pct = (change / prev['close']) * 100 if prev['close'] > 0 else 0
+            if price_data:
                 return {
-                    'price': latest['close'],
-                    'change': change,
-                    'changesPercentage': change_pct,
+                    'price': price_data.get('price'),
+                    'change': price_data.get('change'),
+                    'changesPercentage': price_data.get('change_percent'),
                     'name': profile.get('companyName') if profile else ticker,
                     'symbol': ticker
                 }
@@ -54,8 +51,11 @@ def get_stock_profile(ticker):
     return finnhub_service.get_company_profile(ticker)
 
 def get_historical_prices(ticker, days=120):
-    """Get historical prices using Finnhub stock_candles."""
-    return finnhub_service.get_stock_candles(ticker, days=days)
+    """Get historical prices using MarketData.app candles."""
+    key = f"historical_{ticker}_{days}"
+    def fetch():
+        return marketdata_service.get_historical_candles(ticker, days=days)
+    return get_cached(key, fetch)
 
 def get_analyst_ratings(ticker):
     """Get analyst ratings from Finnhub."""
@@ -178,11 +178,11 @@ def get_fred_data():
     return get_cached(key, fetch)
 
 def get_spy_data():
-    """Get SPY historical data using Finnhub stock_candles."""
+    """Get SPY historical data using MarketData.app candles."""
     key = "spy_data"
     def fetch():
         try:
-            df = finnhub_service.get_stock_candles('SPY', days=180)
+            df = marketdata_service.get_historical_candles('SPY', days=180)
             if df is not None and len(df) > 0:
                 df = df.set_index('date')
                 return df

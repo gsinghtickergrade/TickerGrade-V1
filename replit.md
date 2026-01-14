@@ -14,8 +14,9 @@ This application provides data-driven stock analysis by fetching real-time data 
 - **Location**: `/backend`
 - **Port**: 8000
 - **Main file**: `backend/app.py`
-- **Data services**: `backend/data_services.py` (Finnhub/FRED API clients with 10-min caching)
-- **Finnhub service**: `backend/services/finnhub_service.py` (Finnhub API wrapper with stock_candles for historical data)
+- **Data services**: `backend/data_services.py` (MarketData/Finnhub/FRED API clients with 10-min caching)
+- **MarketData service**: `backend/services/marketdata_service.py` (MarketData.app for real-time prices and historical candles)
+- **Finnhub service**: `backend/services/finnhub_service.py` (Finnhub API wrapper for company data, analyst ratings, earnings)
 - **Scoring engine**: `backend/scoring_engine.py` (5-pillar scoring logic)
 - **Dependencies**: Flask, Flask-CORS, fredapi, finnhub-python, textblob, cachetools, pandas, numpy, scipy
 
@@ -143,9 +144,10 @@ Global components in layout.tsx:
 ## Recent Changes
 
 - 2026-01-14: Remove yfinance Dependency (Legal Compliance)
-  - Replaced all yfinance historical data calls with Finnhub `stock_candles` endpoint
-  - Added `get_stock_candles()` function to finnhub_service.py returning DataFrame format
-  - Replaced SPY benchmark data source with Finnhub stock_candles
+  - Replaced all yfinance historical data calls with MarketData.app `stocks/candles` endpoint
+  - Added `get_historical_candles()` function to marketdata_service.py returning DataFrame format
+  - Replaced SPY benchmark data source with MarketData.app historical candles
+  - Updated get_stock_quote() to use MarketData real-time API
   - Removed Put/Call Ratio feature (no legal options data source available)
   - Removed PCR logic from scoring_engine.py and app.py
   - Removed PCR UI card from PillarCard.tsx
