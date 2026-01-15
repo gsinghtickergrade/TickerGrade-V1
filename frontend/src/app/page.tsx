@@ -56,6 +56,14 @@ export default function Home() {
   const [stockData, setStockData] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  useEffect(() => {
+    const dismissed = sessionStorage.getItem('tickergrade_banner_dismissed');
+    if (dismissed === 'true') {
+      setBannerDismissed(true);
+    }
+  }, []);
 
   useEffect(() => {
     const savedTicker = sessionStorage.getItem('tickergrade_ticker');
@@ -117,11 +125,35 @@ export default function Home() {
     }
   };
 
+  const dismissBanner = () => {
+    setBannerDismissed(true);
+    sessionStorage.setItem('tickergrade_banner_dismissed', 'true');
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-24">
       <WelcomeModal />
       <CookieBanner />
       
+      {!bannerDismissed && (
+        <div className="w-full bg-slate-700/80 border-b border-slate-600">
+          <div className="container mx-auto px-4 py-3 max-w-7xl flex items-center justify-between gap-4">
+            <p className="text-slate-100 text-sm md:text-base font-medium flex-1 text-center md:text-left">
+              Welcome to the TickerGrade Public Beta. You have full open access to all premium features—no account or email required.
+            </p>
+            <button
+              onClick={dismissBanner}
+              className="text-slate-400 hover:text-white transition-colors p-1 flex-shrink-0"
+              aria-label="Dismiss banner"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 flex items-center justify-center gap-3">
