@@ -4,7 +4,7 @@
  */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,6 +56,34 @@ export default function Home() {
   const [stockData, setStockData] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedTicker = sessionStorage.getItem('tickergrade_ticker');
+    const savedStockData = sessionStorage.getItem('tickergrade_stockData');
+    
+    if (savedTicker) {
+      setTicker(savedTicker);
+    }
+    if (savedStockData) {
+      try {
+        setStockData(JSON.parse(savedStockData));
+      } catch (e) {
+        sessionStorage.removeItem('tickergrade_stockData');
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (ticker) {
+      sessionStorage.setItem('tickergrade_ticker', ticker);
+    }
+  }, [ticker]);
+
+  useEffect(() => {
+    if (stockData) {
+      sessionStorage.setItem('tickergrade_stockData', JSON.stringify(stockData));
+    }
+  }, [stockData]);
 
   const analyzeStock = async () => {
     if (!ticker.trim()) {
