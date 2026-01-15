@@ -31,6 +31,14 @@ export default function GuidePage() {
                   <span className="text-green-400 mt-1">•</span>
                   <span><span className="text-white font-medium">The Systems Thinker:</span> You prefer checklists, data, and probability over 'gut feelings' and 'hot tips'.</span>
                 </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">•</span>
+                  <span><span className="text-white font-medium">The Risk Manager:</span> You understand that "Return <em>of</em> Capital" is just as important as "Return <em>on</em> Capital." You prioritize safety checks before entry.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">•</span>
+                  <span><span className="text-white font-medium">The Visual Analyst:</span> You need to <em>see</em> the health of a stock in a single, scannable dashboard rather than drowning in spreadsheets.</span>
+                </li>
               </ul>
             </Card>
 
@@ -48,6 +56,18 @@ export default function GuidePage() {
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 mt-1">•</span>
                   <span>Traders who ignore macro risks.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-400 mt-1">•</span>
+                  <span><span className="text-white font-medium">The "Magic Bullet" Hunter:</span> If you want a guaranteed "Buy" signal with zero research, this isn't for you. We provide the grades; you make the decision.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-400 mt-1">•</span>
+                  <span><span className="text-white font-medium">Long Term Investors:</span> If your strategy is to "buy and forget" for years, our 30-60 day swing signals won't be relevant to you.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-400 mt-1">•</span>
+                  <span><span className="text-white font-medium">The Penny Stock Gambler:</span> Our algorithms are tuned for liquid, structured markets, not volatile micro-cap stocks.</span>
                 </li>
               </ul>
             </Card>
