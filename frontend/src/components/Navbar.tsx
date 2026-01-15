@@ -44,13 +44,14 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-white/10">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="text-xl font-bold text-white hover:text-blue-400 transition-colors">
+          <Link href="/" onClick={() => setMobileAppModalOpen(false)} className="text-xl font-bold text-white hover:text-blue-400 transition-colors">
             TickerGrade
           </Link>
           
           <div className="hidden md:flex items-center gap-6">
             <Link 
               href="/" 
+              onClick={() => setMobileAppModalOpen(false)}
               className={`text-sm font-medium transition-colors ${
                 isActive('/') ? 'text-blue-400' : 'text-slate-400 hover:text-white'
               }`}
@@ -60,7 +61,7 @@ export function Navbar() {
             
             <div className="relative" ref={dropdownRef}>
               <button
-                onClick={() => setAboutDropdownOpen(!aboutDropdownOpen)}
+                onClick={() => { setAboutDropdownOpen(!aboutDropdownOpen); setMobileAppModalOpen(false); }}
                 className={`text-sm font-medium transition-colors flex items-center gap-1 ${
                   isAboutActive() ? 'text-blue-400' : 'text-slate-400 hover:text-white'
                 }`}
@@ -82,7 +83,7 @@ export function Navbar() {
                     <Link
                       key={link.href}
                       href={link.href}
-                      onClick={() => setAboutDropdownOpen(false)}
+                      onClick={() => { setAboutDropdownOpen(false); setMobileAppModalOpen(false); }}
                       className={`block px-4 py-3 text-sm transition-colors ${
                         isActive(link.href)
                           ? 'bg-blue-600 text-white'
@@ -99,7 +100,8 @@ export function Navbar() {
             {mainNavLinks.slice(1, 4).map((link) => (
               <Link 
                 key={link.href}
-                href={link.href} 
+                href={link.href}
+                onClick={() => setMobileAppModalOpen(false)}
                 className={`text-sm font-medium transition-colors ${
                   isActive(link.href) 
                     ? 'text-blue-400' 
@@ -111,8 +113,10 @@ export function Navbar() {
             ))}
             
             <button
-              onClick={() => setMobileAppModalOpen(true)}
-              className="text-sm font-medium transition-colors text-slate-400 hover:text-white flex items-center gap-1"
+              onClick={() => setMobileAppModalOpen(!mobileAppModalOpen)}
+              className={`text-sm font-medium transition-colors flex items-center gap-1 ${
+                mobileAppModalOpen ? 'text-blue-400' : 'text-slate-400 hover:text-white'
+              }`}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -121,7 +125,8 @@ export function Navbar() {
             </button>
             
             <Link 
-              href="/feedback" 
+              href="/feedback"
+              onClick={() => setMobileAppModalOpen(false)}
               className={`text-sm font-medium transition-colors ${
                 isActive('/feedback') 
                   ? 'text-blue-400' 
@@ -155,7 +160,7 @@ export function Navbar() {
           <div className="container mx-auto px-4 py-2">
             <Link 
               href="/"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => { setMobileMenuOpen(false); setMobileAppModalOpen(false); }}
               className={`block py-3 px-2 text-sm font-medium transition-colors ${
                 isActive('/') ? 'text-blue-400' : 'text-slate-400 hover:text-white'
               }`}
@@ -166,7 +171,7 @@ export function Navbar() {
             <div className="border-t border-white/5" />
             
             <button
-              onClick={() => setMobileAboutOpen(!mobileAboutOpen)}
+              onClick={() => { setMobileAboutOpen(!mobileAboutOpen); setMobileAppModalOpen(false); }}
               className={`w-full flex items-center justify-between py-3 px-2 text-sm font-medium transition-colors ${
                 isAboutActive() ? 'text-blue-400' : 'text-slate-400 hover:text-white'
               }`}
@@ -188,7 +193,7 @@ export function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    onClick={() => { setMobileMenuOpen(false); setMobileAboutOpen(false); }}
+                    onClick={() => { setMobileMenuOpen(false); setMobileAboutOpen(false); setMobileAppModalOpen(false); }}
                     className={`block py-2 px-2 text-sm transition-colors ${
                       isActive(link.href)
                         ? 'text-blue-400'
@@ -206,7 +211,7 @@ export function Navbar() {
                 <div className="border-t border-white/5" />
                 <Link 
                   href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={() => { setMobileMenuOpen(false); setMobileAppModalOpen(false); }}
                   className={`block py-3 px-2 text-sm font-medium transition-colors ${
                     isActive(link.href) 
                       ? 'text-blue-400' 
@@ -220,8 +225,10 @@ export function Navbar() {
             
             <div className="border-t border-white/5" />
             <button
-              onClick={() => { setMobileMenuOpen(false); setMobileAppModalOpen(true); }}
-              className="w-full text-left py-3 px-2 text-sm font-medium transition-colors text-slate-400 hover:text-white flex items-center gap-2"
+              onClick={() => { setMobileMenuOpen(false); setMobileAppModalOpen(!mobileAppModalOpen); }}
+              className={`w-full text-left py-3 px-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+                mobileAppModalOpen ? 'text-blue-400' : 'text-slate-400 hover:text-white'
+              }`}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -232,7 +239,7 @@ export function Navbar() {
             <div className="border-t border-white/5" />
             <Link 
               href="/feedback"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => { setMobileMenuOpen(false); setMobileAppModalOpen(false); }}
               className={`block py-3 px-2 text-sm font-medium transition-colors ${
                 isActive('/feedback') 
                   ? 'text-blue-400' 
