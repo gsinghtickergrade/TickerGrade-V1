@@ -164,13 +164,13 @@ export default function MethodologyPage() {
           <h2 className="text-2xl font-bold text-white text-center mb-8">Data Sources</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="p-6 bg-white/5 border-white/10 text-center">
-              <h3 className="text-lg font-semibold text-white mb-2">Real-Time Prices</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">Prices, Charts & Earnings</h3>
               <a href="https://www.marketdata.app" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
                 MarketData.app
               </a>
             </Card>
             <Card className="p-6 bg-white/5 border-white/10 text-center">
-              <h3 className="text-lg font-semibold text-white mb-2">Company, Historical & Analyst Data</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">Company & Analyst Data</h3>
               <a href="https://finnhub.io" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
                 Finnhub
               </a>
