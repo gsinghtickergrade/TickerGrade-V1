@@ -28,8 +28,7 @@ export function CookieBanner() {
         </p>
         <Button 
           onClick={handleDismiss}
-          variant="outline"
-          className="shrink-0 border-white/20 text-white hover:bg-white/10"
+          className="shrink-0 bg-slate-700 text-white border border-slate-600 hover:bg-slate-600"
         >
           Got it
         </Button>
