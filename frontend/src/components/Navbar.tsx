@@ -3,12 +3,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { MobileAppModal } from './MobileAppModal';
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
   const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
+  const [mobileAppModalOpen, setMobileAppModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   const isActive = (path: string) => pathname === path;
@@ -94,7 +96,7 @@ export function Navbar() {
               )}
             </div>
             
-            {mainNavLinks.slice(1).map((link) => (
+            {mainNavLinks.slice(1, 4).map((link) => (
               <Link 
                 key={link.href}
                 href={link.href} 
@@ -107,6 +109,27 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+            
+            <button
+              onClick={() => setMobileAppModalOpen(true)}
+              className="text-sm font-medium transition-colors text-slate-400 hover:text-white flex items-center gap-1"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              Mobile App
+            </button>
+            
+            <Link 
+              href="/feedback" 
+              className={`text-sm font-medium transition-colors ${
+                isActive('/feedback') 
+                  ? 'text-blue-400' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Feedback
+            </Link>
           </div>
           
           <button
@@ -178,7 +201,7 @@ export function Navbar() {
               </div>
             )}
             
-            {mainNavLinks.slice(1).map((link) => (
+            {mainNavLinks.slice(1, 4).map((link) => (
               <React.Fragment key={link.href}>
                 <div className="border-t border-white/5" />
                 <Link 
@@ -194,9 +217,38 @@ export function Navbar() {
                 </Link>
               </React.Fragment>
             ))}
+            
+            <div className="border-t border-white/5" />
+            <button
+              onClick={() => { setMobileMenuOpen(false); setMobileAppModalOpen(true); }}
+              className="w-full text-left py-3 px-2 text-sm font-medium transition-colors text-slate-400 hover:text-white flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              Mobile App
+            </button>
+            
+            <div className="border-t border-white/5" />
+            <Link 
+              href="/feedback"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`block py-3 px-2 text-sm font-medium transition-colors ${
+                isActive('/feedback') 
+                  ? 'text-blue-400' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Feedback
+            </Link>
           </div>
         </div>
       )}
+      
+      <MobileAppModal 
+        isOpen={mobileAppModalOpen} 
+        onClose={() => setMobileAppModalOpen(false)} 
+      />
     </nav>
   );
 }
