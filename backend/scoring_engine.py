@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from textblob import TextBlob
 from scipy.signal import argrelextrema
 import logging
 
@@ -119,59 +118,51 @@ def compare_grades(previous_grade, new_grade):
         return 'downgrade'
     return 'maintain'
 
-def score_catalysts(analyst_ratings, news_sentiment):
+def score_analyst_ratings(recommendations, last_upgrade=None):
+    """
+    Score based purely on analyst recommendations using weighted average.
+    Weights: Strong Buy=10, Buy=8, Hold=5, Sell=2, Strong Sell=0
+    """
     score = 5.0
     details = {}
     
-    upgrades = 0
-    downgrades = 0
-    maintains = 0
+    if not recommendations:
+        details['total_ratings'] = 0
+        details['signal'] = 'No Data'
+        return 5.0, details
     
-    for rating in (analyst_ratings or []):
-        action = rating.get('action', '').lower()
-        previous_grade = rating.get('previousGrade', '')
-        new_grade = rating.get('newGrade', '')
-        
-        if action == 'upgrade':
-            upgrades += 1
-        elif action == 'downgrade':
-            downgrades += 1
-        elif previous_grade and new_grade:
-            comparison = compare_grades(previous_grade, new_grade)
-            if comparison == 'upgrade':
-                upgrades += 1
-            elif comparison == 'downgrade':
-                downgrades += 1
-            else:
-                maintains += 1
-        else:
-            maintains += 1
+    strong_buy = recommendations.get('strong_buy', 0) or 0
+    buy = recommendations.get('buy', 0) or 0
+    hold = recommendations.get('hold', 0) or 0
+    sell = recommendations.get('sell', 0) or 0
+    strong_sell = recommendations.get('strong_sell', 0) or 0
     
-    details['upgrades'] = upgrades
-    details['downgrades'] = downgrades
-    details['maintains'] = maintains
-    details['total_ratings'] = len(analyst_ratings or [])
+    total = strong_buy + buy + hold + sell + strong_sell
     
-    if upgrades > downgrades:
-        score += min((upgrades - downgrades) * 0.5, 2.5)
-    elif downgrades > upgrades:
-        score -= min((downgrades - upgrades) * 0.5, 2.5)
+    if total == 0:
+        details['total_ratings'] = 0
+        details['signal'] = 'No Data'
+        return 5.0, details
     
-    sentiment_scores = []
-    for article in (news_sentiment or [])[:10]:
-        title = article.get('title', '')
-        if title and title.strip():
-            blob = TextBlob(title)
-            sentiment_scores.append(blob.sentiment.polarity)
+    weighted_sum = (strong_buy * 10) + (buy * 8) + (hold * 5) + (sell * 2) + (strong_sell * 0)
+    score = weighted_sum / total
     
-    if sentiment_scores:
-        avg_sentiment = float(np.mean(sentiment_scores))
-        details['avg_sentiment'] = round(avg_sentiment, 3)
-        details['articles_analyzed'] = len(sentiment_scores)
-        score += avg_sentiment * 2.5
+    details['total_ratings'] = total
+    details['strong_buys_buys'] = strong_buy + buy
+    details['holds'] = hold
+    details['sells'] = sell + strong_sell
+    
+    if last_upgrade:
+        details['last_upgrade'] = last_upgrade
+    
+    if score >= 8:
+        details['signal'] = 'Strong Buy Consensus'
+    elif score >= 6.5:
+        details['signal'] = 'Buy Consensus'
+    elif score >= 4:
+        details['signal'] = 'Mixed / Hold'
     else:
-        details['avg_sentiment'] = 0
-        details['articles_analyzed'] = 0
+        details['signal'] = 'Sell Consensus'
     
     score = max(0, min(10, score))
     return round(score, 1), details

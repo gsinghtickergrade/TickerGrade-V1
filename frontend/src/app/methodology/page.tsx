@@ -33,19 +33,22 @@ export default function MethodologyPage() {
                 </svg>
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white">Catalysts & Sentiment</h2>
+                <h2 className="text-2xl font-bold text-white">Analyst Ratings</h2>
                 <span className="text-yellow-400 font-semibold">20% Weight</span>
               </div>
             </div>
             <p className="text-slate-300 mb-4">
-              Stocks don't move without a spark. We track real-time Analyst Upgrades, Downgrades and News Sentiment to spot when the narrative is shifting from bearish to bullish or vice-versa before the price catches up.
+              Wall Street consensus drives institutional flows. We aggregate the latest analyst recommendations to gauge professional sentiment on the stock.
             </p>
             <div className="bg-slate-800/50 rounded-lg p-4 space-y-2">
               <p className="text-slate-400 text-sm">
-                <span className="text-white font-medium">Analyst Activity:</span> Fetches grades from the last 30 days. Compares new vs previous grade to detect upgrades/downgrades.
+                <span className="text-white font-medium">Weighted Score:</span> Strong Buy = 10, Buy = 8, Hold = 5, Sell = 2, Strong Sell = 0. We calculate the weighted average of all ratings.
               </p>
               <p className="text-slate-400 text-sm">
-                <span className="text-white font-medium">News Sentiment:</span> TextBlob analyzes sentiment polarity on article titles, averaging scores across recent news.
+                <span className="text-white font-medium">Consensus Signal:</span> Strong Buy Consensus (&ge;8), Buy Consensus (&ge;6.5), Mixed/Hold (&ge;4), Sell Consensus (&lt;4).
+              </p>
+              <p className="text-slate-400 text-sm">
+                <span className="text-white font-medium">Last Upgrade:</span> Displays the most recent analyst upgrade when available.
               </p>
             </div>
           </Card>
@@ -91,7 +94,7 @@ export default function MethodologyPage() {
               </div>
             </div>
             <p className="text-slate-300 mb-4">
-              Price is what you pay; value is what you get. We compare the stock's PEG Ratio and Analyst Price Targets to ensure you have enough 'upside room' to justify the risk.
+              Price is what you pay; value is what you get. We compare the stock's PEG Ratio and 52-Week High to ensure you have enough 'upside room' to justify the risk.
             </p>
             <div className="bg-slate-800/50 rounded-lg p-4 space-y-2">
               <p className="text-slate-400 text-sm">
@@ -101,7 +104,7 @@ export default function MethodologyPage() {
                 <span className="text-white font-medium">Fallback:</span> Uses P/S Ratio when PEG is unavailable.
               </p>
               <p className="text-slate-400 text-sm">
-                <span className="text-white font-medium">Price Targets:</span> Upside percentage calculated from analyst consensus.
+                <span className="text-white font-medium">52-Week High Upside:</span> Technical upside calculated as percentage distance to 52-week high.
               </p>
             </div>
           </Card>

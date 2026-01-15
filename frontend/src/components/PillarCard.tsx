@@ -46,6 +46,12 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
     'days_to_earnings': 'Days to Earnings',
     'days_to_earnings_display': 'Countdown',
     'blackout_reason': 'Risk Status',
+    'total_ratings': 'Total Ratings',
+    'strong_buys_buys': 'Strong Buys / Buys',
+    'holds': 'Holds',
+    'sells': 'Sells',
+    'last_upgrade': 'Last Upgrade',
+    'signal': 'Consensus',
   };
 
   const hiddenKeys = ['earnings_time', 'days_to_earnings'];

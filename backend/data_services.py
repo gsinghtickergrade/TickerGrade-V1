@@ -80,14 +80,20 @@ def get_analyst_ratings(ticker):
         return []
     return get_cached(key, fetch)
 
-def get_stock_news_sentiment(ticker):
-    """Get stock news from Finnhub for sentiment analysis."""
-    key = f"news_{ticker}"
+def get_analyst_recommendations(ticker):
+    """Get analyst recommendations (strongBuy, buy, hold, sell, strongSell) and last upgrade from Finnhub."""
+    key = f"recommendations_{ticker}"
     def fetch():
-        news = finnhub_service.get_company_news(ticker, days=30)
-        if news:
-            return [{'title': n.get('headline'), 'source': n.get('source')} for n in news]
-        return []
+        sentiment = finnhub_service.get_analyst_sentiment(ticker)
+        result = {'recommendations': None, 'last_upgrade': None}
+        if sentiment:
+            result['recommendations'] = sentiment.get('recommendations')
+            upgrades = sentiment.get('upgrades_downgrades', [])
+            for ud in upgrades:
+                if ud.get('action', '').lower() == 'upgrade':
+                    result['last_upgrade'] = f"{ud.get('company', 'Analyst')} ({ud.get('date', '')[:10]})"
+                    break
+        return result
     return get_cached(key, fetch)
 
 def get_analyst_price_targets(ticker):

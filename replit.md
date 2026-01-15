@@ -18,7 +18,7 @@ TickerGrade is a comprehensive swing trading analysis dashboard optimized for 30
 **Frontend (Next.js/React)**: The frontend uses Next.js 16, TypeScript, Tailwind CSS, Shadcn UI, and Recharts to deliver a responsive, multi-page user interface. It features a dashboard, detailed methodology, user guide, trade ideas, and administrative panels.
 
 **Scoring Engine (5 Pillars)**:
-- **Catalysts & Sentiment (20% weight)**: Analyzes analyst ratings (upgrades/downgrades) and news sentiment using TextBlob.
+- **Analyst Ratings (20% weight)**: Uses weighted average of analyst recommendations (Strong Buy=10, Buy=8, Hold=5, Sell=2, Strong Sell=0).
 - **Technical Structure (35% weight)**: Focuses on advanced divergence using RSI, MACD crosses, and volume trends.
 - **Relative Value (15% weight)**: Primarily uses PEG ratio and falls back to P/S ratio, also considers 52-week high for technical upside.
 - **Macro Liquidity (20% weight)**: Incorporates Fed Net Liquidity (WALCL, WTREGEN, RRPONTSYD) and Credit Spreads (BAMLH0A0HYM2).
@@ -35,13 +35,12 @@ TickerGrade is a comprehensive swing trading analysis dashboard optimized for 30
 **Technical Implementations**:
 - Server-side caching for API calls (10 minutes for data services, 24 hours for FRED).
 - Integration of `scipy.signal` for technical indicator calculations (e.g., RSI peak/trough detection).
-- Use of `textblob` for news sentiment analysis.
 - Dynamic charting with Recharts for price history, RSI, MACD, and Volume.
 
 ## External Dependencies
 
 - **MarketData.app**: Real-time stock prices, historical candles (daily OHLCV), earnings calendar, and 52-week high data.
-- **Finnhub API**: Company data, analyst ratings (upgrade/downgrade), company news, basic financials (PEG, P/S ratios), and historical prices for certain fallbacks.
+- **Finnhub API**: Company data, analyst recommendations (strongBuy/buy/hold/sell/strongSell), upgrade/downgrade history, basic financials (PEG, P/S ratios).
 - **Federal Reserve Bank of St. Louis (FRED) API**: Macroeconomic data series such as Fed Net Liquidity (WALCL, WTREGEN, RRPONTSYD) and Credit Spreads (BAMLH0A0HYM2).
 - **Flask**: Python web framework for the backend.
 - **Next.js**: React framework for the frontend.
@@ -50,7 +49,6 @@ TickerGrade is a comprehensive swing trading analysis dashboard optimized for 30
 - **Recharts**: Composable charting library for React.
 - **fredapi**: Python client for FRED API.
 - **finnhub-python**: Python client for Finnhub API.
-- **textblob**: Python library for processing textual data (sentiment analysis).
 - **cachetools**: Python library for caching.
 - **pandas, numpy, scipy**: Python libraries for data manipulation and scientific computing.
 - **Flask-CORS**: Flask extension for handling Cross-Origin Resource Sharing.

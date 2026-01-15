@@ -12,11 +12,11 @@ from sqlalchemy import func
 
 from data_services import (
     get_stock_quote, get_stock_profile, get_historical_prices,
-    get_analyst_ratings, get_stock_news_sentiment, get_analyst_price_targets,
+    get_analyst_recommendations, get_analyst_price_targets,
     get_key_metrics, get_earnings_calendar, get_fred_data, get_spy_data
 )
 from scoring_engine import (
-    score_catalysts, score_technicals, score_value, score_macro,
+    score_analyst_ratings, score_technicals, score_value, score_macro,
     score_event_risk, calculate_final_score, get_verdict
 )
 from services.marketdata_service import get_realtime_price
@@ -86,8 +86,7 @@ def analyze_stock_internal(ticker):
     
     profile = get_stock_profile(ticker)
     hist_df = get_historical_prices(ticker, days=730)
-    analyst_ratings = get_analyst_ratings(ticker)
-    news = get_stock_news_sentiment(ticker)
+    analyst_data = get_analyst_recommendations(ticker)
     price_targets = get_analyst_price_targets(ticker)
     key_metrics = get_key_metrics(ticker)
     earnings = get_earnings_calendar(ticker)
@@ -113,7 +112,10 @@ def analyze_stock_internal(ticker):
         week52_high = float(hist_df['high'].tail(252).max())
         logger.info(f"Computed 52-week high from historical data for {ticker}: ${week52_high}")
     
-    catalysts_score, catalysts_details = score_catalysts(analyst_ratings, news)
+    analyst_score, analyst_details = score_analyst_ratings(
+        analyst_data.get('recommendations') if analyst_data else None,
+        analyst_data.get('last_upgrade') if analyst_data else None
+    )
     technicals_score, technicals_details = score_technicals(hist_df)
     value_score, value_details = score_value(price_targets, key_metrics, current_price, week52_high)
     macro_score, macro_details = score_macro(fred_df)
@@ -122,7 +124,7 @@ def analyze_stock_internal(ticker):
     is_blackout = event_risk_details.get('blackout', False)
     
     final_score = calculate_final_score(
-        catalysts_score, technicals_score, value_score, macro_score, event_risk_score
+        analyst_score, technicals_score, value_score, macro_score, event_risk_score
     )
     
     verdict, verdict_type = get_verdict(final_score, is_blackout)
@@ -160,11 +162,11 @@ def analyze_stock_internal(ticker):
             'risk_reward': round((target_price - current_price) / (current_price - stop_loss), 2) if target_price and stop_loss < current_price else None
         },
         'pillars': {
-            'catalysts': {
-                'score': catalysts_score,
+            'analyst_ratings': {
+                'score': analyst_score,
                 'weight': 20,
-                'name': 'Catalysts & Sentiment',
-                'details': catalysts_details
+                'name': 'Analyst Ratings',
+                'details': analyst_details
             },
             'technicals': {
                 'score': technicals_score,

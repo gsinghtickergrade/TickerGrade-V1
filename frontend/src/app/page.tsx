@@ -42,7 +42,7 @@ interface StockData {
   verdict_type: string;
   action_card: ActionCardData;
   pillars: {
-    catalysts: PillarData;
+    analyst_ratings: PillarData;
     technicals: PillarData;
     value: PillarData;
     macro: PillarData;
@@ -182,10 +182,10 @@ export default function Home() {
               <div className="lg:col-span-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <PillarCard
-                    title={stockData.pillars.catalysts.name}
-                    score={stockData.pillars.catalysts.score}
-                    weight={stockData.pillars.catalysts.weight}
-                    details={stockData.pillars.catalysts.details}
+                    title={stockData.pillars.analyst_ratings.name}
+                    score={stockData.pillars.analyst_ratings.score}
+                    weight={stockData.pillars.analyst_ratings.weight}
+                    details={stockData.pillars.analyst_ratings.details}
                     icon={
                       <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
