@@ -1,13 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import Link from 'next/link';
 
 type TabType = 'privacy' | 'terms' | 'disclaimer';
 
 export default function LegalPage() {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>('disclaimer');
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'privacy' || tabParam === 'terms' || tabParam === 'disclaimer') {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   const tabs = [
     { id: 'disclaimer' as TabType, label: 'Disclaimer' },
