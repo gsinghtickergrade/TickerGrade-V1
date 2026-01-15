@@ -13,9 +13,9 @@ interface PillarCardProps {
 
 export function PillarCard({ title, score, weight, details, icon }: PillarCardProps) {
   const getScoreColor = (score: number) => {
-    if (score >= 8) return 'text-green-500';
-    if (score >= 6) return 'text-blue-500';
-    if (score >= 4) return 'text-yellow-500';
+    if (score >= 8.5) return 'text-green-500';
+    if (score >= 6.5) return 'text-blue-500';
+    if (score >= 5.0) return 'text-yellow-500';
     return 'text-red-500';
   };
 
