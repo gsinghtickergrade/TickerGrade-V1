@@ -126,13 +126,13 @@ def get_key_metrics(ticker):
     return get_cached(key, fetch)
 
 def get_earnings_calendar(ticker):
-    """Get earnings calendar from Finnhub."""
+    """Get earnings calendar from MarketData.app."""
     key = f"earnings_{ticker}"
     def fetch():
-        finnhub_earnings = finnhub_service.get_earnings_calendar(ticker)
-        if finnhub_earnings and len(finnhub_earnings) > 0:
-            logger.info(f"Finnhub earnings for {ticker}: {finnhub_earnings}")
-            return finnhub_earnings
+        md_earnings = marketdata_service.get_earnings_calendar(ticker)
+        if md_earnings and len(md_earnings) > 0:
+            logger.info(f"MarketData earnings for {ticker}: {md_earnings}")
+            return md_earnings
         return []
     return get_cached(key, fetch)
 

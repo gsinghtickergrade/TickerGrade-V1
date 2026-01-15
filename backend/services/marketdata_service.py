@@ -54,19 +54,20 @@ def get_historical_candles(ticker, days=120):
 
 def get_realtime_price(ticker):
     """
-    Fetches real-time price, change, and volume.
+    Fetches real-time price, change, volume, and 52-week high/low.
     MarketData returns parallel lists (e.g., 'last': [150.25]).
     """
     ticker = ticker.upper()
     url = f"{BASE_URL}/stocks/quotes/{ticker}/"
     
     try:
-        response = requests.get(url, headers=get_headers())
+        params = {'52week': 'true'}
+        response = requests.get(url, headers=get_headers(), params=params)
         if response.status_code in [200, 203]:
             data = response.json()
             
             if data.get('s') == 'ok' and data.get('last'):
-                return {
+                result = {
                     "price": data['last'][0],
                     "change": data['change'][0],
                     "change_percent": data['changepct'][0] * 100,
@@ -74,7 +75,63 @@ def get_realtime_price(ticker):
                     "prev_close": data['last'][0] - data['change'][0],
                     "source": "MarketData (Real-Time)"
                 }
+                if data.get('52weekHigh'):
+                    result['week52_high'] = data['52weekHigh'][0]
+                if data.get('52weekLow'):
+                    result['week52_low'] = data['52weekLow'][0]
+                return result
     except Exception as e:
         print(f"MarketData Price Error for {ticker}: {e}")
+    
+    return None
+
+
+def get_earnings_calendar(ticker):
+    """
+    Fetches upcoming earnings date from MarketData.app.
+    Returns the next reportDate and reportTime.
+    """
+    ticker = ticker.upper()
+    url = f"{BASE_URL}/stocks/earnings/{ticker}/"
+    
+    try:
+        response = requests.get(url, headers=get_headers())
+        if response.status_code in [200, 203]:
+            data = response.json()
+            
+            if data.get('s') == 'ok' and data.get('reportDate'):
+                today = datetime.now().date()
+                
+                report_dates = data.get('reportDate', [])
+                report_times = data.get('reportTime', [])
+                
+                for i, date_val in enumerate(report_dates):
+                    if date_val is None:
+                        continue
+                    try:
+                        if isinstance(date_val, int):
+                            report_date = datetime.fromtimestamp(date_val).date()
+                        else:
+                            report_date = datetime.strptime(str(date_val), '%Y-%m-%d').date()
+                        
+                        days_diff = (report_date - today).days
+                        if days_diff >= -5:
+                            report_time = report_times[i] if i < len(report_times) else None
+                            time_label = "BMO" if report_time == "Before Market Open" else \
+                                        "AMC" if report_time == "After Market Close" else \
+                                        report_time if report_time else ""
+                            
+                            return [{
+                                'date': report_date.strftime('%Y-%m-%d'),
+                                'time': time_label,
+                                'symbol': ticker,
+                                'source': 'MarketData'
+                            }]
+                    except (ValueError, TypeError):
+                        continue
+        else:
+            print(f"MarketData earnings error for {ticker}: HTTP {response.status_code}")
+    except Exception as e:
+        print(f"MarketData Earnings Error for {ticker}: {e}")
     
     return None

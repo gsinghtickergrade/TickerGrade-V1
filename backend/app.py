@@ -99,17 +99,23 @@ def analyze_stock_internal(ticker):
         price_change = realtime_data.get('change', 0)
         price_change_percent = realtime_data.get('change_percent', 0)
         price_source = realtime_data.get('source', 'MarketData')
+        week52_high = realtime_data.get('week52_high')
         logger.info(f"Using MarketData real-time price for {ticker}: ${current_price}")
     else:
         current_price = quote.get('price', 0)
         price_change = quote.get('change', 0)
         price_change_percent = quote.get('changePercentage', 0)
         price_source = 'FMP (Delayed)'
+        week52_high = None
         logger.info(f"Falling back to FMP quote for {ticker}: ${current_price}")
+    
+    if week52_high is None and hist_df is not None and 'high' in hist_df.columns and len(hist_df) > 0:
+        week52_high = float(hist_df['high'].tail(252).max())
+        logger.info(f"Computed 52-week high from historical data for {ticker}: ${week52_high}")
     
     catalysts_score, catalysts_details = score_catalysts(analyst_ratings, news)
     technicals_score, technicals_details = score_technicals(hist_df)
-    value_score, value_details = score_value(price_targets, key_metrics, current_price)
+    value_score, value_details = score_value(price_targets, key_metrics, current_price, week52_high)
     macro_score, macro_details = score_macro(fred_df)
     event_risk_score, event_risk_details = score_event_risk(earnings)
     
@@ -122,20 +128,20 @@ def analyze_stock_internal(ticker):
     verdict, verdict_type = get_verdict(final_score, is_blackout)
     
     atr_14 = technicals_details.get('atr_14', None)
-    analyst_target = value_details.get('avg_price_target', None)
+    week52_high_value = value_details.get('week52_high', None)
     
     if atr_14:
         atr_stop_dist = 2.5 * atr_14
         min_stop_dist = current_price * 0.04
         stop_loss = current_price - max(atr_stop_dist, min_stop_dist)
         atr_target = current_price + (5.0 * atr_14)
-        if analyst_target and analyst_target > current_price:
-            target_price = min(atr_target, analyst_target)
+        if week52_high_value and week52_high_value > current_price:
+            target_price = min(atr_target, week52_high_value)
         else:
             target_price = atr_target
     else:
         stop_loss = technicals_details.get('key_support_level', current_price * 0.95)
-        target_price = analyst_target if (analyst_target and analyst_target > current_price) else current_price * 1.10
+        target_price = week52_high_value if (week52_high_value and week52_high_value > current_price) else current_price * 1.10
     
     return {
         'ticker': ticker,

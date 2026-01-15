@@ -301,28 +301,26 @@ def score_technicals(hist_df):
     score = max(0, min(10, score))
     return round(score, 1), details
 
-def score_value(price_targets, key_metrics, current_price):
+def score_value(price_targets, key_metrics, current_price, week52_high=None):
     score = 5.0
     details = {}
     
-    if price_targets:
-        avg_target = price_targets.get('targetConsensus') or price_targets.get('targetMean')
-        if avg_target and current_price and current_price > 0:
-            upside_pct = ((avg_target - current_price) / current_price) * 100
-            details['avg_price_target'] = round(float(avg_target), 2)
-            details['upside_percent'] = round(float(upside_pct), 2)
-            
-            if upside_pct > 25:
-                score += 2.5
-            elif upside_pct > 15:
-                score += 2.0
-            elif upside_pct > 10:
-                score += 1.0
-            elif upside_pct < 0:
-                score -= 1.5
+    if week52_high and current_price and current_price > 0:
+        tech_upside_pct = ((week52_high - current_price) / current_price) * 100
+        details['week52_high'] = round(float(week52_high), 2)
+        details['tech_upside_percent'] = round(float(tech_upside_pct), 2)
+        
+        if tech_upside_pct > 25:
+            score += 2.0
+        elif tech_upside_pct > 15:
+            score += 1.5
+        elif tech_upside_pct > 10:
+            score += 1.0
+        elif tech_upside_pct <= 0:
+            score -= 1.0
     else:
-        details['avg_price_target'] = None
-        details['upside_percent'] = None
+        details['week52_high'] = None
+        details['tech_upside_percent'] = None
     
     if key_metrics:
         peg = key_metrics.get('priceToEarningsGrowthRatioTTM')
@@ -437,6 +435,7 @@ def check_earnings_blackout(earnings_calendar):
     
     next_earnings = earnings_calendar[0]
     earnings_date_str = next_earnings.get('date', '')
+    earnings_time = next_earnings.get('time', '')
     
     try:
         earnings_date = datetime.strptime(earnings_date_str, '%Y-%m-%d').replace(hour=0, minute=0, second=0)
@@ -444,6 +443,7 @@ def check_earnings_blackout(earnings_calendar):
         days_to_earnings = (earnings_date - today).days
         
         details['next_earnings'] = earnings_date_str
+        details['earnings_time'] = earnings_time
         details['days_to_earnings'] = days_to_earnings
         
         if days_to_earnings < 0:

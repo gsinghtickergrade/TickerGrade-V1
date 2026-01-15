@@ -29,7 +29,7 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
       if (key.includes('volume')) {
         return value.toLocaleString('en-US', { maximumFractionDigits: 0 });
       }
-      if (key.includes('price') || key.includes('sma') || key.includes('target') || key.includes('support')) {
+      if (key.includes('price') || key.includes('sma') || key.includes('target') || key.includes('support') || key.includes('week52')) {
         return `$${value.toFixed(2)}`;
       }
       return value.toFixed(2);
@@ -39,7 +39,18 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
 
   const filteredDetails = details;
 
+  const keyLabelMap: Record<string, string> = {
+    'week52_high': '52-Week High',
+    'tech_upside_percent': 'Tech. Upside',
+    'next_earnings': 'Next Earnings',
+    'earnings_time': 'Report Time',
+    'days_to_earnings': 'Days to Earnings',
+    'days_to_earnings_display': 'Countdown',
+    'blackout_reason': 'Risk Status',
+  };
+
   const formatKey = (key: string) => {
+    if (keyLabelMap[key]) return keyLabelMap[key];
     return key
       .replace(/_/g, ' ')
       .replace(/\b\w/g, (l) => l.toUpperCase());
@@ -48,17 +59,17 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
   const getValueInsight = () => {
     if (title !== 'Relative Value') return null;
     
-    const upsidePercent = details.upside_percent as number | null;
+    const techUpsidePercent = details.tech_upside_percent as number | null;
     const valuationSignal = details.valuation_signal as string | null;
     
-    if (upsidePercent === null || valuationSignal === null) return null;
+    if (techUpsidePercent === null || valuationSignal === null) return null;
     
-    if (upsidePercent > 10 && valuationSignal === 'Overvalued') {
-      return { type: 'note', text: "Note: Analysts are bullish on price targets, but current fundamentals (PEG) suggest the stock is expensive." };
+    if (techUpsidePercent > 10 && valuationSignal === 'Overvalued') {
+      return { type: 'note', text: "Note: Stock has room to run to 52-week high, but fundamentals (PEG) suggest the stock is expensive." };
     }
     
-    if (upsidePercent < 0 && valuationSignal?.toLowerCase().includes('undervalued')) {
-      return { type: 'analyst_lag', text: "Analyst Lag: Price has run ahead of analyst targets despite attractive valuation." };
+    if (techUpsidePercent <= 0 && valuationSignal?.toLowerCase().includes('undervalued')) {
+      return { type: 'analyst_lag', text: "Near 52-Week High: Price near highs but valuation still attractive." };
     }
     
     return null;
