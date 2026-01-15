@@ -43,11 +43,12 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
     'week52_high': '52-Week High',
     'tech_upside_percent': 'Tech. Upside',
     'next_earnings': 'Next Earnings',
-    'earnings_time': 'Report Time',
     'days_to_earnings': 'Days to Earnings',
     'days_to_earnings_display': 'Countdown',
     'blackout_reason': 'Risk Status',
   };
+
+  const hiddenKeys = ['earnings_time', 'days_to_earnings'];
 
   const formatKey = (key: string) => {
     if (keyLabelMap[key]) return keyLabelMap[key];
@@ -103,7 +104,10 @@ export function PillarCard({ title, score, weight, details, icon }: PillarCardPr
       )
     : filteredDetails;
 
-  const displayDetails = title === 'Macro Liquidity' ? filteredMacroDetails : filteredDetails;
+  const baseDetails = title === 'Macro Liquidity' ? filteredMacroDetails : filteredDetails;
+  const displayDetails = Object.fromEntries(
+    Object.entries(baseDetails).filter(([key]) => !hiddenKeys.includes(key))
+  );
 
   return (
     <Card className="h-full">
