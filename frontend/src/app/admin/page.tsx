@@ -359,6 +359,7 @@ export default function AdminPage() {
 
   const addToWatchlist = async () => {
     if (!newWatchlistTicker.trim()) return;
+    const categoryToUse = newWatchlistCategory.trim() || (selectedCategory !== 'All' ? selectedCategory : 'Main');
     try {
       const response = await fetch('/api/admin/watchlist', {
         method: 'POST',
@@ -368,15 +369,19 @@ export default function AdminPage() {
         },
         body: JSON.stringify({ 
           ticker: newWatchlistTicker.trim().toUpperCase(),
-          category: newWatchlistCategory.trim() || 'Main'
+          category: categoryToUse
         })
       });
+      const data = await response.json();
       if (response.ok) {
         setNewWatchlistTicker('');
         fetchWatchlist();
+      } else {
+        alert(data.error || 'Failed to add ticker');
       }
     } catch (err) {
       console.error('Failed to add to watchlist:', err);
+      alert('Failed to add ticker');
     }
   };
 
@@ -894,9 +899,13 @@ export default function AdminPage() {
               <select
                 value={selectedCategory}
                 onChange={(e) => {
-                  setSelectedCategory(e.target.value);
-                  fetchWatchlist(e.target.value);
-                  fetchStaging(e.target.value);
+                  const newCat = e.target.value;
+                  setSelectedCategory(newCat);
+                  fetchWatchlist(newCat);
+                  fetchStaging(newCat);
+                  if (newCat !== 'All') {
+                    setNewWatchlistCategory(newCat);
+                  }
                 }}
                 className="w-full h-10 px-3 rounded-md bg-slate-800 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -917,15 +926,21 @@ export default function AdminPage() {
                 maxLength={10}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addToWatchlist())}
               />
-              <select
+              <Input
+                type="text"
+                placeholder="Category"
                 value={newWatchlistCategory}
                 onChange={(e) => setNewWatchlistCategory(e.target.value)}
-                className="flex-grow h-10 px-3 rounded-md bg-slate-800 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
+                className="bg-slate-800 border-white/10 text-white placeholder:text-slate-400 flex-grow"
+                maxLength={50}
+                list="category-suggestions"
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addToWatchlist())}
+              />
+              <datalist id="category-suggestions">
                 {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat} value={cat} />
                 ))}
-              </select>
+              </datalist>
               <Button onClick={addToWatchlist} className="bg-blue-600 hover:bg-blue-700">Add</Button>
             </div>
             {watchlistLoading ? (
