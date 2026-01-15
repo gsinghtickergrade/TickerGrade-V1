@@ -28,7 +28,7 @@ export default function OurStoryPage() {
               TickerGrade was born from a simple engineering problem. As a <strong className="text-white">retired senior maritime professional</strong> and active swing trader, our founder realized that most retail tools offer only a slice of the picture. Charting software ignores valuation; fundamental screeners ignore market timing; and almost no one accounts for <strong className="text-white">Net Liquidity</strong> (the Fed's impact on market flow) in their daily scans.
             </p>
             <p className="mt-3">
-              To solve this, we built a system that integrates these disconnected datasets into a single, unified view. What started as a private, proprietary tool for personal wealth management has evolved into a commercial-grade platform. We ensure data quality by using the same data feeds as the institutions, but we present them through a lens of clarity rather than complexity.
+              To solve this, we built a system that integrates these disconnected datasets into a single, unified view. What started as a private, proprietary tool for personal wealth management has evolved into a commercial-grade platform. We ensure data quality by using professional-grade commercial data feeds, but we present them through a lens of clarity rather than complexity.
             </p>
           </section>
 
