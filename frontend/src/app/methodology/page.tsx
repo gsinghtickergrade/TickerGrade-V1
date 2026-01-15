@@ -27,34 +27,6 @@ export default function MethodologyPage() {
         <div className="space-y-8">
           <Card className="p-8 bg-white/5 border-white/10 backdrop-blur-sm">
             <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 rounded-lg bg-yellow-500/20">
-                <svg className="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-white">Analyst Ratings</h2>
-                <span className="text-yellow-400 font-semibold">10% Weight (Supporting Data)</span>
-              </div>
-            </div>
-            <p className="text-slate-300 mb-4">
-              Wall Street consensus drives institutional flows. We aggregate the latest analyst recommendations to gauge professional sentiment on the stock.
-            </p>
-            <div className="bg-slate-800/50 rounded-lg p-4 space-y-2">
-              <p className="text-slate-400 text-sm">
-                <span className="text-white font-medium">Weighted Score:</span> Strong Buy = 10, Buy = 8, Hold = 5, Sell = 2, Strong Sell = 0. We calculate the weighted average of all ratings.
-              </p>
-              <p className="text-slate-400 text-sm">
-                <span className="text-white font-medium">Consensus Signal:</span> Strong Buy Consensus (&ge;8), Buy Consensus (&ge;6.5), Mixed/Hold (&ge;4), Sell Consensus (&lt;4).
-              </p>
-              <p className="text-slate-400 text-sm">
-                <span className="text-white font-medium">Last Upgrade:</span> Displays the most recent analyst upgrade when available.
-              </p>
-            </div>
-          </Card>
-
-          <Card className="p-8 bg-white/5 border-white/10 backdrop-blur-sm">
-            <div className="flex items-center gap-4 mb-6">
               <div className="p-3 rounded-lg bg-purple-500/20">
                 <svg className="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
@@ -77,6 +49,31 @@ export default function MethodologyPage() {
               </p>
               <p className="text-slate-400 text-sm">
                 <span className="text-white font-medium">Volume:</span> Bullish if Volume &gt; 20-Day SMA on green days.
+              </p>
+            </div>
+          </Card>
+
+          <Card className="p-8 bg-white/5 border-white/10 backdrop-blur-sm">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="p-3 rounded-lg bg-blue-500/20">
+                <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">Macro Liquidity</h2>
+                <span className="text-blue-400 font-semibold">25% Weight (Market Environment)</span>
+              </div>
+            </div>
+            <p className="text-slate-300 mb-4">
+              Even the best ship sinks in a hurricane. We connect directly to the Federal Reserve (FRED) database to track 'Net Liquidity' and Credit Spreads. If the macro environment is toxic, our engine forces a defensive score.
+            </p>
+            <div className="bg-slate-800/50 rounded-lg p-4 space-y-2">
+              <p className="text-slate-400 text-sm">
+                <span className="text-white font-medium">Fed Net Liquidity:</span> WALCL - WTREGEN - RRPONTSYD
+              </p>
+              <p className="text-slate-400 text-sm">
+                <span className="text-white font-medium">Credit Spreads:</span> High-yield spreads &gt;4% or rising = bearish environment.
               </p>
             </div>
           </Card>
@@ -111,25 +108,28 @@ export default function MethodologyPage() {
 
           <Card className="p-8 bg-white/5 border-white/10 backdrop-blur-sm">
             <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 rounded-lg bg-blue-500/20">
-                <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <div className="p-3 rounded-lg bg-yellow-500/20">
+                <svg className="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white">Macro Liquidity</h2>
-                <span className="text-blue-400 font-semibold">25% Weight (Market Environment)</span>
+                <h2 className="text-2xl font-bold text-white">Analyst Ratings</h2>
+                <span className="text-yellow-400 font-semibold">10% Weight (Supporting Data)</span>
               </div>
             </div>
             <p className="text-slate-300 mb-4">
-              Even the best ship sinks in a hurricane. We connect directly to the Federal Reserve (FRED) database to track 'Net Liquidity' and Credit Spreads. If the macro environment is toxic, our engine forces a defensive score.
+              Wall Street consensus drives institutional flows. We aggregate the latest analyst recommendations to gauge professional sentiment on the stock.
             </p>
             <div className="bg-slate-800/50 rounded-lg p-4 space-y-2">
               <p className="text-slate-400 text-sm">
-                <span className="text-white font-medium">Fed Net Liquidity:</span> WALCL - WTREGEN - RRPONTSYD
+                <span className="text-white font-medium">Weighted Score:</span> Strong Buy = 10, Buy = 8, Hold = 5, Sell = 2, Strong Sell = 0. We calculate the weighted average of all ratings.
               </p>
               <p className="text-slate-400 text-sm">
-                <span className="text-white font-medium">Credit Spreads:</span> High-yield spreads &gt;4% or rising = bearish environment.
+                <span className="text-white font-medium">Consensus Signal:</span> Strong Buy Consensus (&ge;8), Buy Consensus (&ge;6.5), Mixed/Hold (&ge;4), Sell Consensus (&lt;4).
+              </p>
+              <p className="text-slate-400 text-sm">
+                <span className="text-white font-medium">Last Upgrade:</span> Displays the most recent analyst upgrade when available.
               </p>
             </div>
           </Card>
