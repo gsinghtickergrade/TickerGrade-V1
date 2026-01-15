@@ -51,10 +51,6 @@ export default function GuidePage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 mt-1">•</span>
-                  <span>Investors looking for a 10-year hold.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-400 mt-1">•</span>
                   <span>Traders who ignore macro risks.</span>
                 </li>
                 <li className="flex items-start gap-2">
