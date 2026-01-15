@@ -66,6 +66,7 @@ class ScanStaging(db.Model):
     ticker = db.Column(db.String(10), nullable=False)
     score = db.Column(db.Float, nullable=False)
     direction = db.Column(db.String(20), nullable=False)
+    category = db.Column(db.String(50), nullable=False, default='Main')
     scanned_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 

@@ -52,6 +52,7 @@ interface StagingItem {
   ticker: string;
   score: number;
   direction: string;
+  category: string;
   scanned_at: string;
 }
 
@@ -335,10 +336,14 @@ export default function AdminPage() {
     }
   };
 
-  const fetchStaging = async () => {
+  const fetchStaging = async (category?: string) => {
     setStagingLoading(true);
     try {
-      const response = await fetch('/api/admin/staging', {
+      const cat = category ?? selectedCategory;
+      const url = cat && cat !== 'All' 
+        ? `/api/admin/staging?category=${encodeURIComponent(cat)}`
+        : '/api/admin/staging';
+      const response = await fetch(url, {
         headers: { 'X-Admin-Password': password }
       });
       const data = await response.json();
@@ -891,6 +896,7 @@ export default function AdminPage() {
                 onChange={(e) => {
                   setSelectedCategory(e.target.value);
                   fetchWatchlist(e.target.value);
+                  fetchStaging(e.target.value);
                 }}
                 className="w-full h-10 px-3 rounded-md bg-slate-800 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -911,20 +917,15 @@ export default function AdminPage() {
                 maxLength={10}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addToWatchlist())}
               />
-              <Input
-                type="text"
-                placeholder="Category (e.g., Tech, Main)"
+              <select
                 value={newWatchlistCategory}
                 onChange={(e) => setNewWatchlistCategory(e.target.value)}
-                className="bg-slate-800 border-white/10 text-white placeholder:text-slate-400 flex-grow"
-                maxLength={50}
-                list="category-suggestions"
-              />
-              <datalist id="category-suggestions">
+                className="flex-grow h-10 px-3 rounded-md bg-slate-800 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
                 {categories.map((cat) => (
-                  <option key={cat} value={cat} />
+                  <option key={cat} value={cat}>{cat}</option>
                 ))}
-              </datalist>
+              </select>
               <Button onClick={addToWatchlist} className="bg-blue-600 hover:bg-blue-700">Add</Button>
             </div>
             {watchlistLoading ? (

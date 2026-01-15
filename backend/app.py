@@ -779,13 +779,18 @@ def admin_get_staging():
         return jsonify({'error': 'Unauthorized'}), 401
     
     try:
-        items = ScanStaging.query.order_by(ScanStaging.scanned_at.desc()).all()
+        category = request.args.get('category')
+        query = ScanStaging.query
+        if category and category != 'All':
+            query = query.filter_by(category=category)
+        items = query.order_by(ScanStaging.scanned_at.desc()).all()
         return jsonify({
             'staging': [{
                 'id': s.id,
                 'ticker': s.ticker,
                 'score': s.score,
                 'direction': s.direction,
+                'category': getattr(s, 'category', 'Main'),
                 'scanned_at': s.scanned_at.isoformat() + 'Z'
             } for s in items]
         })

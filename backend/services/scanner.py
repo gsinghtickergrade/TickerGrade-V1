@@ -63,12 +63,14 @@ def run_scanner(analyze_func, category=None):
                 if existing:
                     existing.score = score
                     existing.direction = direction
+                    existing.category = item.category
                     existing.scanned_at = datetime.utcnow()
                 else:
                     staging = ScanStaging(
                         ticker=ticker,
                         score=score,
-                        direction=direction
+                        direction=direction,
+                        category=item.category
                     )
                     db.session.add(staging)
                 
