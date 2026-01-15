@@ -181,6 +181,30 @@ export default function GuidePage() {
                 The 30-60 day timeframe is optimal for catching inter-quarter trends. Don't rush—wait for alignment.
               </p>
             </Card>
+            <Card className="p-5 bg-white/5 border-white/10">
+              <h3 className="text-white font-semibold mb-2">Size for Survival</h3>
+              <p className="text-slate-400 text-sm">
+                Never risk more than 1-2% of your account on a single trade. Position sizing is the only shield you have against inevitable market volatility.
+              </p>
+            </Card>
+            <Card className="p-5 bg-white/5 border-white/10">
+              <h3 className="text-white font-semibold mb-2">Trust Your Stops</h3>
+              <p className="text-slate-400 text-sm">
+                Mental stops often fail in the heat of the moment. Use hard stops based on our ATR levels to remove emotion from the exit.
+              </p>
+            </Card>
+            <Card className="p-5 bg-white/5 border-white/10">
+              <h3 className="text-white font-semibold mb-2">Pay Yourself</h3>
+              <p className="text-slate-400 text-sm">
+                You don't go broke taking a profit. Consider selling half your position at the first target to lock in gains, then let the rest ride risk-free.
+              </p>
+            </Card>
+            <Card className="p-5 bg-white/5 border-white/10">
+              <h3 className="text-white font-semibold mb-2">Don't Fight the Trend</h3>
+              <p className="text-slate-400 text-sm">
+                A cheap stock can always get cheaper in a downtrend. Use the 'Structure' pillar to ensure you are swimming with the current, not against it.
+              </p>
+            </Card>
           </div>
         </section>
       </div>
