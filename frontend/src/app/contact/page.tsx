@@ -24,8 +24,10 @@ export default function ContactPage() {
           <p className="text-slate-300">
             For all other matters, email us at{' '}
             <a 
-              href="mailto:support@tickergrade.io" 
-              className="text-blue-400 hover:text-blue-300 underline"
+              href="mailto:support@tickergrade.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 underline cursor-pointer"
             >
               support@tickergrade.io
             </a>
