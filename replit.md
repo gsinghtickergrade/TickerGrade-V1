@@ -17,11 +17,11 @@ TickerGrade is a comprehensive swing trading analysis dashboard optimized for 30
 
 **Frontend (Next.js/React)**: The frontend uses Next.js 16, TypeScript, Tailwind CSS, Shadcn UI, and Recharts to deliver a responsive, multi-page user interface. It features a dashboard, detailed methodology, user guide, trade ideas, and administrative panels.
 
-**Scoring Engine (5 Pillars)**:
-- **Analyst Ratings (20% weight)**: Uses weighted average of analyst recommendations (Strong Buy=10, Buy=8, Hold=5, Sell=2, Strong Sell=0).
-- **Technical Structure (35% weight)**: Focuses on advanced divergence using RSI, MACD crosses, and volume trends.
+**Scoring Engine (5 Pillars)** - Optimized for 30-60 day swing trading:
+- **Technical Structure (40% weight - Primary Driver)**: Focuses on advanced divergence using RSI, MACD crosses, and volume trends.
+- **Macro Liquidity (25% weight - Market Environment)**: Incorporates Fed Net Liquidity (WALCL, WTREGEN, RRPONTSYD) and Credit Spreads (BAMLH0A0HYM2).
 - **Relative Value (15% weight)**: Primarily uses PEG ratio and falls back to P/S ratio, also considers 52-week high for technical upside.
-- **Macro Liquidity (20% weight)**: Incorporates Fed Net Liquidity (WALCL, WTREGEN, RRPONTSYD) and Credit Spreads (BAMLH0A0HYM2).
+- **Analyst Ratings (10% weight - Supporting Data)**: Uses weighted average of analyst recommendations (Strong Buy=10, Buy=8, Hold=5, Sell=2, Strong Sell=0).
 - **Event Risk (10% weight)**: Checks for earnings blackout periods before, during, and immediately after earnings announcements.
 
 **UI/UX Decisions**:

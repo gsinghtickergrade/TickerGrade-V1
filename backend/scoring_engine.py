@@ -493,9 +493,9 @@ def score_event_risk(earnings_calendar):
 
 def calculate_final_score(catalysts, technicals, value, macro, event_risk):
     weights = {
-        'technicals': 0.35,
-        'catalysts': 0.20,
-        'macro': 0.20,
+        'technicals': 0.40,
+        'catalysts': 0.10,
+        'macro': 0.25,
         'value': 0.15,
         'event_risk': 0.10
     }

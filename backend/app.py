@@ -164,13 +164,13 @@ def analyze_stock_internal(ticker):
         'pillars': {
             'analyst_ratings': {
                 'score': analyst_score,
-                'weight': 20,
+                'weight': 10,
                 'name': 'Analyst Ratings',
                 'details': analyst_details
             },
             'technicals': {
                 'score': technicals_score,
-                'weight': 35,
+                'weight': 40,
                 'name': 'Technical Structure',
                 'details': technicals_details
             },
@@ -182,7 +182,7 @@ def analyze_stock_internal(ticker):
             },
             'macro': {
                 'score': macro_score,
-                'weight': 20,
+                'weight': 25,
                 'name': 'Macro Liquidity',
                 'details': macro_details
             },

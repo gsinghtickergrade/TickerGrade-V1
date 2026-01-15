@@ -34,7 +34,7 @@ export default function MethodologyPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-white">Analyst Ratings</h2>
-                <span className="text-yellow-400 font-semibold">20% Weight</span>
+                <span className="text-yellow-400 font-semibold">10% Weight (Supporting Data)</span>
               </div>
             </div>
             <p className="text-slate-300 mb-4">
@@ -62,7 +62,7 @@ export default function MethodologyPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-white">Technical Structure</h2>
-                <span className="text-purple-400 font-semibold">35% Weight</span>
+                <span className="text-purple-400 font-semibold">40% Weight (Primary Driver)</span>
               </div>
             </div>
             <p className="text-slate-300 mb-4">
@@ -118,7 +118,7 @@ export default function MethodologyPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-white">Macro Liquidity</h2>
-                <span className="text-blue-400 font-semibold">20% Weight</span>
+                <span className="text-blue-400 font-semibold">25% Weight (Market Environment)</span>
               </div>
             </div>
             <p className="text-slate-300 mb-4">
