@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import Link from 'next/link';
 
 type TabType = 'privacy' | 'terms' | 'disclaimer';
 
-export default function LegalPage() {
+function LegalPageContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>('disclaimer');
 
@@ -162,5 +162,23 @@ export default function LegalPage() {
         </Card>
       </div>
     </main>
+  );
+}
+
+export default function LegalPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-24">
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="animate-pulse">
+            <div className="h-8 bg-slate-700 rounded w-1/3 mb-8"></div>
+            <div className="h-12 bg-slate-700 rounded mb-6"></div>
+            <div className="h-64 bg-slate-700 rounded"></div>
+          </div>
+        </div>
+      </main>
+    }>
+      <LegalPageContent />
+    </Suspense>
   );
 }
