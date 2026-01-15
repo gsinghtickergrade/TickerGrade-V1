@@ -117,9 +117,7 @@ def get_earnings_calendar(ticker):
                         days_diff = (report_date - today).days
                         if days_diff >= -5:
                             report_time = report_times[i] if i < len(report_times) else None
-                            time_label = "BMO" if report_time == "Before Market Open" else \
-                                        "AMC" if report_time == "After Market Close" else \
-                                        report_time if report_time else ""
+                            time_label = "BMO" if report_time == "Before Market Open" else "AMC"
                             
                             return [{
                                 'date': report_date.strftime('%Y-%m-%d'),
