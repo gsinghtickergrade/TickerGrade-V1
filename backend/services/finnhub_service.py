@@ -209,25 +209,30 @@ def get_stock_candles(ticker, days=120):
 
 def get_company_profile(ticker):
     """
-    Get company profile from Finnhub.
+    Get company profile from Finnhub using symbol_lookup (free tier).
     """
     key = f"finnhub_profile_{ticker}"
     
     def fetch():
         try:
-            profile = finnhub_client.company_profile2(symbol=ticker)
-            if profile:
-                return {
-                    'companyName': profile.get('name'),
-                    'sector': profile.get('finnhubIndustry'),
-                    'industry': profile.get('finnhubIndustry'),
-                    'description': None,
-                    'website': profile.get('weburl'),
-                    'symbol': ticker,
-                    'exchange': profile.get('exchange'),
-                    'marketCap': profile.get('marketCapitalization'),
-                    'logo': profile.get('logo')
-                }
+            result = finnhub_client.symbol_lookup(ticker)
+            if result and result.get('result'):
+                for item in result['result']:
+                    if item.get('symbol') == ticker or item.get('displaySymbol') == ticker:
+                        company_name = item.get('description', ticker)
+                        if company_name:
+                            company_name = company_name.title()
+                        return {
+                            'companyName': company_name,
+                            'sector': None,
+                            'industry': None,
+                            'description': None,
+                            'website': None,
+                            'symbol': ticker,
+                            'exchange': None,
+                            'marketCap': None,
+                            'logo': None
+                        }
         except Exception as e:
             logger.warning(f"Failed to get company profile for {ticker}: {e}")
         return None
