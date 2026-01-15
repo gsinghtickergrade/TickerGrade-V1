@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface MobileAppModalProps {
   isOpen: boolean;
@@ -9,11 +9,31 @@ interface MobileAppModalProps {
 
 export function MobileAppModal({ isOpen, onClose }: MobileAppModalProps) {
   const [activeTab, setActiveTab] = useState<'ios' | 'android'>('ios');
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      if (cardRef.current && !cardRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
     <div 
+      ref={cardRef}
       className="fixed top-16 right-4 z-[60] w-80 max-h-[calc(100vh-5rem)] overflow-y-auto bg-slate-800 border border-slate-700 rounded-xl shadow-2xl"
     >
       <div className="sticky top-0 bg-slate-800 border-b border-slate-700 p-4 z-10">
