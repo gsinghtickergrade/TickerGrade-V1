@@ -41,19 +41,19 @@ export function RecentScansCard({ scans, onSelectTicker }: RecentScansCardProps)
           <p className="text-sm text-gray-500 text-center py-4">No recent scans</p>
         ) : (
           <div className="space-y-1">
-            <div className="flex justify-between text-xs text-gray-500 pb-1 border-b border-white/10">
-              <span className="w-16">Ticker</span>
-              <span className="w-12 text-right">Score</span>
+            <div className="flex text-xs text-gray-500 pb-1 border-b border-white/10">
+              <span className="flex-1 text-left">Ticker</span>
+              <span className="w-14 text-center">Score</span>
               <span className="w-20 text-right">Price</span>
             </div>
-            {scans.map((scan, index) => (
+            {scans.map((scan) => (
               <button
                 key={`${scan.ticker}-${scan.timestamp}`}
                 onClick={() => onSelectTicker(scan.ticker)}
-                className="w-full flex justify-between items-center text-sm py-1.5 hover:bg-white/5 rounded px-1 -mx-1 transition-colors cursor-pointer"
+                className="w-full flex items-center text-sm py-1.5 hover:bg-white/5 rounded px-1 -mx-1 transition-colors cursor-pointer"
               >
-                <span className="w-16 font-medium text-white">{scan.ticker}</span>
-                <span className={`w-12 text-right font-bold ${getScoreColor(scan.score)}`}>
+                <span className="flex-1 text-left font-medium text-white">{scan.ticker}</span>
+                <span className={`w-14 text-center font-bold ${getScoreColor(scan.score)}`}>
                   {scan.score.toFixed(1)}
                 </span>
                 <span className="w-20 text-right text-gray-400">
