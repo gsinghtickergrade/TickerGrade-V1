@@ -52,7 +52,7 @@ export function RecentScansCard({ scans, onSelectTicker }: RecentScansCardProps)
                 onClick={() => onSelectTicker(scan.ticker)}
                 className="w-full flex items-center text-sm py-1.5 hover:bg-white/5 rounded px-1 -mx-1 transition-colors cursor-pointer"
               >
-                <span className="flex-1 text-left font-medium text-white">{scan.ticker}</span>
+                <span className="flex-1 text-left font-medium text-foreground">{scan.ticker}</span>
                 <span className={`w-14 text-center font-bold ${getScoreColor(scan.score)}`}>
                   {scan.score.toFixed(1)}
                 </span>
