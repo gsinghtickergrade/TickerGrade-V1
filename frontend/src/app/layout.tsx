@@ -23,14 +23,14 @@ export const metadata: Metadata = {
   description: "Data-driven risk analysis for self-directed traders. Grade stocks based on Trend, Value, Macro, and Sentiment.",
   openGraph: {
     title: "TickerGrade - Intelligent Risk Scoring",
-    description: "Stop guessing. Start grading. Analyze stocks with institutional-grade logic for Trend, Value, and Macro liquidity.",
+    description: "Stop guessing. Start grading. Analyze stocks with professional-grade logic for Trend, Value, and Macro liquidity.",
     type: "website",
     siteName: "TickerGrade",
   },
   twitter: {
     card: "summary",
     title: "TickerGrade",
-    description: "Institutional-grade risk analysis for the retail trader.",
+    description: "Professional-grade risk analysis for the retail trader.",
   },
 };
 
