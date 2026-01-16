@@ -16,6 +16,14 @@ import { ActionCard } from '@/components/ActionCard';
 import { WelcomeModal } from '@/components/WelcomeModal';
 import { CookieBanner } from '@/components/CookieBanner';
 import { NetLiquidityChart } from '@/components/NetLiquidityChart';
+import { RecentScansCard } from '@/components/RecentScansCard';
+
+interface ScanEntry {
+  ticker: string;
+  score: number;
+  price: number;
+  timestamp: number;
+}
 
 interface ActionCardData {
   entry_zone: number;
@@ -57,11 +65,20 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [recentScans, setRecentScans] = useState<ScanEntry[]>([]);
 
   useEffect(() => {
     const dismissed = sessionStorage.getItem('tickergrade_banner_dismissed');
     if (dismissed === 'true') {
       setBannerDismissed(true);
+    }
+    const savedScans = sessionStorage.getItem('tickergrade_recent_scans');
+    if (savedScans) {
+      try {
+        setRecentScans(JSON.parse(savedScans));
+      } catch (e) {
+        sessionStorage.removeItem('tickergrade_recent_scans');
+      }
     }
   }, []);
 
@@ -112,11 +129,61 @@ export default function Home() {
       }
 
       setStockData(data);
+      
+      const newScan: ScanEntry = {
+        ticker: data.ticker,
+        score: data.final_score,
+        price: data.current_price,
+        timestamp: Date.now(),
+      };
+      
+      setRecentScans((prev) => {
+        const filtered = prev.filter((s) => s.ticker !== data.ticker);
+        const updated = [newScan, ...filtered].slice(0, 10);
+        sessionStorage.setItem('tickergrade_recent_scans', JSON.stringify(updated));
+        return updated;
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSelectTicker = (selectedTicker: string) => {
+    setTicker(selectedTicker);
+    setLoading(true);
+    setError(null);
+    setStockData(null);
+
+    fetch(`/api/analyze/${selectedTicker.toUpperCase()}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        setStockData(data);
+        
+        const newScan: ScanEntry = {
+          ticker: data.ticker,
+          score: data.final_score,
+          price: data.current_price,
+          timestamp: Date.now(),
+        };
+        
+        setRecentScans((prev) => {
+          const filtered = prev.filter((s) => s.ticker !== data.ticker);
+          const updated = [newScan, ...filtered].slice(0, 10);
+          sessionStorage.setItem('tickergrade_recent_scans', JSON.stringify(updated));
+          return updated;
+        });
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -295,6 +362,10 @@ export default function Home() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     }
+                  />
+                  <RecentScansCard
+                    scans={recentScans}
+                    onSelectTicker={handleSelectTicker}
                   />
                 </div>
               </div>
