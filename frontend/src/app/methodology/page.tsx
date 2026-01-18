@@ -66,15 +66,28 @@ export default function MethodologyPage() {
               </div>
             </div>
             <p className="text-slate-300 mb-4">
-              Even the best ship sinks in a hurricane. We connect directly to the Federal Reserve (FRED) database to track 'Net Liquidity' and Credit Spreads. If the macro environment is toxic, our engine forces a defensive score.
+              Even the best ship sinks in a hurricane. We connect directly to the Federal Reserve (FRED) database to track 'Net Liquidity' and Credit Spreads using a 3-Tier "Traffic Light" system with buffer zones to filter out market noise.
             </p>
-            <div className="bg-slate-800/50 rounded-lg p-4 space-y-2">
-              <p className="text-slate-400 text-sm">
-                <span className="text-white font-medium">Fed Net Liquidity:</span> WALCL - WTREGEN - RRPONTSYD
-              </p>
-              <p className="text-slate-400 text-sm">
-                <span className="text-white font-medium">Credit Spreads:</span> High-yield spreads &gt;4% or rising = bearish environment.
-              </p>
+            <div className="bg-slate-800/50 rounded-lg p-4 space-y-4">
+              <div>
+                <p className="text-white font-medium mb-2">Fed Net Liquidity (WALCL - WTREGEN - RRPONTSYD)</p>
+                <p className="text-slate-400 text-sm mb-1">We measure the 20-day slope to detect meaningful trends:</p>
+                <ul className="text-slate-400 text-sm space-y-1 ml-4">
+                  <li><span className="text-green-400">Green:</span> Slope &gt; +$1B/day = Liquidity Injection (+2.5 pts)</li>
+                  <li><span className="text-yellow-400">Yellow:</span> Slope between -$1B and +$1B = Neutral (0 pts)</li>
+                  <li><span className="text-red-400">Red:</span> Slope &lt; -$1B/day = Liquidity Drain (-2.0 pts)</li>
+                </ul>
+              </div>
+              <div>
+                <p className="text-white font-medium mb-2">Credit Spreads (ICE BofA High Yield Index)</p>
+                <p className="text-slate-400 text-sm mb-1">Absolute levels with velocity override:</p>
+                <ul className="text-slate-400 text-sm space-y-1 ml-4">
+                  <li><span className="text-green-400">Green:</span> Spread &lt; 3.50% = Risk On (+1.5 pts)</li>
+                  <li><span className="text-yellow-400">Yellow:</span> Spread 3.50% - 4.50% = Neutral (0 pts)</li>
+                  <li><span className="text-red-400">Red:</span> Spread &gt; 4.50% = Risk Off (-2.5 pts)</li>
+                  <li><span className="text-orange-400">Velocity Penalty:</span> If 10-day slope &gt; 0.02 (rapid widening), additional -1.5 pts</li>
+                </ul>
+              </div>
             </div>
           </Card>
 
