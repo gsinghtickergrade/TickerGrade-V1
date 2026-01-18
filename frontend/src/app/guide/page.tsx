@@ -25,7 +25,7 @@ export default function GuidePage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-green-400 mt-1">•</span>
-                  <span><span className="text-white font-medium">The Part-Time Trader:</span> You have a career and can't watch the 1-minute chart. You want 30-60 day trends.</span>
+                  <span><span className="text-white font-medium">The Part-Time Trader:</span> You have a career and can't watch the 1-minute chart. You want 15-60 day trends.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-green-400 mt-1">•</span>
@@ -59,7 +59,7 @@ export default function GuidePage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 mt-1">•</span>
-                  <span><span className="text-white font-medium">Long Term Investors:</span> If your strategy is to "buy and forget" for years, our 30-60 day swing signals won't be relevant to you.</span>
+                  <span><span className="text-white font-medium">Long Term Investors:</span> If your strategy is to "buy and forget" for years, our 15-60 day swing signals won't be relevant to you.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 mt-1">•</span>
@@ -194,7 +194,7 @@ export default function GuidePage() {
             <Card className="p-5 bg-white/5 border-white/10">
               <h3 className="text-white font-semibold mb-2">Time Your Entry</h3>
               <p className="text-slate-400 text-sm">
-                The 30-60 day timeframe is optimal for catching inter-quarter trends. Don't rush—wait for alignment.
+                The 15-60 day timeframe is optimal for catching inter-quarter trends. High-quality setups can be valid for as little as 15 days to capture pre-earnings momentum.
               </p>
             </Card>
             <Card className="p-5 bg-white/5 border-white/10">

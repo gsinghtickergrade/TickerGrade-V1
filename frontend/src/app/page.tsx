@@ -228,7 +228,7 @@ export default function Home() {
             <span className="text-sm font-medium bg-blue-600 text-white px-2 py-1 rounded-md">Beta</span>
           </h1>
           <p className="text-slate-400 text-lg">
-            The Decision Engine for 30-60 Day Swing Trades. Catch the trend between earnings.
+            The Decision Engine for 15-60 Day Swing Trades. Catch the trend between earnings.
           </p>
         </div>
 
@@ -383,7 +383,7 @@ export default function Home() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
             <p className="text-xl">Enter a stock ticker to get started</p>
-            <p className="text-sm mt-2">Optimized for 30-60 day swing trades</p>
+            <p className="text-sm mt-2">Optimized for 15-60 day swing trades</p>
             
             <div className="mt-12 max-w-2xl mx-auto">
               <Card className="p-6 bg-white/5 border-white/10">

@@ -2,7 +2,7 @@
 
 ## Overview
 
-TickerGrade is a comprehensive swing trading analysis dashboard optimized for 30-60 day "Inter-Quarter" trades. It calculates a Buy/Sell confidence score (0-10) based on five weighted pillars: Catalysts & Sentiment, Technical Structure, Relative Value, Macro Liquidity, and Event Risk. The application provides data-driven stock analysis by fetching real-time data from MarketData.app, Finnhub, and Federal Reserve (FRED) APIs. Its main purpose is to offer a sophisticated yet user-friendly tool for identifying potential swing trade opportunities with a clear, data-backed verdict. The project aims to be a valuable resource for traders seeking to leverage quantitative analysis for short-to-medium term market movements, presented with full transparency and legal compliance as an educational tool.
+TickerGrade is a comprehensive swing trading analysis dashboard optimized for 15-60 day "Inter-Quarter" trades. It calculates a Buy/Sell confidence score (0-10) based on five weighted pillars: Catalysts & Sentiment, Technical Structure, Relative Value, Macro Liquidity, and Event Risk. The application provides data-driven stock analysis by fetching real-time data from MarketData.app, Finnhub, and Federal Reserve (FRED) APIs. Its main purpose is to offer a sophisticated yet user-friendly tool for identifying potential swing trade opportunities with a clear, data-backed verdict. The project aims to be a valuable resource for traders seeking to leverage quantitative analysis for short-to-medium term market movements, presented with full transparency and legal compliance as an educational tool.
 
 ## User Preferences
 
@@ -17,7 +17,7 @@ TickerGrade is a comprehensive swing trading analysis dashboard optimized for 30
 
 **Frontend (Next.js/React)**: The frontend uses Next.js 16, TypeScript, Tailwind CSS, Shadcn UI, and Recharts to deliver a responsive, multi-page user interface. It features a dashboard, detailed methodology, user guide, trade ideas, and administrative panels.
 
-**Scoring Engine (5 Pillars)** - Optimized for 30-60 day swing trading:
+**Scoring Engine (5 Pillars)** - Optimized for 15-60 day swing trading:
 - **Technical Structure (40% weight - Primary Driver)**: Focuses on advanced divergence using RSI, MACD crosses, and volume trends.
 - **Macro Liquidity (25% weight - Market Environment)**: Incorporates Fed Net Liquidity (WALCL, WTREGEN, RRPONTSYD) and Credit Spreads (BAMLH0A0HYM2).
 - **Relative Value (15% weight)**: Primarily uses PEG ratio and falls back to P/S ratio, also considers 52-week high for technical upside.

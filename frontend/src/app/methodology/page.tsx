@@ -20,7 +20,7 @@ export default function MethodologyPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">Inside the TickerGrade Engine</h1>
           <p className="text-slate-400 text-lg max-w-3xl mx-auto">
-            The technical manual for understanding our 5-pillar scoring system. Each pillar is weighted based on its predictive power for 30-60 day swing trades.
+            The technical manual for understanding our 5-pillar scoring system. Each pillar is weighted based on its predictive power for 15-60 day swing trades. While we target medium-term swings, high-quality setups are valid for as little as 15 days to capture pre-earnings momentum runs.
           </p>
         </div>
 
