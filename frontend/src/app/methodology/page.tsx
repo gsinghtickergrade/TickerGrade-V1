@@ -85,7 +85,7 @@ export default function MethodologyPage() {
                   <li><span className="text-green-400">Green:</span> Spread &lt; 3.50% = Risk On (+1.5 pts)</li>
                   <li><span className="text-yellow-400">Yellow:</span> Spread 3.50% - 4.50% = Neutral (0 pts)</li>
                   <li><span className="text-red-400">Red:</span> Spread &gt; 4.50% = Risk Off (-2.5 pts)</li>
-                  <li><span className="text-orange-400">Velocity Penalty:</span> If 10-day slope &gt; 0.02 (rapid widening), additional -1.5 pts</li>
+                  <li><span className="text-orange-400">Velocity Penalty:</span> If 10-day slope &gt; 0.02 (rapid widening, signaling panic), additional -1.5 pts</li>
                 </ul>
               </div>
             </div>
