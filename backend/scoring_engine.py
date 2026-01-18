@@ -361,46 +361,96 @@ def score_value(price_targets, key_metrics, current_price, week52_high=None):
     return round(score, 1), details
 
 def score_macro(fred_df):
+    """
+    3-Tier Traffic Light Macro Scoring System
+    
+    Credit Spreads (ICE BofA High Yield Index):
+    - Green (< 3.50%): +1.5 pts
+    - Yellow (3.50% - 4.50%): 0 pts  
+    - Red (> 4.50%): -2.5 pts
+    - Velocity Override: If 10-day slope > 0.02, additional -1.5 pts
+    
+    Net Liquidity (Fed Balance Sheet):
+    - Green (slope > +1000M): +2.5 pts (Liquidity Injection)
+    - Yellow (slope between -1000M and +1000M): 0 pts (Noise)
+    - Red (slope < -1000M): -2.0 pts (Liquidity Drain)
+    
+    Data is in millions, so threshold of 1000 = $1 Billion
+    """
     score = 5.0
     details = {}
     
     if fred_df is None or len(fred_df) < 20:
         return 5.0, {'error': 'Insufficient macro data'}
     
+    # === NET LIQUIDITY SCORING (20-day slope with threshold buffer) ===
     recent_liq = fred_df['net_liquidity'].tail(20)
+    
+    # Threshold: 1000 million = $1 Billion (data is in millions)
+    LIQUIDITY_THRESHOLD = 1000.0
     
     if len(recent_liq) >= 2:
         x = np.arange(len(recent_liq))
-        slope, _ = np.polyfit(x, recent_liq.values, 1)
-        slope = float(slope)
-        details['net_liquidity_slope'] = round(slope, 2)
+        liq_slope, _ = np.polyfit(x, recent_liq.values, 1)
+        liq_slope = float(liq_slope)
+        details['net_liquidity_slope'] = round(liq_slope, 2)
         details['net_liquidity_current'] = round(float(fred_df['net_liquidity'].iloc[-1]), 2)
-        details['liquidity_bullish'] = bool(slope > 0)
         
-        if slope > 0:
+        # 3-Tier Liquidity Scoring
+        if liq_slope > LIQUIDITY_THRESHOLD:
             score += 2.5
+            details['liquidity_signal'] = 'Green'
+            details['liquidity_label'] = 'Liquidity Injection'
+        elif liq_slope < -LIQUIDITY_THRESHOLD:
+            score -= 2.0
+            details['liquidity_signal'] = 'Red'
+            details['liquidity_label'] = 'Liquidity Drain'
         else:
-            score -= 1.5
+            # Yellow zone - no change
+            details['liquidity_signal'] = 'Yellow'
+            details['liquidity_label'] = 'Neutral (Noise)'
+        
+        details['liquidity_bullish'] = bool(liq_slope > LIQUIDITY_THRESHOLD)
     
+    # === CREDIT SPREADS SCORING (Absolute levels + Velocity override) ===
     credit_spread = float(fred_df['credit_spreads'].iloc[-1])
     details['credit_spread'] = round(credit_spread, 2)
     
-    credit_recent = fred_df['credit_spreads'].tail(20)
+    # Calculate 10-day velocity for credit spreads
+    credit_recent = fred_df['credit_spreads'].tail(10)
+    credit_slope = 0.0
     if len(credit_recent) >= 2:
         x = np.arange(len(credit_recent))
         credit_slope, _ = np.polyfit(x, credit_recent.values, 1)
         credit_slope = float(credit_slope)
+        details['credit_spread_slope'] = round(credit_slope, 4)
         details['credit_spread_trend'] = 'Rising' if credit_slope > 0 else 'Falling'
     else:
-        credit_slope = 0
+        details['credit_spread_slope'] = 0
         details['credit_spread_trend'] = 'Unknown'
     
-    if credit_spread > 4.0 or credit_slope > 0.01:
-        score -= 2.0
-        details['credit_signal'] = 'Risk Off'
-    else:
+    # 3-Tier Credit Spread Scoring (Absolute Levels)
+    if credit_spread < 3.50:
         score += 1.5
-        details['credit_signal'] = 'Risk On'
+        details['credit_signal'] = 'Green'
+        details['credit_label'] = 'Risk On'
+    elif credit_spread > 4.50:
+        score -= 2.5
+        details['credit_signal'] = 'Red'
+        details['credit_label'] = 'Risk Off'
+    else:
+        # Yellow zone (3.50% - 4.50%) - no change
+        details['credit_signal'] = 'Yellow'
+        details['credit_label'] = 'Neutral'
+    
+    # Velocity Override: Rapid widening penalty
+    VELOCITY_THRESHOLD = 0.02
+    if credit_slope > VELOCITY_THRESHOLD:
+        score -= 1.5
+        details['credit_velocity_penalty'] = True
+        details['credit_label'] = details.get('credit_label', '') + ' (Spiking!)'
+    else:
+        details['credit_velocity_penalty'] = False
     
     score = max(0, min(10, score))
     return round(score, 1), details

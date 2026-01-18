@@ -1,0 +1,49 @@
+Subject: Upgrade Macro Pillar Scoring Logic (Credit Spreads & Net Liquidity)
+
+Objective: We need to upgrade the scoring logic for our Macro Pillar. Currently, the logic for Credit Spreads and Net Liquidity is too binary (Pass/Fail), which causes the score to flip-flop violently due to minor market noise. Please replace the existing binary logic with the following 3-Tier "Traffic Light" System (Green/Yellow/Red) that includes buffers and velocity checks.
+
+Part 1: Credit Spreads Logic (ICE BofA High Yield Index)
+Replace the current simple Pass/Fail check with this graduated logic:
+
+1. The Base Score (Absolute Levels)
+
+Green (Risk On): If Spread is < 3.50% → Score Impact: +1.5
+
+Yellow (Neutral): If Spread is between 3.50% and 4.50% → Score Impact: 0.0 (No penalty, no bonus)
+
+Red (Risk Off): If Spread is > 4.50% → Score Impact: -2.5
+
+2. The Velocity Override (Trend Check)
+
+Calculate the Linear Regression Slope of the spread over the last 10 days.
+
+The Rule: If Slope > 0.02 (Spreads are widening rapidly), apply an additional penalty of -1.5 points to the score calculated above.
+
+Note: This ensures that even if spreads are low (e.g., 3.2%), a sudden spike is punished immediately.
+
+Part 2: Net Liquidity Logic (Fed Balance Sheet)
+Replace the current Rising/Falling check with a Threshold-based Slope to filter out noise.
+
+Method: Calculate the 20-Day Linear Regression Slope of the Net Liquidity data.
+
+The Scoring Zones:
+
+Green (Liquidity Injection): If Slope is Positive and Significant (Slope > +Threshold) → Score Impact: +2.5
+
+Yellow (Neutral/Noise): If Slope is Flat (between -Threshold and +Threshold) → Score Impact: 0.0
+
+Red (Liquidity Drain): If Slope is Negative and Significant (Slope < -Threshold) → Score Impact: -2.0
+
+Important Implementation Note on Units:
+
+Please check the units of our Net Liquidity data feed first.
+
+If the data is in Billions, set the Threshold to 1.0.
+
+If the data is in Trillions, set the Threshold to 0.001.
+
+If the data is in Raw Dollars, set the Threshold to 1,000,000,000.
+
+Goal: We want to ignore daily fluctuations of less than $1 Billion.
+
+Final Instruction: Update the backend calculation function to reflect these new rules. Do not change the data fetching sources (FRED), only the mathematical logic that assigns the points.
